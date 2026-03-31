@@ -15,6 +15,7 @@
     "format": "prettier --write --experimental-cli src/"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.101.1",
     "pinia": "^3.0.4",
     "vite-svg-loader": "^5.1.1",
     "vue": "^3.5.31",
