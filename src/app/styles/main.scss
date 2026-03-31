@@ -4,8 +4,9 @@
 
 body {
   font-family: var(--font-family);
-  background-color: #1d2228;
-  color: #ffffff;
+  background-color: var(--light-colors-white---light);
+  color: var(--light-colors-black---light);
+
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   scroll-behavior: smooth;
@@ -22,24 +23,4 @@ body {
   width: 100%;
 }
 
-*::-webkit-scrollbar {
-  width: var(--sb-size);
-  height: var(--sb-size);
-}
-
-*::-webkit-scrollbar-track {
-  background: var(--sb-track-color);
-  border-radius: 99px;
-}
-
-*::-webkit-scrollbar-thumb {
-  background: var(--sb-thumb-color);
-  border-radius: 99px;
-}
-
-@supports not selector(::-webkit-scrollbar) {
-  * {
-    scrollbar-color: var(--sb-thumb-color) var(--sb-track-color);
-    scrollbar-width: thin;
-  }
-}
+@include globalMixins.custom-scrollbar;
