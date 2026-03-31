@@ -1,0 +1,87 @@
+/* DM Sans */
+@font-face {
+  font-family: 'DM Sans';
+  src:
+    local('DM Sans Regular'),
+    local('DMSans-Regular'),
+    url('@/shared/assets/fonts/dm-sans/DMSansRegular.woff2') format('woff2'),
+    url('@/shared/assets/fonts/dm-sans/DMSansRegular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'DM Sans';
+  src:
+    local('DM Sans Medium'),
+    local('DMSansMedium'),
+    url('@/shared/assets/fonts/dm-sans/DMSansMedium.woff2') format('woff2'),
+    url('@/shared/assets/fonts/dm-sans/DMSansMedium.woff') format('woff');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'DM Sans';
+  src:
+    local('DM Sans Bold'),
+    local('DMSansBold'),
+    url('@/shared/assets/fonts/dm-sans/DMSansBold.woff2') format('woff2'),
+    url('@/shared/assets/fonts/dm-sans/DMSansBold.woff') format('woff');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Allerta Stencil */
+@font-face {
+  font-family: 'Allerta Stencil';
+  src:
+    local('Allerta Stencil Regular'),
+    local('AllertaStencil-Regular'),
+    url('@/shared/assets/fonts/allerta-stencil/AllertaStencil-Regular.woff2') format('woff2'),
+    url('@/shared/assets/fonts/allerta-stencil/AllertaStencil-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Roboto */
+@font-face {
+  font-family: 'Roboto';
+  src:
+    local('Roboto Regular'),
+    local('Roboto-Regular'),
+    url('@/shared/assets/fonts/roboto/Roboto-Regular.woff2') format('woff2'),
+    url('@/shared/assets/fonts/roboto/Roboto-Regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Roboto Mono */
+@font-face {
+  font-family: 'Roboto Mono';
+  src:
+    local('Roboto Mono Medium'),
+    local('RobotoMono-Medium'),
+    url('@/shared/assets/fonts/roboto-mono/RobotoMono-Medium.woff2') format('woff2'),
+    url('@/shared/assets/fonts/roboto-mono/RobotoMono-Medium.woff') format('woff');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Roboto Mono';
+  src:
+    local('Roboto Mono Bold'),
+    local('RobotoMono-Bold'),
+    url('@/shared/assets/fonts/roboto-mono/RobotoMono-Bold.woff2') format('woff2'),
+    url('@/shared/assets/fonts/roboto-mono/RobotoMono-Bold.woff') format('woff');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
