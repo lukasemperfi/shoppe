@@ -1,0 +1,67 @@
+@mixin shoppe-button-base {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding-block: clamp(7px, 1.1vw, 15px);
+  padding-inline: 23px;
+  font-family: var(--font-family);
+  font-weight: 700;
+  font-size: clamp(12px, 1.2vw, 16px);
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 1px solid transparent;
+  background: none;
+
+  &:active {
+    transform: scale(0.97);
+  }
+}
+
+@mixin shoppe-variant($variant, $color) {
+  @if $variant == 'primary' {
+    @if $color == 'black' {
+      background: var(--light-colors-black---light);
+      color: var(--light-colors-white---light);
+      border-color: var(--light-colors-black---light);
+      border-radius: 4px;
+
+      &:hover {
+        background: var(--light-colors-white---light);
+        color: var(--light-colors-black---light);
+      }
+    } @else {
+      background: var(--light-colors-white---light);
+      color: var(--light-colors-black---light);
+      border-color: var(--light-colors-white---light);
+      border-radius: 4px;
+
+      &:hover {
+        background: var(--light-colors-black---light);
+        color: var(--light-colors-white---light);
+      }
+    }
+  } @else if $variant == 'outline' {
+    @if $color == 'black' {
+      border: 1px solid var(--light-colors-black---light);
+      color: var(--light-colors-black---light);
+      background: transparent;
+      border-radius: 4px;
+
+      &:hover {
+        background: var(--light-colors-black---light);
+        color: var(--light-colors-white---light);
+      }
+    } @else {
+      border: 1px solid var(--light-colors-white---light);
+      color: var(--light-colors-white---light);
+      background: transparent;
+      border-radius: 4px;
+
+      &:hover {
+        background: var(--light-colors-white---light);
+        color: var(--light-colors-black---light);
+      }
+    }
+  }
+}
