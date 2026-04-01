@@ -4,6 +4,7 @@ import { productApi } from '@/entities/product/api/product'
 import type { Product } from '@/entities/product/model/types'
 import { orderApi } from '@/entities/order/api/order'
 import type { CreateOrderRPCParams } from '@/entities/order/model/types'
+import { authApi } from '@/entities/auth/api/auth'
 
 const products = ref<Product[]>([])
 const isLoading = ref(false)
@@ -95,6 +96,23 @@ const fetchOrderById = async () => {
   console.log('orderById', data)
 }
 
+const register = async () => {
+  const data = await authApi.register({
+    first_name: 'John',
+    last_name: 'Doe',
+    display_name: 'John Doe',
+    email: 'john@example.com',
+    password: '123456',
+  })
+
+  console.log('data', data)
+}
+
+const logout = async () => {
+  const result = await authApi.logout()
+  console.log('result', result)
+}
+
 onMounted(async () => {
   // fetchProducts()
 })
@@ -107,6 +125,8 @@ onMounted(async () => {
     <button @click="createOrder" style="margin-top: 20px">Create Order</button>
     <button @click="fetchOrders" style="margin-top: 20px">Fetch Orders</button>
     <button @click="fetchOrderById" style="margin-top: 20px">Fetch Order By Id</button>
+    <button @click="register" style="margin-top: 60px">Register</button>
+    <button @click="logout" style="margin-top: 20px">Logout</button>
   </div>
 </template>
 
