@@ -5,6 +5,7 @@ import type { Product } from '@/entities/product/model/types'
 import { orderApi } from '@/entities/order/api/order'
 import type { CreateOrderRPCParams } from '@/entities/order/model/types'
 import { authApi } from '@/entities/auth/api/auth'
+import { userApi } from '@/entities/user/api/user'
 
 const products = ref<Product[]>([])
 const isLoading = ref(false)
@@ -113,6 +114,27 @@ const logout = async () => {
   console.log('result', result)
 }
 
+const updateProfile = async () => {
+  const userId = ''
+  const data = await userApi.updateProfile('c2bb6521-a240-41ec-91c0-261e5578ee57', {
+    first_name: 'You',
+    last_name: 'New',
+    display_name: 'wowwwooo',
+    email: 'john123@example.com',
+  })
+
+  console.log('data', data)
+}
+
+const login = async () => {
+  const data = await authApi.login({
+    email: 'john@example.com',
+    password: '123456',
+  })
+
+  console.log('data', data)
+}
+
 onMounted(async () => {
   // fetchProducts()
 })
@@ -127,6 +149,8 @@ onMounted(async () => {
     <button @click="fetchOrderById" style="margin-top: 20px">Fetch Order By Id</button>
     <button @click="register" style="margin-top: 60px">Register</button>
     <button @click="logout" style="margin-top: 20px">Logout</button>
+    <button @click="login" style="margin-top: 20px">Login</button>
+    <button @click="updateProfile" style="margin-top: 60px">Update Profile</button>
   </div>
 </template>
 
