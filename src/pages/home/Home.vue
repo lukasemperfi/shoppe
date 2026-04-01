@@ -2,6 +2,8 @@
 import { onMounted, ref } from 'vue'
 import { productApi } from '@/entities/product/api/product'
 import type { Product } from '@/entities/product/model/types'
+import { orderApi } from '@/entities/order/api/order'
+import type { CreateOrderRPCParams } from '@/entities/order/model/types'
 
 const products = ref<Product[]>([])
 const isLoading = ref(false)
@@ -35,8 +37,66 @@ const addReview = async () => {
   console.log('reviewResult', reviewResult)
 }
 
+const createOrder = async () => {
+  try {
+    const orderParams: CreateOrderRPCParams = {
+      p_email: 'ааааааer@example.com',
+      p_phone: '+38099156767',
+      p_payment_method: 'card',
+      p_delivery_option: 'courier',
+      p_delivery_address: {
+        first_name: 'somename',
+        last_name: 'ииии',
+        company_name: 'apple',
+        country: 'usa',
+        street_address: 'hz',
+        post_code: 125455,
+        city: 'vegas',
+        phone: '+38545456545545',
+        email: 'grt@gmail.com',
+      },
+      p_shipping_cost: 50,
+      p_total_sum: 1250.5,
+      p_user_id: '100df43f-d90f-49ff-a8b8-79f6e6d0a00f',
+      p_items: [
+        {
+          product_id: 'ed388eab-461e-4179-be35-86d5ab6911eb',
+          quantity: 4,
+          price_at_purchase: 500.5,
+        },
+        {
+          product_id: '2f342e1c-a841-4f81-ab06-eaa879819e70',
+          quantity: 3,
+          price_at_purchase: 700.0,
+        },
+      ],
+    }
+
+    const orderId = await orderApi.createOrder(orderParams)
+
+    if (orderId) {
+      console.log('Заказ успешно создан! ID:', orderId)
+    }
+  } catch (e) {
+    alert('Не удалось оформить заказ. Попробуйте позже.')
+  }
+}
+
+const fetchOrders = async () => {
+  const data = await orderApi.getOrders('100df43f-d90f-49ff-a8b8-79f6e6d0a00f')
+  console.log('orders', data)
+}
+
+const fetchOrderById = async () => {
+  const data = await orderApi.getOrderById(
+    'f0084b2e-b702-4f01-9374-c5eb5c39f357',
+    '100df43f-d90f-49ff-a8b8-79f6e6d0a00f',
+  )
+  console.log('orderById', data)
+}
+
 onMounted(async () => {
-  fetchProducts()
+  // fetchProducts()
 })
 </script>
 
@@ -44,6 +104,9 @@ onMounted(async () => {
   <div class="home">
     <h1>Home</h1>
     <button @click="addReview">Add Review</button>
+    <button @click="createOrder" style="margin-top: 20px">Create Order</button>
+    <button @click="fetchOrders" style="margin-top: 20px">Fetch Orders</button>
+    <button @click="fetchOrderById" style="margin-top: 20px">Fetch Order By Id</button>
   </div>
 </template>
 
