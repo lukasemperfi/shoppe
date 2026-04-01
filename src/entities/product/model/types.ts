@@ -28,9 +28,10 @@ export interface ProductCategoryLink {
 export interface Review {
   id: string
   product_id: string
-  // user_id: string;
+  user_name: string
+  email: string
   rating: number
-  comment: string
+  comment: string | null
   created_at: string
 }
 

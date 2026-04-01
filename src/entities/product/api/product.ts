@@ -4,6 +4,7 @@ import type {
   GetProductsParams,
   GetProductsResponse,
   Product,
+  Review,
 } from '../model/types'
 import { PRODUCT_BASE_SELECT, PRODUCT_DETAILS_SELECT } from './config'
 
@@ -89,6 +90,21 @@ class ProductApi {
     }
 
     return data
+  }
+
+  getProductReviews = async (productId: string): Promise<Review[]> => {
+    const { data, error } = await supabase
+      .from('reviews')
+      .select('*')
+      .eq('product_id', productId)
+      .order('created_at', { ascending: false })
+
+    if (error) {
+      console.error('Ошибка при загрузке отзывов:', error.message)
+      return []
+    }
+
+    return data as Review[]
   }
 }
 
