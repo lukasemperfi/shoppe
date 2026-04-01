@@ -172,6 +172,12 @@ const fetchArticleBySlug = async () => {
   console.log('data', data)
 }
 
+const fetchWishlistProducts = async () => {
+  const data = await productApi.getWishlistProducts('d9ae661f-4835-456f-90f6-41b906dd86df')
+
+  console.log('data', data)
+}
+
 onMounted(async () => {
   // fetchProducts()
 })
@@ -193,6 +199,7 @@ onMounted(async () => {
       <button @click="getUserAddresses">Get User Addresses</button>
       <button @click="fetchArticles">Fetch Articles</button>
       <button @click="fetchArticleBySlug">Fetch Article By Slug</button>
+      <button @click="fetchWishlistProducts">Fetch Wishlist Products</button>
     </div>
   </div>
 </template>

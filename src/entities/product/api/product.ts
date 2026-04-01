@@ -5,6 +5,7 @@ import type {
   GetProductsResponse,
   Product,
   Review,
+  WishlistItem,
 } from '../model/types'
 import { PRODUCT_BASE_SELECT, PRODUCT_DETAILS_SELECT } from './config'
 
@@ -109,6 +110,61 @@ class ProductApi {
     }
 
     return data as Review[]
+  }
+
+  getWishlistProducts = async (userId: string) => {
+    if (!userId) {
+      throw new Error('User ID is required to get wishlist products')
+    }
+
+    const { data, error } = await supabase
+      .from('wishlist')
+      .select(
+        `
+      product:products (
+        *,
+        product_images (*),
+        product_colors (*),
+        product_categories (
+          category_id,
+          categories (*)
+        )
+      )
+    `,
+      )
+      .eq('user_id', userId)
+
+    if (error) {
+      console.error('Error fetching wishlist products:', error.message)
+      throw error
+    }
+
+    return data.map((item: any) => ({
+      ...item.product,
+      isInWishlist: true,
+    }))
+  }
+
+  async addToWishlist(userId: string, productId: string) {
+    const { data, error } = await supabase
+      .from('wishlist')
+      .insert([{ user_id: userId, product_id: productId }])
+      .select()
+      .single()
+
+    if (error) throw error
+    return data
+  }
+
+  async removeFromWishlist(userId: string, productId: string) {
+    const { error } = await supabase
+      .from('wishlist')
+      .delete()
+      .eq('user_id', userId)
+      .eq('product_id', productId)
+
+    if (error) throw error
+    return true
   }
 }
 
