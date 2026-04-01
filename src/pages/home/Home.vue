@@ -135,6 +135,30 @@ const login = async () => {
   console.log('data', data)
 }
 
+const createAddress = async () => {
+  const data = await userApi.createAddress({
+    user_id: 'd9ae661f-4835-456f-90f6-41b906dd86df',
+    address_type: 'billing',
+    first_name: 'John',
+    last_name: 'Doe',
+    company_name: 'Apple',
+    country: 'usa',
+    street_address: '123 Main St',
+    post_code: '12345',
+    city: 'Anytown',
+    phone: '+38099156767',
+    email: 'john@example.com',
+  })
+
+  console.log('data', data)
+}
+
+const getUserAddresses = async () => {
+  const data = await userApi.getUserAddresses('d9ae661f-4835-456f-90f6-41b906dd86df')
+
+  console.log('data', data)
+}
+
 onMounted(async () => {
   // fetchProducts()
 })
@@ -151,6 +175,8 @@ onMounted(async () => {
     <button @click="logout" style="margin-top: 20px">Logout</button>
     <button @click="login" style="margin-top: 20px">Login</button>
     <button @click="updateProfile" style="margin-top: 60px">Update Profile</button>
+    <button @click="createAddress" style="margin-top: 20px">Create Address</button>
+    <button @click="getUserAddresses" style="margin-top: 20px">Get User Addresses</button>
   </div>
 </template>
 
