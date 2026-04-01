@@ -6,6 +6,7 @@ import { orderApi } from '@/entities/order/api/order'
 import type { CreateOrderRPCParams } from '@/entities/order/model/types'
 import { authApi } from '@/entities/auth/api/auth'
 import { userApi } from '@/entities/user/api/user'
+import { articleApi } from '@/entities/article/api/article'
 
 const products = ref<Product[]>([])
 const isLoading = ref(false)
@@ -159,6 +160,18 @@ const getUserAddresses = async () => {
   console.log('data', data)
 }
 
+const fetchArticles = async () => {
+  const data = await articleApi.getArticles({ limit: 3 })
+
+  console.log('data', data)
+}
+
+const fetchArticleBySlug = async () => {
+  const data = await articleApi.getArticleBySlug('evolution-streetwear-2026')
+
+  console.log('data', data)
+}
+
 onMounted(async () => {
   // fetchProducts()
 })
@@ -167,16 +180,20 @@ onMounted(async () => {
 <template>
   <div class="home">
     <h1>Home</h1>
-    <button @click="addReview">Add Review</button>
-    <button @click="createOrder" style="margin-top: 20px">Create Order</button>
-    <button @click="fetchOrders" style="margin-top: 20px">Fetch Orders</button>
-    <button @click="fetchOrderById" style="margin-top: 20px">Fetch Order By Id</button>
-    <button @click="register" style="margin-top: 60px">Register</button>
-    <button @click="logout" style="margin-top: 20px">Logout</button>
-    <button @click="login" style="margin-top: 20px">Login</button>
-    <button @click="updateProfile" style="margin-top: 60px">Update Profile</button>
-    <button @click="createAddress" style="margin-top: 20px">Create Address</button>
-    <button @click="getUserAddresses" style="margin-top: 20px">Get User Addresses</button>
+    <div style="display: flex; gap: 40px">
+      <button @click="addReview">Add Review</button>
+      <button @click="createOrder">Create Order</button>
+      <button @click="fetchOrders">Fetch Orders</button>
+      <button @click="fetchOrderById">Fetch Order By Id</button>
+      <button @click="register">Register</button>
+      <button @click="logout">Logout</button>
+      <button @click="login">Login</button>
+      <button @click="updateProfile">Update Profile</button>
+      <button @click="createAddress">Create Address</button>
+      <button @click="getUserAddresses">Get User Addresses</button>
+      <button @click="fetchArticles">Fetch Articles</button>
+      <button @click="fetchArticleBySlug">Fetch Article By Slug</button>
+    </div>
   </div>
 </template>
 

@@ -31,8 +31,12 @@ class ProductApi {
       query = query.ilike('name', `%${searchName}%`)
     }
 
-    if (minPrice) query = query.gte('price', minPrice)
-    if (maxPrice) query = query.lte('price', maxPrice)
+    if (minPrice) {
+      query = query.gte('price', minPrice)
+    }
+    if (maxPrice) {
+      query = query.lte('price', maxPrice)
+    }
 
     if (categoryId) {
       query = query.eq('product_categories.category_id', categoryId)
