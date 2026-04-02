@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/vue3'
-import BaseInput from './BaseInput.vue'
+import Input from './Input.vue'
 import Icon from '@/shared/ui/icon/Icon.vue'
 
-const meta: Meta<typeof BaseInput> = {
-  component: BaseInput,
+const meta: Meta<typeof Input> = {
+  component: Input,
   tags: ['autodocs'],
 
   args: {
@@ -19,7 +19,7 @@ const meta: Meta<typeof BaseInput> = {
 }
 
 export default meta
-type Story = StoryObj<typeof BaseInput>
+type Story = StoryObj<typeof Input>
 
 export const Default: Story = {
   args: {
@@ -29,17 +29,17 @@ export const Default: Story = {
 
 export const WithCustomClearIcon = {
   render: (args: any) => ({
-    components: { BaseInput, Icon },
+    components: { Input, Icon },
     setup() {
       return { args }
     },
     template: `
       <div style="display: flex; flex-direction: column; gap: 10px;">
-        <BaseInput v-bind="args" v-model="args.modelValue">
+        <Input v-bind="args" v-model="args.modelValue">
           <template #clear-icon>
             <Icon name="search" />
           </template>
-        </BaseInput>
+        </Input>
       </div>
     `,
   }),
@@ -47,19 +47,19 @@ export const WithCustomClearIcon = {
 
 export const WithCustomAppendIcon = {
   render: (args: any) => ({
-    components: { BaseInput, Icon },
+    components: { Input, Icon },
     setup() {
       return { args }
     },
     template: `
       <div style="display: flex; flex-direction: column; gap: 10px;">
-        <BaseInput v-bind="args" v-model="args.modelValue">
+        <Input v-bind="args" v-model="args.modelValue">
           <template #append>
             <button type="button" style="">
               <Icon name="search" />
             </button>
           </template>
-        </BaseInput>
+        </Input>
       </div>
     `,
   }),
