@@ -45,7 +45,7 @@ const clearInput = () => {
 
 .shoppe-input {
   width: 100%;
-  height: 40px;
+  min-height: 40px;
   background: transparent;
   border: none;
   outline: none;
