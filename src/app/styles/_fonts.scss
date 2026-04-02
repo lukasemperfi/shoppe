@@ -67,8 +67,8 @@
   src:
     local('Roboto Mono Medium'),
     local('RobotoMono-Medium'),
-    url('@/shared/assets/fonts/roboto-mono/RobotoMono-Medium.woff2') format('woff2'),
-    url('@/shared/assets/fonts/roboto-mono/RobotoMono-Medium.woff') format('woff');
+    url('@/shared/assets/fonts/roboto/RobotoMono-Medium.woff2') format('woff2'),
+    url('@/shared/assets/fonts/roboto/RobotoMono-Medium.woff') format('woff');
   font-weight: 500;
   font-style: normal;
   font-display: swap;
@@ -79,8 +79,8 @@
   src:
     local('Roboto Mono Bold'),
     local('RobotoMono-Bold'),
-    url('@/shared/assets/fonts/roboto-mono/RobotoMono-Bold.woff2') format('woff2'),
-    url('@/shared/assets/fonts/roboto-mono/RobotoMono-Bold.woff') format('woff');
+    url('@/shared/assets/fonts/roboto/RobotoMono-Bold.woff2') format('woff2'),
+    url('@/shared/assets/fonts/roboto/RobotoMono-Bold.woff') format('woff');
   font-weight: 700;
   font-style: normal;
   font-display: swap;
