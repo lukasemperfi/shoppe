@@ -13,11 +13,11 @@ const clearInput = () => {
 </script>
 
 <template>
-  <div class="shoppe-input-wrapper">
-    <input v-bind="$attrs" v-model="model" class="shoppe-input" />
+  <div class="input-wrapper">
+    <input v-bind="$attrs" v-model="model" class="input" />
 
-    <div class="shoppe-input__append">
-      <button v-if="model" class="shoppe-input__clear" type="button" @click="clearInput">
+    <div class="input__append">
+      <button v-if="model" class="input__clear" type="button" @click="clearInput">
         <slot name="clear-icon">
           <Icon name="circle-cross" />
         </slot>
@@ -29,12 +29,14 @@ const clearInput = () => {
 </template>
 
 <style lang="scss" scoped>
-.shoppe-input-wrapper {
+.input-wrapper {
   position: relative;
   display: flex;
   align-items: center;
   gap: 4px;
   width: 100%;
+  padding-bottom: clamp(4px, 1.05vw, 15px);
+  padding-top: 3px;
   border-bottom: 1px solid var(--light-colors-gray---light);
   transition: border-color 0.3s ease;
 
@@ -43,25 +45,26 @@ const clearInput = () => {
   }
 }
 
-.shoppe-input {
+.input {
+  $font-size-desktop: 16px;
+  $font-size-mobile: 12px;
   width: 100%;
-  min-height: 40px;
   background: transparent;
   border: none;
   outline: none;
-  padding: 8px 0;
+
   font-family: var(--font-family);
   font-weight: 400;
-  font-size: 12px;
-  text-transform: lowercase;
+  font-size: clamp($font-size-mobile, 1.12vw, $font-size-desktop);
+
   color: var(--light-colors-black---light);
   line-height: 21px;
 
   &::placeholder {
     font-family: var(--font-family);
     font-weight: 400;
-    font-size: 12px;
-    text-transform: capitalize;
+    font-size: clamp($font-size-mobile, 1.12vw, $font-size-desktop);
+
     color: var(--light-colors-dark-gray---light);
   }
 
@@ -70,14 +73,14 @@ const clearInput = () => {
   }
 }
 
-.shoppe-input__append {
+.input__append {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
 }
 
-.shoppe-input__clear {
+.input__clear {
   background: none;
   border: none;
   padding: 0;
@@ -85,8 +88,15 @@ const clearInput = () => {
   color: inherit;
   transition: opacity 0.2s ease;
 
-  &:hover {
-    opacity: 0.7;
+  @media (hover: hover) {
+    &:hover {
+      opacity: 0.7;
+    }
+  }
+
+  svg {
+    width: clamp(14px, 1.25vw, 18px);
+    height: clamp(14px, 1.25vw, 18px);
   }
 }
 </style>

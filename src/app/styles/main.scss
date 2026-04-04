@@ -16,10 +16,12 @@ body {
 }
 
 .app-container {
-  max-width: 1366px;
+  $min-width: 320px;
+  $max-width: 1440px;
+  max-width: $max-width;
   margin: 0 auto;
   padding-block: 0;
-  padding-inline: globalFunctions.fluidValue(12px, 24px, 375px, 1366px);
+  padding-inline: globalFunctions.fluidValue(16px, 96px, $min-width, $max-width);
   width: 100%;
 }
 

@@ -12,28 +12,28 @@ defineProps<Props>()
 </script>
 
 <template>
-  <label class="shoppe-radio" :class="{ 'is-disabled': disabled }">
+  <label class="radio" :class="{ 'is-disabled': disabled }">
     <input
       type="radio"
-      class="shoppe-radio__input"
+      class="radio__input"
       :value="value"
       :name="name"
       :disabled="disabled"
       v-model="model"
     />
 
-    <div class="shoppe-radio__ui">
-      <div class="shoppe-radio__dot"></div>
+    <div class="radio__ui">
+      <div class="radio__dot"></div>
     </div>
 
-    <span v-if="label" class="shoppe-radio__label">
+    <span v-if="label" class="radio__label">
       {{ label }}
     </span>
   </label>
 </template>
 
 <style lang="scss" scoped>
-.shoppe-radio {
+.radio {
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -47,7 +47,7 @@ defineProps<Props>()
   }
 }
 
-.shoppe-radio__input {
+.radio__input {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -59,7 +59,7 @@ defineProps<Props>()
   border-width: 0;
 }
 
-.shoppe-radio__ui {
+.radio__ui {
   position: relative;
   display: flex;
   align-items: center;
@@ -73,7 +73,7 @@ defineProps<Props>()
   flex-shrink: 0;
 }
 
-.shoppe-radio__dot {
+.radio__dot {
   width: 6px;
   height: 6px;
   border-radius: 50%;
@@ -83,7 +83,7 @@ defineProps<Props>()
   transition: all 0.2s cubic-bezier(0.12, 0.4, 0.29, 1.46);
 }
 
-.shoppe-radio__label {
+.radio__label {
   font-family: 'DM Sans', sans-serif;
   font-weight: 400;
   font-size: 16px;
@@ -91,17 +91,17 @@ defineProps<Props>()
   color: #000000;
 }
 
-.shoppe-radio__input:checked + .shoppe-radio__ui .shoppe-radio__dot {
+.radio__input:checked + .radio__ui .radio__dot {
   opacity: 1;
   transform: scale(1);
 }
 
-.shoppe-radio__input:focus-visible + .shoppe-radio__ui {
+.radio__input:focus-visible + .radio__ui {
   outline: 2px solid #d8d8d8;
   outline-offset: 2px;
 }
 
-.shoppe-radio:hover:not(.is-disabled) .shoppe-radio__ui {
+.radio:hover:not(.is-disabled) .radio__ui {
   border-color: #707070;
 }
 </style>
