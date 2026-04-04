@@ -17,6 +17,7 @@
     "build-storybook": "storybook build"
   },
   "dependencies": {
+    "@floating-ui/vue": "^1.1.11",
     "@supabase/supabase-js": "^2.101.1",
     "@vueuse/core": "^14.2.1",
     "pinia": "^3.0.4",
