@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { useScrollLock } from '@vueuse/core'
+import { computed, ref, watch } from 'vue'
 import Icon from '@/shared/ui/icon/Icon.vue'
 
 const props = withDefaults(
@@ -24,6 +25,11 @@ const toggleMenu = () => {
 const closeMenu = () => {
   isMenuOpen.value = false
 }
+
+const scrollLock = useScrollLock(document.documentElement)
+watch(isMenuOpen, (open) => {
+  scrollLock.value = open
+})
 </script>
 
 <template>
@@ -95,24 +101,102 @@ const closeMenu = () => {
           </label>
         </div>
 
-        <div
-          id="header-mobile-menu"
-          class="header__drawer"
-          :class="{ 'header__drawer--open': isMenuOpen }"
-          :hidden="!isMenuOpen"
-        >
-          <nav class="header__nav header__nav--mobile" aria-label="Mobile main">
-            <RouterLink to="#" class="header__link header__link--mobile" @click="closeMenu"
-              >Shop</RouterLink
+        <Teleport to="body">
+          <Transition name="header-mob-overlay"> </Transition>
+          <Transition name="header-mob-panel">
+            <aside
+              v-if="isMenuOpen"
+              id="header-mobile-menu"
+              class="header__mobile-panel"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Menu"
+              @click.stop
             >
-            <RouterLink to="#" class="header__link header__link--mobile" @click="closeMenu"
-              >Blog</RouterLink
-            >
-            <RouterLink to="#" class="header__link header__link--mobile" @click="closeMenu"
-              >Our Story</RouterLink
-            >
-          </nav>
-        </div>
+              <div class="header__mobile-panel-inner app-container">
+                <div class="header__mobile-bar">
+                  <RouterLink to="/" class="header__logo" @click="closeMenu">
+                    <Icon name="logo" />
+                  </RouterLink>
+                  <div class="header__mobile-bar-actions">
+                    <RouterLink
+                      to="#"
+                      class="header__icon-btn header__cart"
+                      aria-label="Shopping cart"
+                    >
+                      <span class="header__cart-inner">
+                        <Icon name="cart" class="header__icon" />
+                        <span v-if="showCartBadge" class="header__badge">{{
+                          cartCount > 99 ? '99+' : cartCount
+                        }}</span>
+                      </span>
+                    </RouterLink>
+                    <button
+                      type="button"
+                      class="header__mobile-close"
+                      aria-label="Close menu"
+                      @click="closeMenu"
+                    >
+                      <Icon name="menu-cross" class="header__icon" />
+                    </button>
+                  </div>
+                </div>
+
+                <div class="header__search header__search--mobile">
+                  <label class="header__search-field">
+                    <span class="header__search-icon-wrap" aria-hidden="true">
+                      <Icon name="search" class="header__icon header__icon--search-muted" />
+                    </span>
+                    <input
+                      v-model="searchQuery"
+                      type="search"
+                      class="header__search-input"
+                      placeholder="Search"
+                      autocomplete="off"
+                    />
+                  </label>
+                </div>
+
+                <nav class="header__mobile-nav" aria-label="Mobile main">
+                  <RouterLink to="/" class="header__mobile-link" @click="closeMenu"
+                    >Home</RouterLink
+                  >
+                  <RouterLink to="#" class="header__mobile-link" @click="closeMenu"
+                    >Shop</RouterLink
+                  >
+                  <RouterLink to="#" class="header__mobile-link" @click="closeMenu"
+                    >About</RouterLink
+                  >
+                  <RouterLink to="#" class="header__mobile-link" @click="closeMenu"
+                    >Blog</RouterLink
+                  >
+                  <RouterLink to="#" class="header__mobile-link" @click="closeMenu"
+                    >Help</RouterLink
+                  >
+                  <RouterLink to="#" class="header__mobile-link" @click="closeMenu"
+                    >Contact</RouterLink
+                  >
+                  <RouterLink to="#" class="header__mobile-link" @click="closeMenu"
+                    >Search</RouterLink
+                  >
+                </nav>
+
+                <div class="header__mobile-sep" role="separator" />
+
+                <nav class="header__mobile-nav header__mobile-nav--account" aria-label="Account">
+                  <RouterLink to="#" class="header__mobile-account-link" @click="closeMenu">
+                    <Icon name="profile" />
+                    <span>My account</span>
+                  </RouterLink>
+                  <RouterLink to="#" class="header__mobile-account-link" @click="closeMenu">
+                    <Icon name="logout" />
+                    <span>Logout</span>
+                  </RouterLink>
+                </nav>
+              </div>
+            </aside>
+          </Transition>
+        </Teleport>
       </div>
     </div>
   </header>
@@ -368,36 +452,151 @@ const closeMenu = () => {
   }
 }
 
-.header__drawer {
+.header__mobile-panel {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1001;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
-  max-height: 0;
-  opacity: 0;
-  transition:
-    max-height 0.35s ease,
-    opacity 0.25s ease;
+  width: 100vw;
+  background: var(--light-colors-white---light);
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.08);
 
   @media (min-width: 769px) {
     display: none;
   }
+}
 
-  &--open {
-    max-height: globalFunctions.fluidValue(200px, 240px, 320px, 1440px);
-    opacity: 1;
-    margin-top: globalFunctions.fluidValue(4px, 8px, 320px, 1440px);
-    padding-bottom: globalFunctions.fluidValue(4px, 8px, 320px, 1440px);
+.header__mobile-panel-inner {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding-top: globalFunctions.fluidValue(12px, 65px, 320px, 1440px);
+}
+
+.header__mobile-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: globalFunctions.fluidValue(11px, 16px, 320px, 1440px);
+}
+
+.header__mobile-bar-actions {
+  display: flex;
+  align-items: center;
+  gap: globalFunctions.fluidValue(18px, 16px, 320px, 1440px);
+}
+
+.header__mobile-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: var(--light-colors-black---light);
+  cursor: pointer;
+}
+
+.header__mobile-search-field {
+  display: flex;
+  align-items: center;
+  gap: globalFunctions.fluidValue(8px, 12px, 320px, 1440px);
+  width: 100%;
+  margin-bottom: globalFunctions.fluidValue(16px, 24px, 320px, 1440px);
+  padding-inline: 10px;
+  padding-block: 6px;
+  border-radius: 4px;
+  background: var(--light-colors-light-gray---light);
+  cursor: text;
+}
+
+.header__mobile-nav {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 19px;
+  margin-top: 35px;
+}
+
+.header__mobile-nav--account {
+  gap: 12px;
+  font-size: 20px;
+  margin-top: 17px;
+}
+
+.header__mobile-link {
+  width: 100%;
+  padding-block: globalFunctions.fluidValue(4px, 6px, 320px, 1440px);
+  font-family: var(--font-family);
+  font-weight: 400;
+  font-size: 20px;
+  line-height: globalFunctions.fluidValue(22px, 26px, 320px, 1440px);
+  color: var(--light-colors-black---light);
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+
+  @media (hover: hover) {
+    &:hover {
+      opacity: 0.65;
+    }
   }
 }
 
-.header__nav--mobile {
-  flex-direction: column;
-  align-items: flex-start;
-  gap: globalFunctions.fluidValue(12px, 16px, 320px, 1440px);
+.header__mobile-sep {
+  height: 1px;
+  margin-top: 38px;
+  background: var(--light-colors-gray---light);
 }
 
-.header__link--mobile {
+.header__mobile-account-link {
+  display: flex;
+  align-items: center;
+  gap: globalFunctions.fluidValue(10px, 14px, 320px, 1440px);
   width: 100%;
-  padding-block: globalFunctions.fluidValue(4px, 6px, 320px, 1440px);
+  padding-block: 6px;
+  font-family: var(--font-family);
+  font-weight: 400;
+  font-size: 20px;
+  color: var(--light-colors-black---light);
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+
+  @media (hover: hover) {
+    &:hover {
+      opacity: 0.65;
+    }
+  }
+}
+
+.header__icon--account {
+  width: globalFunctions.fluidValue(18px, 21px, 320px, 1440px);
+  height: globalFunctions.fluidValue(18px, 21px, 320px, 1440px);
+  flex-shrink: 0;
+}
+</style>
+
+<style lang="scss">
+.header-mob-overlay-enter-active,
+.header-mob-overlay-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.header-mob-overlay-enter-from,
+.header-mob-overlay-leave-to {
+  opacity: 0;
+}
+
+.header-mob-panel-enter-active,
+.header-mob-panel-leave-active {
+  transition: transform 0.3s ease;
+}
+
+.header-mob-panel-enter-from,
+.header-mob-panel-leave-to {
+  transform: translateX(-100%);
 }
 </style>
