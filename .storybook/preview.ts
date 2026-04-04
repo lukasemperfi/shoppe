@@ -1,5 +1,16 @@
 import type { Preview } from '@storybook/vue3-vite'
+import { setup } from '@storybook/vue3'
+import { createMemoryHistory, createRouter } from 'vue-router'
 import '@/app/styles/main.scss'
+
+const router = createRouter({
+  history: createMemoryHistory(import.meta.env.BASE_URL),
+  routes: [{ path: '/', name: 'home', component: { template: '<div />' } }],
+})
+
+setup((app) => {
+  app.use(router)
+})
 
 const preview: Preview = {
   parameters: {
