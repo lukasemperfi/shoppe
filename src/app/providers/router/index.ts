@@ -7,15 +7,20 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import('@/pages/home/Home.vue'),
   },
   {
-    path: '/api-example',
-    name: 'api-example',
-    component: () => import('@/pages/api-example/ApiExample.vue'),
+    path: '/shop',
+    name: 'shop',
+    component: () => import('@/pages/shop/Shop.vue'),
   },
-  {
-    path: '/ui-example',
-    name: 'ui-example',
-    component: () => import('@/pages/ui-example/UiExample.vue'),
-  },
+  // {
+  //   path: '/blog',
+  //   name: 'blog',
+  //   component: () => import('@/pages/blog/Blog.vue'),
+  // },
+  // {
+  //   path: '/our-story',
+  //   name: 'our-story',
+  //   component: () => import('@/pages/our-story/OurStory.vue'),
+  // },
 ]
 
 const router = createRouter({

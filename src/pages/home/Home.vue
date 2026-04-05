@@ -4,7 +4,6 @@ import Header from '@/widgets/header/Header.vue'
 
 <template>
   <div class="home">
-    <Header />
     <h1>Home</h1>
   </div>
 </template>

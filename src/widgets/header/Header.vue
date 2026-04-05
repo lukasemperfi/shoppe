@@ -40,12 +40,12 @@ const closeMenu = () => {
 
           <nav class="header__nav header__nav--desktop" aria-label="Main">
             <HeaderShopMegaMenu>
-              <RouterLink to="#" class="header__link">Shop</RouterLink>
+              <RouterLink to="/shop" class="header__link">Shop</RouterLink>
             </HeaderShopMegaMenu>
             <HeaderBlogMegaMenu>
-              <RouterLink to="#" class="header__link">Blog</RouterLink>
+              <RouterLink to="/blog" class="header__link">Blog</RouterLink>
             </HeaderBlogMegaMenu>
-            <RouterLink to="#" class="header__link">Our Story</RouterLink>
+            <RouterLink to="/our-story" class="header__link">Our Story</RouterLink>
           </nav>
           <span class="header__divider header__divider--desktop" aria-hidden="true" />
           <div class="header__actions">

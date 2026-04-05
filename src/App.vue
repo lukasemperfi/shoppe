@@ -1,14 +1,9 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import AppLayout from '@/app/layouts/AppLayout.vue'
+</script>
 
 <template>
-  <RouterView />
+  <AppLayout>
+    <RouterView />
+  </AppLayout>
 </template>
-
-<style scoped lang="scss">
-h1 {
-  font-family: var(--font-family);
-}
-p {
-  font-family: var(--second-family);
-}
-</style>
