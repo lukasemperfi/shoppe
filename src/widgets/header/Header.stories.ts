@@ -18,26 +18,4 @@ const meta: Meta<typeof Header> = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-export const Desktop: Story = {
-  parameters: {
-    viewport: {
-      defaultViewport: 'responsive',
-    },
-  },
-}
-
-export const Mobile320: Story = {
-  decorators: [
-    (story) => ({
-      components: { story },
-      template:
-        '<div style="max-width: 320px; margin: 0 auto; box-sizing: border-box; width: 100%;"><story /></div>',
-    }),
-  ],
-}
-
-export const EmptyCart: Story = {
-  args: {
-    cartCount: 0,
-  },
-}
+export const Desktop: Story = {}

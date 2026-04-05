@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue'
 import Icon from '@/shared/ui/icon/Icon.vue'
 import HeaderMobileMenu from './HeaderMobileMenu.vue'
+import HeaderBlogMegaMenu from './HeaderBlogMegaMenu.vue'
 import HeaderShopMegaMenu from './HeaderShopMegaMenu.vue'
 
 const props = withDefaults(
@@ -41,7 +42,9 @@ const closeMenu = () => {
             <HeaderShopMegaMenu>
               <RouterLink to="#" class="header__link">Shop</RouterLink>
             </HeaderShopMegaMenu>
-            <RouterLink to="#" class="header__link">Blog</RouterLink>
+            <HeaderBlogMegaMenu>
+              <RouterLink to="#" class="header__link">Blog</RouterLink>
+            </HeaderBlogMegaMenu>
             <RouterLink to="#" class="header__link">Our Story</RouterLink>
           </nav>
           <span class="header__divider header__divider--desktop" aria-hidden="true" />
@@ -358,5 +361,4 @@ const closeMenu = () => {
     appearance: none;
   }
 }
-
 </style>

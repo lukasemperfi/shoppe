@@ -1,7 +1,10 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import Header from '@/widgets/header/Header.vue'
+</script>
 
 <template>
   <div class="home">
+    <Header />
     <h1>Home</h1>
   </div>
 </template>

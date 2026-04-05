@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { autoUpdate, flip, offset, shift, useFloating } from '@floating-ui/vue'
 import { useMediaQuery } from '@vueuse/core'
-import { computed, onUnmounted, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 
 const shopMegaColumns = [
   {
@@ -68,10 +68,25 @@ onUnmounted(() => {
   clearShopMegaHideTimer()
 })
 
+const isFloatingReady = ref(false)
+onMounted(() => {
+  void nextTick(() => {
+    isFloatingReady.value = true
+  })
+})
+
 const shopMegaMenuOpen = computed(() => shopMegaOpen.value && isDesktop.value)
 
+const shopFloatingOpen = computed(
+  () =>
+    isFloatingReady.value &&
+    shopMegaMenuOpen.value &&
+    !!shopMegaReferenceRef.value &&
+    !!shopMegaFloatingRef.value,
+)
+
 const { floatingStyles } = useFloating(shopMegaReferenceRef, shopMegaFloatingRef, {
-  open: shopMegaMenuOpen,
+  open: shopFloatingOpen,
   placement: 'bottom',
   strategy: 'fixed',
   middleware: [offset(23), flip(), shift({ padding: 12 })],
