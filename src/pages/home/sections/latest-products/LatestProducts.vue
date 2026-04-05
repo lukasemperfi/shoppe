@@ -5,90 +5,14 @@ import { onMounted, ref } from 'vue'
 import type { Product } from '@/entities/product/model/types'
 import type { ProductCardBadge } from '@/entities/product/model/types'
 
-// const products = ref<Product[]>([])
+const products = ref<Product[]>([])
 
-// onMounted(async () => {
-//   const data = await productApi.getProducts({ limit: 6 })
-//   if (data) {
-//     products.value = data.items
-//   }
-// })
-
-const products = [
-  {
-    id: '1',
-    name: 'Lira Earrings',
-    price: 20.0,
-    badge: {
-      text: 'New',
-      variant: 'new',
-    },
-    product_images: [
-      {
-        url: 'https://via.placeholder.com/150',
-      },
-    ],
-  },
-  {
-    id: '2',
-    name: 'Product 2',
-    price: 200,
-    badge: {
-      text: 'Sale',
-      variant: 'discount',
-    },
-    product_images: [
-      {
-        url: 'https://via.placeholder.com/150',
-      },
-    ],
-  },
-  {
-    id: '3',
-    name: 'Product 3',
-    price: 300,
-    old_price: 350,
-    badge: {
-      text: 'Sold Out',
-      variant: 'sold',
-    },
-    product_images: [
-      {
-        url: 'https://via.placeholder.com/150',
-      },
-    ],
-  },
-  {
-    id: '4',
-    name: 'Product 4',
-    price: 400,
-    product_images: [
-      {
-        url: 'https://via.placeholder.com/150',
-      },
-    ],
-  },
-  {
-    id: '5',
-    name: 'Product 5',
-    price: 500,
-    product_images: [
-      {
-        url: 'https://via.placeholder.com/150',
-      },
-    ],
-  },
-  {
-    id: '6',
-    name: 'Product 6',
-    price: 600,
-    product_images: [
-      {
-        url: 'https://via.placeholder.com/150',
-      },
-    ],
-  },
-]
+onMounted(async () => {
+  const data = await productApi.getProducts({ limit: 6 })
+  if (data) {
+    products.value = data.items
+  }
+})
 </script>
 
 <template>
@@ -105,9 +29,26 @@ const products = [
             :key="product.id"
             :name="product.name"
             :price="product.price"
-            :old-price="product.old_price"
+            :old-price="product.discount"
             :image-url="product?.product_images[0]?.url"
-            :badge="product?.badge as ProductCardBadge"
+            :badge="
+              {
+                text: product.is_new
+                  ? 'New'
+                  : product.is_sold_out
+                    ? 'Sold Out'
+                    : product.discount
+                      ? 'Sale'
+                      : undefined,
+                variant: product.is_new
+                  ? 'new'
+                  : product.is_sold_out
+                    ? 'sold'
+                    : product.discount
+                      ? 'discount'
+                      : undefined,
+              } as ProductCardBadge
+            "
           />
         </div>
       </div>
