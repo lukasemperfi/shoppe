@@ -124,7 +124,7 @@ const closeMenu = () => {
   &__shell {
     display: flex;
     flex-direction: column;
-    gap: globalFunctions.fluidValue(11px, 16px, 320px, 1440px);
+    gap: globalFunctions.fluidValue(0px, 16px, 320px, 1440px);
   }
 
   &__row {
@@ -324,6 +324,7 @@ const closeMenu = () => {
     display: none;
     @media (max-width: 768px) {
       width: 100%;
+      display: block;
     }
 
     svg {

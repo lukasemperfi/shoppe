@@ -56,11 +56,7 @@ const modules = [Pagination]
 <style scoped lang="scss">
 .hero {
   width: 100%;
-  padding-block: clamp(12px, 2vw, 24px);
-
-  @media (max-width: globalBreakpoints.$breakpoint-sm) {
-    padding-block: clamp(8px, 3vw, 16px);
-  }
+  padding-block: clamp(15px, 1.7vw, 24px);
 
   &__container {
     position: relative;

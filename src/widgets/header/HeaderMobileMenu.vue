@@ -121,7 +121,7 @@ watch(
   z-index: 1001;
   display: flex;
   flex-direction: column;
-  width: 100vw;
+  width: 100%;
   background: var(--light-colors-white---light);
   box-shadow: 4px 0 24px rgba(0, 0, 0, 0.08);
 
@@ -135,8 +135,15 @@ watch(
   flex-direction: column;
   flex: 1;
   min-height: 0;
-  overflow-y: auto;
   padding-top: globalFunctions.fluidValue(12px, 65px, 320px, 1440px);
+  scrollbar-gutter: stable;
+  overflow: auto;
+}
+
+:deep(.app-container) {
+  @media (max-width: 768px) {
+    padding-right: globalFunctions.fluidValue(16px - 5px, 96px - 5px, 320px, 1440px);
+  }
 }
 
 .header__logo {
@@ -325,6 +332,7 @@ watch(
   height: 1px;
   margin-top: 38px;
   background: var(--light-colors-gray---light);
+  flex-shrink: 0;
 }
 
 .header__mobile-account-link {
