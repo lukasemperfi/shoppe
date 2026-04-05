@@ -25,7 +25,6 @@ const blogMegaOpen = ref(false)
 const blogMegaReferenceRef = ref<HTMLElement | null>(null)
 const blogMegaFloatingRef = ref<HTMLElement | null>(null)
 
-// Функции переключения без таймеров
 const openBlogMega = () => {
   if (isDesktop.value) {
     blogMegaOpen.value = true
@@ -44,7 +43,7 @@ const { floatingStyles } = useFloating(blogMegaReferenceRef, blogMegaFloatingRef
   open: blogMegaOpen,
   placement: 'bottom',
   strategy: 'fixed',
-  middleware: [offset(23), flip(), shift({ padding: 12 })],
+  middleware: [offset(0), flip(), shift({ padding: 12 })],
   whileElementsMounted: autoUpdate,
 })
 
@@ -110,15 +109,15 @@ watch(isDesktop, (val) => {
   background: #fff;
   border: 1px solid #e0e0e0;
 
-  &::before {
-    content: '';
-    position: absolute;
-    top: -25px;
-    left: 0;
-    right: 0;
-    height: 25px;
-    background: transparent;
-  }
+  // &::before {
+  //   content: '';
+  //   position: absolute;
+  //   top: -25px;
+  //   left: 0;
+  //   right: 0;
+  //   height: 25px;
+  //   background: transparent;
+  // }
 }
 
 .header__blog-list {

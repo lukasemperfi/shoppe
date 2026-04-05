@@ -115,181 +115,117 @@ const closeMenu = () => {
 
 <style lang="scss" scoped>
 .header {
+  $bottom-padding: globalFunctions.fluidValue(12px, 22px, 320px, 1440px);
+
   width: 100%;
   background: var(--light-colors-white---light);
-  padding-top: globalFunctions.fluidValue(12px, 65px, 320px, 1440px);
-}
+  padding-top: globalFunctions.fluidValue(12px, 57px, 320px, 1440px);
 
-.header__shell {
-  display: flex;
-  flex-direction: column;
-  gap: globalFunctions.fluidValue(11px, 16px, 320px, 1440px);
-}
-
-.header__row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: globalFunctions.fluidValue(12px, 47px, 320px, 1440px);
-  padding-block: 7.5px;
-
-  @media (max-width: 769px) {
-    padding-block: 0px;
-  }
-}
-
-.header__logo {
-  svg {
-    width: globalFunctions.fluidValue(91px, 134px, 320px, 1440px);
-  }
-}
-
-.header__logo-accent {
-  color: var(--light-colors-accent---light);
-}
-
-.header__logo-rest {
-  color: var(--light-colors-black---light);
-}
-
-.header__nav {
-  display: flex;
-  align-items: center;
-}
-
-.header__nav--desktop {
-  display: none;
-  margin-left: auto;
-  gap: globalFunctions.fluidValue(20px, 65px, 320px, 1440px);
-
-  @media (min-width: 769px) {
+  &__shell {
     display: flex;
+    flex-direction: column;
+    gap: globalFunctions.fluidValue(11px, 16px, 320px, 1440px);
   }
-}
 
-.header__link {
-  font-family: var(--font-family);
-  font-weight: 400;
-  font-size: globalFunctions.fluidValue(14px, 16px, 320px, 1440px);
-  line-height: globalFunctions.fluidValue(22px, 27px, 320px, 1440px);
-  color: var(--light-colors-black---light);
-  text-decoration: none;
-  white-space: nowrap;
-  transition: opacity 0.2s ease;
+  &__row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: globalFunctions.fluidValue(12px, 47px, 320px, 1440px);
+    border-bottom: 1px solid var(--light-colors-gray---light);
 
-  @media (hover: hover) {
-    &:hover {
-      opacity: 0.65;
+    @media (max-width: 769px) {
+      padding-block: 0px;
+      border-bottom: none;
     }
   }
-}
 
-.header__actions {
-  display: flex;
-  align-items: center;
-  flex-shrink: 0;
-  gap: globalFunctions.fluidValue(14px, 38px, 320px, 1440px);
-}
-
-.header__divider {
-  width: 1px;
-  flex-shrink: 0;
-  background: var(--light-colors-dark-gray---light);
-}
-
-.header__divider--desktop {
-  display: none;
-  height: globalFunctions.fluidValue(16px, 17px, 320px, 1440px);
-
-  @media (min-width: 769px) {
-    display: block;
-  }
-}
-
-.header__icon-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  background: transparent;
-  color: var(--light-colors-black---light);
-  cursor: pointer;
-  text-decoration: none;
-  transition: opacity 0.2s ease;
-
-  @media (hover: hover) {
-    &:hover {
-      opacity: 0.65;
+  &__logo {
+    padding-bottom: $bottom-padding;
+    svg {
+      width: globalFunctions.fluidValue(91px, 134px, 320px, 1440px);
     }
   }
-}
 
-.header__icon-btn--desktop {
-  display: none;
-
-  @media (min-width: 769px) {
-    display: inline-flex;
+  &__logo-accent {
+    color: var(--light-colors-accent---light);
   }
-}
 
-.header__cart {
-  display: inline-flex;
-}
-
-.header__cart-inner {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.header__badge {
-  position: absolute;
-  top: -5px;
-  right: -8px;
-  min-width: 16px;
-  height: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 4px;
-  border-radius: 999999px;
-  background: var(--light-colors-white---light);
-  color: var(--light-colors-black---light);
-  font-family: var(--font-family);
-  font-size: 10px;
-  font-weight: 500;
-  border: 1px solid var(--light-colors-black---light);
-
-  @media (max-width: 769px) {
-    top: -2px;
-    right: -3px;
-    min-width: 11px;
-    height: 11px;
-    padding: 2px;
-    font-size: 7px;
+  &__logo-rest {
+    color: var(--light-colors-black---light);
   }
-}
 
-.header__icon {
-  display: block;
-  width: globalFunctions.fluidValue(18px, 21px, 320px, 1440px);
-  height: globalFunctions.fluidValue(18px, 21px, 320px, 1440px);
-}
-
-.header__icon--menu {
-  width: globalFunctions.fluidValue(20px, 21px, 320px, 1440px);
-  height: globalFunctions.fluidValue(15px, 16px, 320px, 1440px);
-
-  @media (max-width: 769px) {
-    width: 22px;
-    height: 15.5px;
+  &__nav {
+    display: flex;
+    align-items: center;
   }
-}
 
-.header__menu-btn {
-  display: none;
-  @media (max-width: 768px) {
+  &__nav--desktop {
+    display: none;
+    margin-left: auto;
+    gap: globalFunctions.fluidValue(20px, 65px, 320px, 1440px);
+
+    @media (min-width: 769px) {
+      display: flex;
+    }
+  }
+
+  &__link {
+    position: relative;
+    font-family: var(--font-family);
+    font-weight: 400;
+    font-size: globalFunctions.fluidValue(14px, 16px, 320px, 1440px);
+    line-height: globalFunctions.fluidValue(22px, 27px, 320px, 1440px);
+    color: var(--light-colors-black---light);
+    text-decoration: none;
+    white-space: nowrap;
+    transition: opacity 0.2s ease;
+    padding-bottom: 22px;
+
+    &.router-link-active::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background-color: var(--light-colors-black---light);
+      pointer-events: none;
+      user-select: none;
+    }
+
+    @media (hover: hover) {
+      &:hover {
+        opacity: 0.65;
+      }
+    }
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    gap: globalFunctions.fluidValue(14px, 38px, 320px, 1440px);
+    padding-bottom: $bottom-padding;
+  }
+
+  &__divider {
+    width: 1px;
+    flex-shrink: 0;
+    background: var(--light-colors-dark-gray---light);
+    margin-bottom: $bottom-padding;
+  }
+
+  &__divider--desktop {
+    display: none;
+    height: globalFunctions.fluidValue(16px, 17px, 320px, 1440px);
+
+    @media (min-width: 769px) {
+      display: block;
+    }
+  }
+
+  &__icon-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -297,68 +233,152 @@ const closeMenu = () => {
     background: transparent;
     color: var(--light-colors-black---light);
     cursor: pointer;
-    align-self: baseline;
-  }
-}
+    text-decoration: none;
+    transition: opacity 0.2s ease;
 
-.header__search--mobile {
-  display: none;
-  @media (max-width: 768px) {
+    @media (hover: hover) {
+      &:hover {
+        opacity: 0.65;
+      }
+    }
+  }
+
+  &__icon-btn--desktop {
+    display: none;
+
+    @media (min-width: 769px) {
+      display: inline-flex;
+    }
+  }
+
+  &__cart {
+    display: inline-flex;
+  }
+
+  &__cart-inner {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__badge {
+    position: absolute;
+    top: -5px;
+    right: -8px;
+    min-width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    border-radius: 999999px;
+    background: var(--light-colors-white---light);
+    color: var(--light-colors-black---light);
+    font-family: var(--font-family);
+    font-size: 10px;
+    font-weight: 500;
+    border: 1px solid var(--light-colors-black---light);
+
+    @media (max-width: 769px) {
+      top: -2px;
+      right: -3px;
+      min-width: 11px;
+      height: 11px;
+      padding: 2px;
+      font-size: 7px;
+    }
+  }
+
+  &__icon {
+    display: block;
+    width: globalFunctions.fluidValue(18px, 21px, 320px, 1440px);
+    height: globalFunctions.fluidValue(18px, 21px, 320px, 1440px);
+  }
+
+  &__icon--menu {
+    width: globalFunctions.fluidValue(20px, 21px, 320px, 1440px);
+    height: globalFunctions.fluidValue(15px, 16px, 320px, 1440px);
+
+    @media (max-width: 769px) {
+      width: 22px;
+      height: 15.5px;
+    }
+  }
+
+  &__menu-btn {
+    display: none;
+    @media (max-width: 768px) {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      background: transparent;
+      color: var(--light-colors-black---light);
+      cursor: pointer;
+      align-self: baseline;
+    }
+  }
+
+  &__search--mobile {
+    display: none;
+    @media (max-width: 768px) {
+      width: 100%;
+    }
+
+    svg {
+      width: 12px;
+      height: 13px;
+    }
+  }
+
+  &__search-field {
+    display: flex;
+    align-items: center;
+    gap: globalFunctions.fluidValue(8px, 12px, 320px, 1440px);
     width: 100%;
+    padding-inline: 10px;
+    padding-block: 6px;
+    border-radius: 4px;
+    background: var(--light-colors-light-gray---light);
+    cursor: text;
   }
 
-  svg {
-    width: 12px;
-    height: 13px;
-  }
-}
-
-.header__search-field {
-  display: flex;
-  align-items: center;
-  gap: globalFunctions.fluidValue(8px, 12px, 320px, 1440px);
-  width: 100%;
-  padding-inline: 10px;
-  padding-block: 6px;
-  border-radius: 4px;
-  background: var(--light-colors-light-gray---light);
-  cursor: text;
-}
-
-.header__search-icon-wrap {
-  display: inline-flex;
-  flex-shrink: 0;
-  color: var(--light-colors-dark-gray---light);
-
-  :deep(svg path) {
-    fill: currentColor;
-  }
-}
-
-.header__icon--search-muted {
-  width: globalFunctions.fluidValue(16px, 18px, 320px, 1440px);
-  height: globalFunctions.fluidValue(16px, 18px, 320px, 1440px);
-}
-
-.header__search-input {
-  flex: 1;
-  min-width: 0;
-  border: none;
-  background: transparent;
-  outline: none;
-  font-family: var(--font-family);
-  font-weight: 400;
-  font-size: globalFunctions.fluidValue(14px, 16px, 320px, 1440px);
-  line-height: globalFunctions.fluidValue(20px, 24px, 320px, 1440px);
-  color: var(--light-colors-black---light);
-
-  &::placeholder {
+  &__search-icon-wrap {
+    display: inline-flex;
+    flex-shrink: 0;
     color: var(--light-colors-dark-gray---light);
+
+    :deep(svg path) {
+      fill: currentColor;
+    }
   }
 
-  &::-webkit-search-decoration,
-  &::-webkit-search-cancel-button {
-    appearance: none;
+  &__icon--search-muted {
+    width: globalFunctions.fluidValue(16px, 18px, 320px, 1440px);
+    height: globalFunctions.fluidValue(16px, 18px, 320px, 1440px);
+  }
+
+  &__search-input {
+    flex: 1;
+    min-width: 0;
+    border: none;
+    background: transparent;
+    outline: none;
+    font-family: var(--font-family);
+    font-weight: 400;
+    font-size: globalFunctions.fluidValue(14px, 16px, 320px, 1440px);
+    line-height: globalFunctions.fluidValue(20px, 24px, 320px, 1440px);
+    color: var(--light-colors-black---light);
+
+    &::placeholder {
+      color: var(--light-colors-dark-gray---light);
+    }
+
+    &::-webkit-search-decoration,
+    &::-webkit-search-cancel-button {
+      appearance: none;
+    }
   }
 }
 </style>
