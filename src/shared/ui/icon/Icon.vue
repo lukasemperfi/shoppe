@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { defineAsyncComponent, defineOptions } from 'vue'
+import { defineAsyncComponent } from 'vue'
 
 interface Props {
   name: string
