@@ -14,11 +14,7 @@ const props = withDefaults(defineProps<Props>(), {
   color: 'black',
 })
 
-const classes = computed(() => [
-  'shoppe-btn',
-  `shoppe-btn_${props.variant}`,
-  `shoppe-btn_color-${props.color}`,
-])
+const classes = computed(() => ['btn', `btn_${props.variant}`, `btn_color-${props.color}`])
 </script>
 
 <template>
@@ -30,23 +26,23 @@ const classes = computed(() => [
 <style scoped lang="scss">
 @use './button-mixins' as mixins;
 
-.shoppe-btn {
+.btn {
   @include mixins.shoppe-button-base;
 
   &_primary {
-    &.shoppe-btn_color-black {
+    &.btn_color-black {
       @include mixins.shoppe-variant('primary', 'black');
     }
-    &.shoppe-btn_color-white {
+    &.btn_color-white {
       @include mixins.shoppe-variant('primary', 'white');
     }
   }
 
   &_outline {
-    &.shoppe-btn_color-black {
+    &.btn_color-black {
       @include mixins.shoppe-variant('outline', 'black');
     }
-    &.shoppe-btn_color-white {
+    &.btn_color-white {
       @include mixins.shoppe-variant('outline', 'white');
     }
   }

@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import Header from '@/widgets/header/Header.vue'
+import HeroSection from '@/pages/home/sections/hero/Hero.vue'
 </script>
 
 <template>
   <div class="home">
-    <h1>Home</h1>
+    <HeroSection />
   </div>
 </template>
 
@@ -12,9 +12,6 @@ import Header from '@/widgets/header/Header.vue'
 .home {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
   width: 100%;
-  height: 100%;
 }
 </style>
