@@ -35,6 +35,22 @@ export interface Review {
   created_at: string
 }
 
+export type ProductCardBadgeVariant = 'discount' | 'category' | 'sold' | 'new'
+
+export interface ProductCardBadge {
+  text: string
+  variant: ProductCardBadgeVariant
+}
+
+export interface ProductCardData {
+  name: string
+  price: number
+  oldPrice?: number | null
+  imageUrl?: string
+  badge?: ProductCardBadge | null
+  isSoldOut?: boolean
+}
+
 export interface Product {
   id: string
   sku: string
