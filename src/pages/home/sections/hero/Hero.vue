@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Swiper, SwiperSlide } from 'swiper/vue'
-import { Pagination, Autoplay } from 'swiper/modules'
+import { Pagination } from 'swiper/modules'
 import 'swiper/css'
 import 'swiper/css/pagination'
 import AppButton from '@/shared/ui/button/Button.vue'
@@ -26,7 +26,7 @@ const slides: HeroSlide[] = [
   { id: 5, image: img5, title: 'Diamond ring', price: '$ 120,00' },
 ]
 
-const modules = [Pagination, Autoplay]
+const modules = [Pagination]
 </script>
 
 <template>
@@ -74,8 +74,11 @@ const modules = [Pagination, Autoplay]
     background-color: var(--light-colors-light-gray---light);
 
     @media (max-width: globalBreakpoints.$breakpoint-sm) {
+      aspect-ratio: 1;
+    }
+
+    @media (max-width: globalBreakpoints.$breakpoint-xs) {
       aspect-ratio: 288 / 354;
-      border-radius: clamp(6px, 3vw, 12px);
     }
   }
 
@@ -102,7 +105,9 @@ const modules = [Pagination, Autoplay]
     object-position: center top;
 
     @media (max-width: globalBreakpoints.$breakpoint-sm) {
-      width: 100%;
+      object-position: 94% 0%;
+      height: 122%;
+      transform: translateY(-3px);
     }
   }
 
@@ -131,7 +136,7 @@ const modules = [Pagination, Autoplay]
   &__price {
     font-family: var(--font-family);
     font-weight: 400;
-    font-size: clamp(12px, 1.8vw, 26px);
+    font-size: clamp(14px, 1.8vw, 26px);
     color: var(--light-colors-white---light);
     margin-bottom: clamp(10px, 3.5vw, 49px);
   }
@@ -140,16 +145,21 @@ const modules = [Pagination, Autoplay]
     align-self: flex-start;
     text-transform: none;
     font-size: clamp(12px, 1.4vw, 20px);
-    padding-block: 12px;
-    padding-inline: 30px;
+    padding-block: clamp(7px, 0.84vw, 12px);
+    padding-inline: clamp(8px, 2.1vw, 30px);
   }
   :deep(.btn) {
     border: 2px solid var(--light-colors-white---light);
+
+    @media (max-width: globalBreakpoints.$breakpoint-sm) {
+      font-weight: 400;
+      border: 1px solid var(--light-colors-white---light);
+    }
   }
 
   &__pagination {
     position: absolute;
-    bottom: clamp(12px, 2vw, 26px);
+    bottom: clamp(8px, 1.8vw, 26px);
     left: 50%;
     transform: translateX(-50%);
     z-index: 10;
@@ -157,6 +167,10 @@ const modules = [Pagination, Autoplay]
     align-items: center;
     gap: 13px;
     width: max-content;
+
+    @media (max-width: globalBreakpoints.$breakpoint-xs) {
+      gap: 6px;
+    }
 
     :deep(.swiper-pagination-bullet) {
       width: 10px;
@@ -184,6 +198,10 @@ const modules = [Pagination, Autoplay]
       background: transparent;
       border: 1px solid var(--light-colors-white---light);
       transform: scale(1.7);
+
+      @media (max-width: globalBreakpoints.$breakpoint-sm) {
+        transform: scale(2.25);
+      }
     }
   }
 }
