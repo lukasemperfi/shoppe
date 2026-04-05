@@ -149,7 +149,6 @@ watch(isDesktop, (desktop) => {
 
   background: var(--light-colors-white---light);
   border: 1px solid var(--light-colors-gray---light);
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.08);
 
   &::before {
     content: '';

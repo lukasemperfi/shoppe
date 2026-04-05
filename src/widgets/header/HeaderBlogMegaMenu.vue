@@ -25,33 +25,20 @@ const blogMegaOpen = ref(false)
 const blogMegaReferenceRef = ref<HTMLElement | null>(null)
 const blogMegaFloatingRef = ref<HTMLElement | null>(null)
 
-let blogMegaHideTimer: ReturnType<typeof setTimeout> | null = null
-
-const clearTimer = () => {
-  if (blogMegaHideTimer) {
-    clearTimeout(blogMegaHideTimer)
-    blogMegaHideTimer = null
+// Функции переключения без таймеров
+const openBlogMega = () => {
+  if (isDesktop.value) {
+    blogMegaOpen.value = true
   }
 }
 
-const openBlogMega = () => {
-  clearTimer()
-  if (isDesktop.value) blogMegaOpen.value = true
-}
-
-const scheduleCloseBlogMega = () => {
-  clearTimer()
-  blogMegaHideTimer = setTimeout(() => {
-    blogMegaOpen.value = false
-  }, 200)
-}
-
-const closeAll = () => {
+const closeBlogMega = () => {
   blogMegaOpen.value = false
-  clearTimer()
 }
 
-onUnmounted(closeAll)
+onUnmounted(() => {
+  blogMegaOpen.value = false
+})
 
 const { floatingStyles } = useFloating(blogMegaReferenceRef, blogMegaFloatingRef, {
   open: blogMegaOpen,
@@ -62,12 +49,12 @@ const { floatingStyles } = useFloating(blogMegaReferenceRef, blogMegaFloatingRef
 })
 
 watch(isDesktop, (val) => {
-  if (!val) closeAll()
+  if (!val) blogMegaOpen.value = false
 })
 </script>
 
 <template>
-  <div class="header__blog" @mouseenter="openBlogMega" @mouseleave="scheduleCloseBlogMega">
+  <div class="header__blog" @mouseenter="openBlogMega" @mouseleave="closeBlogMega">
     <div ref="blogMegaReferenceRef" class="header__blog-trigger">
       <slot />
     </div>
@@ -78,12 +65,12 @@ watch(isDesktop, (val) => {
       class="header__blog-panel"
       :style="floatingStyles"
       @mouseenter="openBlogMega"
-      @mouseleave="scheduleCloseBlogMega"
+      @mouseleave="closeBlogMega"
     >
       <ul class="header__blog-list">
         <li v-for="item in blogMenuItems" :key="item.label" class="header__blog-item">
           <template v-if="!item.children">
-            <RouterLink :to="item.to" class="header__blog-link" @click="closeAll">
+            <RouterLink :to="item.to" class="header__blog-link" @click="closeBlogMega">
               {{ item.label }}
             </RouterLink>
           </template>
@@ -97,7 +84,7 @@ watch(isDesktop, (val) => {
             <div class="header__blog-flyout">
               <ul class="header__blog-flyout-list">
                 <li v-for="sub in item.children" :key="sub">
-                  <RouterLink to="#" class="header__blog-flyout-link" @click="closeAll">
+                  <RouterLink to="#" class="header__blog-flyout-link" @click="closeBlogMega">
                     {{ sub }}
                   </RouterLink>
                 </li>
@@ -130,6 +117,7 @@ watch(isDesktop, (val) => {
     left: 0;
     right: 0;
     height: 25px;
+    background: transparent;
   }
 }
 
@@ -153,7 +141,6 @@ watch(isDesktop, (val) => {
   @media (hover: hover) {
     &:hover {
       color: #000;
-      background: #f9f9f9;
     }
   }
 }
@@ -166,11 +153,9 @@ watch(isDesktop, (val) => {
       .header__blog-flyout {
         opacity: 1;
         visibility: visible;
-        transform: translateX(0);
       }
       .header__blog-link--sub-trigger {
         color: #000;
-        background: #f9f9f9;
       }
     }
   }
@@ -180,7 +165,6 @@ watch(isDesktop, (val) => {
   position: absolute;
   top: -12px;
   left: 100%;
-
   opacity: 0;
   visibility: hidden;
   transition: all 0.2s ease;
@@ -191,7 +175,7 @@ watch(isDesktop, (val) => {
     position: absolute;
     left: 0;
     top: 0;
-    width: 10px;
+    width: 15px;
     height: 100%;
   }
 }
@@ -215,7 +199,6 @@ watch(isDesktop, (val) => {
   @media (hover: hover) {
     &:hover {
       color: #000;
-      background: #f9f9f9;
     }
   }
 }
