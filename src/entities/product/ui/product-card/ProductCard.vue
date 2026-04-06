@@ -1,11 +1,29 @@
 <script setup lang="ts">
-import type { ProductCardBadgeVariant, ProductCardData } from '@/entities/product/model/types'
+import type { ProductCardBadge, ProductCardBadgeVariant, ProductCardData } from '@/entities/product/model/types'
+import { computed } from 'vue'
 
 const props = withDefaults(defineProps<ProductCardData>(), {
   imageUrl: 'https://loremflickr.com/300/300/jewelry,earring',
-  badge: null,
   isSoldOut: false,
   oldPrice: null,
+  isNew: false,
+  hasDiscount: false,
+})
+
+const displayBadge = computed((): ProductCardBadge | null => {
+  if (props.badge !== undefined) {
+    return props.badge
+  }
+  if (props.isNew) {
+    return { text: 'New', variant: 'new' }
+  }
+  if (props.isSoldOut) {
+    return { text: 'Sold Out', variant: 'sold' }
+  }
+  if (props.hasDiscount) {
+    return { text: 'Sale', variant: 'discount' }
+  }
+  return null
 })
 
 const emit = defineEmits<{
@@ -38,8 +56,12 @@ function onAddToCart(): void {
         loading="lazy"
         decoding="async"
       />
-      <span v-if="badge" class="product-card__badge" :class="badgeClass(badge.variant)">
-        {{ badge.text }}
+      <span
+        v-if="displayBadge"
+        class="product-card__badge"
+        :class="badgeClass(displayBadge.variant)"
+      >
+        {{ displayBadge.text }}
       </span>
       <div v-if="!isSoldOut" class="product-card__overlay">
         <div class="product-card__overlay-bar">

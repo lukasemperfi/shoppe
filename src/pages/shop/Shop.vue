@@ -4,9 +4,12 @@ import Icon from '@/shared/ui/icon/Icon.vue'
 import Select from '@/shared/ui/select/Select.vue'
 import Toggle from './Toggle.vue'
 import { useMediaQuery } from '@vueuse/core'
-import { ref, watch } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import Slider from '@vueform/slider'
 import '@vueform/slider/themes/default.css'
+import ProductCard from '@/entities/product/ui/product-card/ProductCard.vue'
+import { productApi } from '@/entities/product/api/product'
+import type { Product } from '@/entities/product/model/types'
 
 const priceRange = ref([40, 180])
 
@@ -15,7 +18,7 @@ const sortBy = ref<string>('')
 const onSale = ref(false)
 const inStock = ref(false)
 const filtersPanelOpen = ref(false)
-const isNarrowShopLayout = useMediaQuery('(max-width: 768px)')
+const isNarrowShopLayout = useMediaQuery('(max-width: 1024px)')
 
 watch(isNarrowShopLayout, (narrow) => {
   if (!narrow) {
@@ -35,6 +38,15 @@ const sortByOptions = [
   { label: 'Price: High to Low', value: 'price_high_to_low' },
 ]
 
+const products = ref<Product[]>([])
+
+onMounted(async () => {
+  const data = await productApi.getProducts({ limit: 6 })
+  if (data) {
+    products.value = data.items
+  }
+})
+
 watch(onSale, (newVal) => {
   console.log(newVal)
 })
@@ -46,67 +58,77 @@ watch(onSale, (newVal) => {
         <div class="catalog__top">
           <h1 class="catalog__title">Shop The Latest</h1>
         </div>
-        <div class="catalog__body">
-          <div class="catalog__filters-stack">
-            <button
-              type="button"
-              class="catalog__toggle-filters"
-              :aria-expanded="filtersPanelOpen"
-              aria-controls="catalog-filters-panel"
-              @click="filtersPanelOpen = !filtersPanelOpen"
-            >
-              <Icon name="filter" />
-              <span class="catalog__toggle-filters-text"> Filters </span>
-            </button>
-            <div
-              id="catalog-filters-panel"
-              class="catalog__aside"
-              :class="{ catalog__aside_open: filtersPanelOpen }"
-            >
-              <div class="catalog__aside-inner">
-                <div class="filters-bar">
-                  <Input placeholder="Search..." class="filters-bar__search">
-                    <template #append>
-                      <button type="button">
-                        <Icon name="search" />
-                      </button>
-                    </template>
-                  </Input>
+        <div class="catalog__body" :class="{ catalog__body_filters_open: filtersPanelOpen }">
+          <button
+            type="button"
+            class="catalog__toggle-filters"
+            :aria-expanded="filtersPanelOpen"
+            aria-controls="catalog-filters-panel"
+            @click="filtersPanelOpen = !filtersPanelOpen"
+          >
+            <Icon name="filter" />
+            <span class="catalog__toggle-filters-text"> Filters </span>
+          </button>
+          <div
+            id="catalog-filters-panel"
+            class="catalog__aside"
+            :class="{ catalog__aside_open: filtersPanelOpen }"
+          >
+            <div class="catalog__aside-inner">
+              <div class="filters-bar">
+                <Input placeholder="Search..." class="filters-bar__search">
+                  <template #append>
+                    <button type="button">
+                      <Icon name="search" />
+                    </button>
+                  </template>
+                </Input>
 
-                  <Select
-                    :options="shopByCategoryOptions"
-                    v-model="shopByCategory"
-                    label="Shop by"
-                    class="filters-bar__select-shop-by"
+                <Select
+                  :options="shopByCategoryOptions"
+                  v-model="shopByCategory"
+                  label="Shop by"
+                  class="filters-bar__select-shop-by"
+                />
+                <Select
+                  :options="sortByOptions"
+                  v-model="sortBy"
+                  label="Sort by"
+                  class="filters-bar__select-sort-by"
+                />
+                <div class="slider">
+                  <Slider
+                    v-model="priceRange"
+                    :min="0"
+                    :max="180"
+                    :tooltips="false"
+                    class="slider__input"
                   />
-                  <Select
-                    :options="sortByOptions"
-                    v-model="sortBy"
-                    label="Sort by"
-                    class="filters-bar__select-sort-by"
-                  />
-                  <div class="slider">
-                    <Slider
-                      v-model="priceRange"
-                      :min="0"
-                      :max="180"
-                      :tooltips="false"
-                      class="slider__input"
-                    />
 
-                    <div class="slider__footer">
-                      <span>Price: ${{ priceRange[0] }} - ${{ priceRange[1] }}</span>
-                      <button class="slider__filter-btn">Filter</button>
-                    </div>
+                  <div class="slider__footer">
+                    <span>Price: ${{ priceRange[0] }} - ${{ priceRange[1] }}</span>
+                    <button class="slider__filter-btn">Filter</button>
                   </div>
-                  <Toggle v-model="onSale" class="filters-bar__on-sale" label="On sale" />
-                  <Toggle v-model="inStock" class="filters-bar__in-stock" label="In stock" />
                 </div>
+                <Toggle v-model="onSale" class="filters-bar__on-sale" label="On sale" />
+                <Toggle v-model="inStock" class="filters-bar__in-stock" label="In stock" />
               </div>
             </div>
           </div>
           <div class="catalog__main">
-            <div class="catalog__products">Products</div>
+            <div class="catalog__products">
+              <ProductCard
+                v-for="product in products"
+                :key="product.id"
+                :name="product.name"
+                :price="product.price"
+                :old-price="product.discount"
+                :image-url="product?.product_images[0]?.url"
+                :is-new="product.is_new"
+                :is-sold-out="product.is_sold_out"
+                :has-discount="!!product.discount"
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -135,28 +157,28 @@ watch(onSale, (newVal) => {
     display: flex;
     gap: globalFunctions.fluidValue(20px, 35px, $layout-min, $layout-max);
 
-    @media (max-width: globalBreakpoints.$breakpoint-sm) {
+    @media (max-width: globalBreakpoints.$breakpoint-md) {
       flex-direction: column;
+      gap: 0;
+    }
+
+    &_filters_open {
+      @media (max-width: globalBreakpoints.$breakpoint-md) {
+        gap: globalFunctions.fluidValue(20px, 35px, $layout-min, $layout-max);
+      }
     }
   }
 
-  &__filters-stack {
-    @media (min-width: (globalBreakpoints.$breakpoint-sm + 1px)) {
-      display: contents;
-    }
-
-    @media (max-width: globalBreakpoints.$breakpoint-sm) {
-      display: flex;
-      flex-direction: column;
-      align-items: stretch;
-      width: 100%;
+  &__body_filters_open &__toggle-filters {
+    @media (max-width: globalBreakpoints.$breakpoint-md) {
+      margin-bottom: 0;
     }
   }
 
   &__aside {
     flex: 0 0 262px;
 
-    @media (max-width: globalBreakpoints.$breakpoint-sm) {
+    @media (max-width: globalBreakpoints.$breakpoint-md) {
       flex: none;
       width: 100%;
       display: grid;
@@ -172,14 +194,13 @@ watch(onSale, (newVal) => {
     }
 
     &_open {
-      @media (max-width: globalBreakpoints.$breakpoint-sm) {
+      @media (max-width: globalBreakpoints.$breakpoint-md) {
         grid-template-rows: 1fr;
-        margin-top: globalFunctions.fluidValue(12px, 16px, $layout-min, $layout-max);
       }
     }
 
     &-inner {
-      @media (max-width: globalBreakpoints.$breakpoint-sm) {
+      @media (max-width: globalBreakpoints.$breakpoint-md) {
         min-height: 0;
         overflow: hidden;
         opacity: 0;
@@ -194,7 +215,7 @@ watch(onSale, (newVal) => {
   }
 
   &__aside_open &__aside-inner {
-    @media (max-width: globalBreakpoints.$breakpoint-sm) {
+    @media (max-width: globalBreakpoints.$breakpoint-md) {
       overflow: visible;
       opacity: 1;
       pointer-events: auto;
@@ -203,11 +224,12 @@ watch(onSale, (newVal) => {
 
   &__toggle-filters {
     display: none;
-    @media (max-width: globalBreakpoints.$breakpoint-sm) {
+    @media (max-width: globalBreakpoints.$breakpoint-md) {
       display: flex;
       align-items: center;
       justify-content: flex-start;
       gap: 8px;
+      margin-bottom: globalFunctions.fluidValue(20px, 35px, $layout-min, $layout-max);
     }
   }
 
@@ -218,11 +240,15 @@ watch(onSale, (newVal) => {
   }
 
   &__main {
-    flex: 1 1 auto;
+    flex: 1 1 948px;
+
+    @media (max-width: globalBreakpoints.$breakpoint-md) {
+      flex: 1 1 auto;
+    }
   }
 
   .filters-bar {
-    @media (max-width: globalBreakpoints.$breakpoint-sm) {
+    @media (max-width: globalBreakpoints.$breakpoint-md) {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: globalFunctions.fluidValue(12px, 24px, $layout-min, $layout-max);
@@ -232,7 +258,7 @@ watch(onSale, (newVal) => {
       padding-bottom: globalFunctions.fluidValue(6px, 10px, $layout-min, $layout-max);
       margin-bottom: globalFunctions.fluidValue(9px, 39px, $layout-min, $layout-max);
 
-      @media (max-width: globalBreakpoints.$breakpoint-sm) {
+      @media (max-width: globalBreakpoints.$breakpoint-md) {
         grid-column: 1 / -1;
       }
     }
@@ -299,13 +325,13 @@ watch(onSale, (newVal) => {
     :deep(.filters-bar__on-sale) {
       margin-top: globalFunctions.fluidValue(8px, 38px, $layout-min, $layout-max);
       margin-bottom: globalFunctions.fluidValue(9px, 42px, $layout-min, $layout-max);
-      @media (max-width: globalBreakpoints.$breakpoint-sm) {
+      @media (max-width: globalBreakpoints.$breakpoint-md) {
         grid-column: 1 / -1;
       }
     }
 
     :deep(.filters-bar__in-stock) {
-      @media (max-width: globalBreakpoints.$breakpoint-sm) {
+      @media (max-width: globalBreakpoints.$breakpoint-md) {
         grid-column: 1 / -1;
       }
     }
@@ -326,7 +352,7 @@ watch(onSale, (newVal) => {
     }
 
     .slider {
-      @media (max-width: globalBreakpoints.$breakpoint-sm) {
+      @media (max-width: globalBreakpoints.$breakpoint-md) {
         grid-column: 1 / -1;
       }
 
@@ -379,10 +405,21 @@ watch(onSale, (newVal) => {
     :deep(.filters-bar__select-sort-by),
     :deep(.filters-bar__on-sale),
     :deep(.filters-bar__in-stock) {
-      @media (max-width: globalBreakpoints.$breakpoint-sm) {
+      @media (max-width: globalBreakpoints.$breakpoint-md) {
         margin-top: 0;
         margin-bottom: 0;
       }
+    }
+  }
+
+  &__products {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: globalFunctions.fluidValue(16px, 24px, $layout-min, $layout-max);
+    row-gap: globalFunctions.fluidValue(24px, 70px, $layout-min, $layout-max);
+
+    @media (max-width: (600px)) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
 }

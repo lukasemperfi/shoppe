@@ -3,7 +3,6 @@ import ProductCard from '@/entities/product/ui/product-card/ProductCard.vue'
 import { productApi } from '@/entities/product/api/product'
 import { onMounted, ref } from 'vue'
 import type { Product } from '@/entities/product/model/types'
-import type { ProductCardBadge } from '@/entities/product/model/types'
 
 const products = ref<Product[]>([])
 
@@ -31,24 +30,9 @@ onMounted(async () => {
             :price="product.price"
             :old-price="product.discount"
             :image-url="product?.product_images[0]?.url"
-            :badge="
-              {
-                text: product.is_new
-                  ? 'New'
-                  : product.is_sold_out
-                    ? 'Sold Out'
-                    : product.discount
-                      ? 'Sale'
-                      : undefined,
-                variant: product.is_new
-                  ? 'new'
-                  : product.is_sold_out
-                    ? 'sold'
-                    : product.discount
-                      ? 'discount'
-                      : undefined,
-              } as ProductCardBadge
-            "
+            :is-new="product.is_new"
+            :is-sold-out="product.is_sold_out"
+            :has-discount="!!product.discount"
           />
         </div>
       </div>

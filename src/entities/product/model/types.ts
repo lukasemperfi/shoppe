@@ -49,6 +49,8 @@ export interface ProductCardData {
   imageUrl?: string
   badge?: ProductCardBadge | null
   isSoldOut?: boolean
+  isNew?: boolean
+  hasDiscount?: boolean
 }
 
 export interface Product {
