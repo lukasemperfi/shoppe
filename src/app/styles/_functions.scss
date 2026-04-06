@@ -1,8 +1,8 @@
-@use "sass:math";
-@use "sass:meta";
+@use 'sass:math';
+@use 'sass:meta';
 
 @function strip-unit($value) {
-  @if meta.type-of($value) == "number" and not math.is-unitless($value) {
+  @if meta.type-of($value) == 'number' and not math.is-unitless($value) {
     @return math.div($value, ($value * 0 + 1));
   }
   @return $value;
@@ -22,10 +22,10 @@
   $k: math.div($f-max-num - $f-min-num, $w-max-num - $w-min-num);
   $b: $f-min-num - $k * $w-min-num;
 
-  $actual-min: if(sass($f-min-num < $f-max-num): $f-min-num; else: $f-max-num);
-  $actual-max: if(sass($f-min-num > $f-max-num): $f-min-num; else: $f-max-num);
-  $actual-min-unit: if(sass($f-min-num < $f-max-num): $f-min-unit; else: $f-max-unit);
-  $actual-max-unit: if(sass($f-min-num > $f-max-num): $f-min-unit; else: $f-max-unit);
+  $actual-min: if($f-min-num < $f-max-num, $f-min-num, $f-max-num);
+  $actual-max: if($f-min-num > $f-max-num, $f-min-num, $f-max-num);
+  $actual-min-unit: if($f-min-num < $f-max-num, $f-min-unit, $f-max-unit);
+  $actual-max-unit: if($f-min-num > $f-max-num, $f-min-unit, $f-max-unit);
 
   @return clamp(
     #{$actual-min}#{$actual-min-unit},

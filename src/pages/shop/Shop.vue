@@ -3,6 +3,7 @@ import Input from '@/shared/ui/input/Input.vue'
 import Icon from '@/shared/ui/icon/Icon.vue'
 import Select from '@/shared/ui/select/Select.vue'
 import Toggle from './Toggle.vue'
+import { useMediaQuery } from '@vueuse/core'
 import { ref, watch } from 'vue'
 import Slider from '@vueform/slider'
 import '@vueform/slider/themes/default.css'
@@ -13,6 +14,14 @@ const shopByCategory = ref<string>('')
 const sortBy = ref<string>('')
 const onSale = ref(false)
 const inStock = ref(false)
+const filtersPanelOpen = ref(false)
+const isNarrowShopLayout = useMediaQuery('(max-width: 768px)')
+
+watch(isNarrowShopLayout, (narrow) => {
+  if (!narrow) {
+    filtersPanelOpen.value = false
+  }
+})
 const shopByCategoryOptions = [
   { label: 'All', value: 'all' },
   { label: 'Clothing', value: 'clothing' },
@@ -38,44 +47,62 @@ watch(onSale, (newVal) => {
           <h1 class="catalog__title">Shop The Latest</h1>
         </div>
         <div class="catalog__body">
-          <div class="catalog__aside">
-            <div class="filters-bar">
-              <Input placeholder="Search..." class="filters-bar__search">
-                <template #append>
-                  <button type="button" style="">
-                    <Icon name="search" />
-                  </button>
-                </template>
-              </Input>
+          <div class="catalog__filters-stack">
+            <button
+              type="button"
+              class="catalog__toggle-filters"
+              :aria-expanded="filtersPanelOpen"
+              aria-controls="catalog-filters-panel"
+              @click="filtersPanelOpen = !filtersPanelOpen"
+            >
+              <Icon name="filter" />
+              <span class="catalog__toggle-filters-text"> Filters </span>
+            </button>
+            <div
+              id="catalog-filters-panel"
+              class="catalog__aside"
+              :class="{ catalog__aside_open: filtersPanelOpen }"
+            >
+              <div class="catalog__aside-inner">
+                <div class="filters-bar">
+                  <Input placeholder="Search..." class="filters-bar__search">
+                    <template #append>
+                      <button type="button">
+                        <Icon name="search" />
+                      </button>
+                    </template>
+                  </Input>
 
-              <Select
-                :options="shopByCategoryOptions"
-                v-model="shopByCategory"
-                label="Shop by"
-                class="filters-bar__select-shop-by"
-              />
-              <Select
-                :options="sortByOptions"
-                v-model="sortBy"
-                label="Sort by"
-                class="filters-bar__select-sort-by"
-              />
-              <div class="slider">
-                <Slider
-                  v-model="priceRange"
-                  :min="0"
-                  :max="180"
-                  :tooltips="false"
-                  class="slider__input"
-                />
+                  <Select
+                    :options="shopByCategoryOptions"
+                    v-model="shopByCategory"
+                    label="Shop by"
+                    class="filters-bar__select-shop-by"
+                  />
+                  <Select
+                    :options="sortByOptions"
+                    v-model="sortBy"
+                    label="Sort by"
+                    class="filters-bar__select-sort-by"
+                  />
+                  <div class="slider">
+                    <Slider
+                      v-model="priceRange"
+                      :min="0"
+                      :max="180"
+                      :tooltips="false"
+                      class="slider__input"
+                    />
 
-                <div class="slider__footer">
-                  <span>Price: ${{ priceRange[0] }} - ${{ priceRange[1] }}</span>
-                  <button class="slider__filter-btn">Filter</button>
+                    <div class="slider__footer">
+                      <span>Price: ${{ priceRange[0] }} - ${{ priceRange[1] }}</span>
+                      <button class="slider__filter-btn">Filter</button>
+                    </div>
+                  </div>
+                  <Toggle v-model="onSale" class="filters-bar__on-sale" label="On sale" />
+                  <Toggle v-model="inStock" class="filters-bar__in-stock" label="In stock" />
                 </div>
               </div>
-              <Toggle v-model="onSale" class="filters-bar__on-sale" label="On sale" />
-              <Toggle v-model="inStock" class="filters-bar__in-stock" label="In stock" />
             </div>
           </div>
           <div class="catalog__main">
@@ -88,44 +115,147 @@ watch(onSale, (newVal) => {
 </template>
 <style scoped lang="scss">
 .catalog {
-  margin-top: 97px;
+  $layout-min: 320px;
+  $layout-max: 1440px;
+  margin-top: clamp(24px, 6.8vw, 97px);
   &__top {
-    margin-bottom: 40px;
+    margin-bottom: clamp(16px, 2.8vw, 40px);
   }
   &__title {
     font-family: var(--font-family);
     font-weight: 500;
-    font-size: 31px;
+    font-size: clamp(20px, 2.2vw, 31px);
     color: var(--light-colors-black---light);
+
+    @media (max-width: globalBreakpoints.$breakpoint-sm) {
+      font-weight: 400;
+    }
   }
   &__body {
     display: flex;
-    gap: 35px;
+    gap: globalFunctions.fluidValue(20px, 35px, $layout-min, $layout-max);
+
+    @media (max-width: globalBreakpoints.$breakpoint-sm) {
+      flex-direction: column;
+    }
+  }
+
+  &__filters-stack {
+    @media (min-width: (globalBreakpoints.$breakpoint-sm + 1px)) {
+      display: contents;
+    }
+
+    @media (max-width: globalBreakpoints.$breakpoint-sm) {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      width: 100%;
+    }
   }
 
   &__aside {
     flex: 0 0 262px;
+
+    @media (max-width: globalBreakpoints.$breakpoint-sm) {
+      flex: none;
+      width: 100%;
+      display: grid;
+      grid-template-rows: 0fr;
+      margin-top: 0;
+      transition:
+        grid-template-rows 0.35s ease,
+        margin-top 0.35s ease;
+
+      @media (prefers-reduced-motion: reduce) {
+        transition: none;
+      }
+    }
+
+    &_open {
+      @media (max-width: globalBreakpoints.$breakpoint-sm) {
+        grid-template-rows: 1fr;
+        margin-top: globalFunctions.fluidValue(12px, 16px, $layout-min, $layout-max);
+      }
+    }
+
+    &-inner {
+      @media (max-width: globalBreakpoints.$breakpoint-sm) {
+        min-height: 0;
+        overflow: hidden;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.28s ease;
+
+        @media (prefers-reduced-motion: reduce) {
+          transition: none;
+        }
+      }
+    }
   }
+
+  &__aside_open &__aside-inner {
+    @media (max-width: globalBreakpoints.$breakpoint-sm) {
+      overflow: visible;
+      opacity: 1;
+      pointer-events: auto;
+    }
+  }
+
+  &__toggle-filters {
+    display: none;
+    @media (max-width: globalBreakpoints.$breakpoint-sm) {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 8px;
+    }
+  }
+
+  &__toggle-filters-text {
+    font-family: var(--font-family);
+    font-weight: 400;
+    font-size: globalFunctions.fluidValue(12px, 14px, $layout-min, $layout-max);
+  }
+
   &__main {
     flex: 1 1 auto;
   }
 
   .filters-bar {
+    @media (max-width: globalBreakpoints.$breakpoint-sm) {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: globalFunctions.fluidValue(12px, 24px, $layout-min, $layout-max);
+    }
+
     :deep(.input-wrapper) {
-      padding-bottom: clamp(4px, 0.7vw, 10px);
-      margin-bottom: 39px;
+      padding-bottom: globalFunctions.fluidValue(6px, 10px, $layout-min, $layout-max);
+      margin-bottom: globalFunctions.fluidValue(9px, 39px, $layout-min, $layout-max);
+
+      @media (max-width: globalBreakpoints.$breakpoint-sm) {
+        grid-column: 1 / -1;
+      }
     }
 
     :deep(.input) {
       font-family: var(--font-family);
       font-weight: 400;
-      font-size: 14px;
+      font-size: globalFunctions.fluidValue(12px, 14px, $layout-min, $layout-max);
 
       &::placeholder {
         font-family: var(--font-family);
         font-weight: 400;
-        font-size: 14px;
+        font-size: globalFunctions.fluidValue(12px, 14px, $layout-min, $layout-max);
         color: var(--light-colors-dark-gray---light);
+      }
+    }
+
+    :deep(.filters-bar__search) {
+      button {
+        svg {
+          width: globalFunctions.fluidValue(16px, 20px, $layout-min, $layout-max);
+          height: globalFunctions.fluidValue(16px, 20px, $layout-min, $layout-max);
+        }
       }
     }
 
@@ -133,39 +263,73 @@ watch(onSale, (newVal) => {
       .select__trigger {
         border: 1px solid var(--light-colors-gray---light);
         border-radius: 4px;
-        padding-block: 17px;
-        padding-inline: 11px;
+        padding-block: globalFunctions.fluidValue(6px, 17px, $layout-min, $layout-max);
+        padding-inline: globalFunctions.fluidValue(6px, 11px, $layout-min, $layout-max);
       }
 
       .select__value {
         font-family: var(--font-family);
         font-weight: 400;
-        font-size: 14px;
+        font-size: globalFunctions.fluidValue(12px, 14px, $layout-min, $layout-max);
 
         color: var(--light-colors-black---light);
       }
 
       .select__icon {
         svg {
-          width: 14px;
-          height: 8px;
+          width: globalFunctions.fluidValue(12px, 14px, $layout-min, $layout-max);
+          height: globalFunctions.fluidValue(6px, 8px, $layout-min, $layout-max);
         }
       }
     }
 
     :deep(.filters-bar__select-shop-by) {
-      margin-bottom: 14px;
+      margin-bottom: globalFunctions.fluidValue(3px, 14px, $layout-min, $layout-max);
+      @media (max-width: globalBreakpoints.$breakpoint-xs) {
+        grid-column: 1 / -1;
+      }
     }
     :deep(.filters-bar__select-sort-by) {
-      margin-bottom: 43px;
+      margin-bottom: globalFunctions.fluidValue(10px, 43px, $layout-min, $layout-max);
+      @media (max-width: globalBreakpoints.$breakpoint-xs) {
+        grid-column: 1 / -1;
+      }
     }
 
     :deep(.filters-bar__on-sale) {
-      margin-top: 38px;
-      margin-bottom: 42px;
+      margin-top: globalFunctions.fluidValue(8px, 38px, $layout-min, $layout-max);
+      margin-bottom: globalFunctions.fluidValue(9px, 42px, $layout-min, $layout-max);
+      @media (max-width: globalBreakpoints.$breakpoint-sm) {
+        grid-column: 1 / -1;
+      }
+    }
+
+    :deep(.filters-bar__in-stock) {
+      @media (max-width: globalBreakpoints.$breakpoint-sm) {
+        grid-column: 1 / -1;
+      }
+    }
+
+    :deep(.toggle) {
+      .toggle__text {
+        font-size: globalFunctions.fluidValue(14px, 16px, $layout-min, $layout-max);
+      }
+
+      .toggle__switch {
+        width: globalFunctions.fluidValue(30px, 33px, $layout-min, $layout-max);
+        height: globalFunctions.fluidValue(18px, 20px, $layout-min, $layout-max);
+      }
+      .toggle__track::after {
+        width: globalFunctions.fluidValue(11px, 13px, $layout-min, $layout-max);
+        height: globalFunctions.fluidValue(11px, 13px, $layout-min, $layout-max);
+      }
     }
 
     .slider {
+      @media (max-width: globalBreakpoints.$breakpoint-sm) {
+        grid-column: 1 / -1;
+      }
+
       &__input {
         --slider-bg: var(--light-colors-gray---light);
         --slider-connect-bg: var(--light-colors-black---light);
@@ -189,27 +353,35 @@ watch(onSale, (newVal) => {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        width: 262px;
-        margin-top: 13px;
+        margin-top: globalFunctions.fluidValue(6px, 13px, $layout-min, $layout-max);
 
         span {
           font-family: 'DM Sans', var(--font-family);
           font-weight: 400;
-          font-size: 14px;
-          line-height: 22px;
+          font-size: globalFunctions.fluidValue(12px, 14px, $layout-min, $layout-max);
+          line-height: globalFunctions.fluidValue(18px, 22px, $layout-min, $layout-max);
           color: #707070;
         }
       }
       &__filter-btn {
         font-family: 'DM Sans', var(--font-family);
         font-weight: 400;
-        font-size: 14px;
-        line-height: 22px;
+        font-size: globalFunctions.fluidValue(12px, 14px, $layout-min, $layout-max);
         color: #a18a68;
         background: transparent;
         border: 0;
         padding: 0;
         cursor: pointer;
+      }
+    }
+    :deep(.input-wrapper),
+    :deep(.filters-bar__select-shop-by),
+    :deep(.filters-bar__select-sort-by),
+    :deep(.filters-bar__on-sale),
+    :deep(.filters-bar__in-stock) {
+      @media (max-width: globalBreakpoints.$breakpoint-sm) {
+        margin-top: 0;
+        margin-bottom: 0;
       }
     }
   }
