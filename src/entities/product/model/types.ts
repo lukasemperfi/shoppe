@@ -46,6 +46,7 @@ export interface ProductCardData {
   name: string
   price: number
   oldPrice?: number | null
+  discountRate?: number | null
   imageUrl?: string
   badge?: ProductCardBadge | null
   isSoldOut?: boolean

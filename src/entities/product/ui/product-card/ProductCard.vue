@@ -6,22 +6,50 @@ const props = withDefaults(defineProps<ProductCardData>(), {
   imageUrl: 'https://loremflickr.com/300/300/jewelry,earring',
   isSoldOut: false,
   oldPrice: null,
+  discountRate: null,
   isNew: false,
   hasDiscount: false,
+})
+
+function isPositiveDiscountRate(): boolean {
+  const r = props.discountRate
+  return r != null && r > 0
+}
+
+const displayListPrice = computed((): number | null => {
+  if (isPositiveDiscountRate()) {
+    return props.price
+  }
+  return props.oldPrice ?? null
+})
+
+const displayCurrentPrice = computed((): number => {
+  if (isPositiveDiscountRate()) {
+    const r = props.discountRate as number
+    const effective = Math.min(1, Math.max(0, r))
+    return Math.round(props.price * (1 - effective) * 100) / 100
+  }
+  return props.price
 })
 
 const displayBadge = computed((): ProductCardBadge | null => {
   if (props.badge !== undefined) {
     return props.badge
   }
+  if (isPositiveDiscountRate()) {
+    const r = props.discountRate as number
+    const effective = Math.min(1, Math.max(0, r))
+    const pct = Math.round(effective * 100)
+    return { text: `-${pct}%`, variant: 'discount' }
+  }
+  if (props.hasDiscount) {
+    return { text: 'Sale', variant: 'discount' }
+  }
   if (props.isNew) {
     return { text: 'New', variant: 'new' }
   }
   if (props.isSoldOut) {
     return { text: 'Sold Out', variant: 'sold' }
-  }
-  if (props.hasDiscount) {
-    return { text: 'Sale', variant: 'discount' }
   }
   return null
 })
@@ -75,18 +103,18 @@ function onAddToCart(): void {
       </h3>
       <div
         class="product-card__prices"
-        :class="{ 'product-card__prices--discount': oldPrice != null }"
+        :class="{ 'product-card__prices--discount': displayListPrice != null }"
       >
-        <template v-if="oldPrice != null">
+        <template v-if="displayListPrice != null">
           <span class="product-card__price product-card__price--old">
-            {{ formatPrice(oldPrice) }}
+            {{ formatPrice(displayListPrice) }}
           </span>
           <span class="product-card__price product-card__price--current">
-            {{ formatPrice(price) }}
+            {{ formatPrice(displayCurrentPrice) }}
           </span>
         </template>
         <span v-else class="product-card__price product-card__price--current">
-          {{ formatPrice(price) }}
+          {{ formatPrice(displayCurrentPrice) }}
         </span>
       </div>
     </div>

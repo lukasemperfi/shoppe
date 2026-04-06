@@ -44,6 +44,7 @@ onMounted(async () => {
   const data = await productApi.getProducts({ limit: 6 })
   if (data) {
     products.value = data.items
+    console.log('products', data.items)
   }
 })
 
@@ -122,11 +123,10 @@ watch(onSale, (newVal) => {
                 :key="product.id"
                 :name="product.name"
                 :price="product.price"
-                :old-price="product.discount"
+                :discount-rate="product.discount"
                 :image-url="product?.product_images[0]?.url"
                 :is-new="product.is_new"
                 :is-sold-out="product.is_sold_out"
-                :has-discount="!!product.discount"
               />
             </div>
           </div>
