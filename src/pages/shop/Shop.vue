@@ -4,6 +4,10 @@ import Icon from '@/shared/ui/icon/Icon.vue'
 import Select from '@/shared/ui/select/Select.vue'
 import Toggle from './Toggle.vue'
 import { ref, watch } from 'vue'
+import Slider from '@vueform/slider'
+import '@vueform/slider/themes/default.css'
+
+const priceRange = ref([40, 180])
 
 const shopByCategory = ref<string>('')
 const sortBy = ref<string>('')
@@ -43,6 +47,7 @@ watch(onSale, (newVal) => {
                   </button>
                 </template>
               </Input>
+
               <Select
                 :options="shopByCategoryOptions"
                 v-model="shopByCategory"
@@ -55,6 +60,20 @@ watch(onSale, (newVal) => {
                 label="Sort by"
                 class="filters-bar__select-sort-by"
               />
+              <div class="slider">
+                <Slider
+                  v-model="priceRange"
+                  :min="0"
+                  :max="180"
+                  :tooltips="false"
+                  class="slider__input"
+                />
+
+                <div class="slider__footer">
+                  <span>Price: ${{ priceRange[0] }} - ${{ priceRange[1] }}</span>
+                  <button class="slider__filter-btn">Filter</button>
+                </div>
+              </div>
               <Toggle v-model="onSale" class="filters-bar__on-sale" label="On sale" />
               <Toggle v-model="inStock" class="filters-bar__in-stock" label="In stock" />
             </div>
@@ -137,9 +156,61 @@ watch(onSale, (newVal) => {
     :deep(.filters-bar__select-shop-by) {
       margin-bottom: 14px;
     }
+    :deep(.filters-bar__select-sort-by) {
+      margin-bottom: 43px;
+    }
 
     :deep(.filters-bar__on-sale) {
+      margin-top: 38px;
       margin-bottom: 42px;
+    }
+
+    .slider {
+      &__input {
+        --slider-bg: var(--light-colors-gray---light);
+        --slider-connect-bg: var(--light-colors-black---light);
+        --slider-connect-bg-disabled: var(--light-colors-gray);
+        --slider-height: 2px;
+        --slider-radius: 0px;
+
+        --slider-handle-bg: var(--light-colors-black---light);
+        --slider-handle-width: 2px;
+        --slider-handle-height: 10px;
+        --slider-handle-radius: 0px;
+        --slider-handle-shadow: none;
+
+        :deep(.slider-handle) {
+          top: calc(
+            (var(--slider-handle-height, 16px) - var(--slider-height, 6px)) / 2 * -1
+          ) !important;
+        }
+      }
+      &__footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 262px;
+        margin-top: 13px;
+
+        span {
+          font-family: 'DM Sans', var(--font-family);
+          font-weight: 400;
+          font-size: 14px;
+          line-height: 22px;
+          color: #707070;
+        }
+      }
+      &__filter-btn {
+        font-family: 'DM Sans', var(--font-family);
+        font-weight: 400;
+        font-size: 14px;
+        line-height: 22px;
+        color: #a18a68;
+        background: transparent;
+        border: 0;
+        padding: 0;
+        cursor: pointer;
+      }
     }
   }
 }

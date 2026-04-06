@@ -19,6 +19,7 @@
   "dependencies": {
     "@floating-ui/vue": "^1.1.11",
     "@supabase/supabase-js": "^2.101.1",
+    "@vueform/slider": "^2.1.10",
     "@vueuse/core": "^14.2.1",
     "pinia": "^3.0.4",
     "swiper": "^12.1.3",
