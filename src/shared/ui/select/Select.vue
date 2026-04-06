@@ -12,6 +12,7 @@ interface Props {
   modelValue?: string | number
   placeholder?: string
   name?: string
+  label?: string
 }
 
 const props = defineProps<Props>()
@@ -43,9 +44,9 @@ const handleClickOutside = (event: MouseEvent) => {
 onMounted(() => document.addEventListener('click', handleClickOutside))
 onUnmounted(() => document.removeEventListener('click', handleClickOutside))
 
-const currentLabel = computed(() => {
+const selectedLabel = computed(() => {
   const option = props.options.find((opt) => opt.value === props.modelValue)
-  return option ? option.label : props.placeholder
+  return option ? option.label : null
 })
 </script>
 
@@ -66,8 +67,12 @@ const currentLabel = computed(() => {
     </select>
 
     <div class="select__trigger" @click="toggleSelect">
-      <span class="select__value" :class="{ 'is-placeholder': !modelValue }">
-        {{ currentLabel }}
+      <span class="select__value" :class="{ 'is-placeholder': !modelValue && !label }">
+        {{ !modelValue ? label : selectedLabel }}
+        <!-- <template v-if="label"> {{ label }}<template v-if="selectedLabel"></template> </template>
+        <template v-else>
+          {{ selectedLabel ?? placeholder }}
+        </template> -->
       </span>
 
       <div class="select__icon" :class="{ 'is-rotated': isOpen }">
