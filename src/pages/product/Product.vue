@@ -14,7 +14,7 @@ import Tabs from '@/shared/ui/tabs/Tabs.vue'
 import TabsList from '@/shared/ui/tabs/TabsList.vue'
 import TabsTrigger from '@/shared/ui/tabs/TabsTrigger.vue'
 import TabsPanel from '@/shared/ui/tabs/TabsPanel.vue'
-import Accordion from './Accordion.vue'
+import Accordion from '../../shared/ui/accordion/Accordion.vue'
 
 type ProductSlide = {
   id: number
@@ -102,6 +102,37 @@ const isTextExpanded = ref(false)
 const expandText = () => {
   isTextExpanded.value = true
 }
+
+const productPrice = 30
+const productOldPrice: number | null = null
+const discountRate: number | null = 0.2
+
+const isSoldOut = true
+
+function isPositiveDiscountRate(): boolean {
+  const r = discountRate
+  return r != null && r > 0
+}
+
+const displayListPrice = computed((): number | null => {
+  if (isPositiveDiscountRate()) {
+    return productPrice
+  }
+  return productOldPrice ?? null
+})
+
+const displayCurrentPrice = computed((): number => {
+  if (isPositiveDiscountRate()) {
+    const r = discountRate as number
+    const effective = Math.min(1, Math.max(0, r))
+    return Math.round(productPrice * (1 - effective) * 100) / 100
+  }
+  return productPrice
+})
+
+function formatPrice(value: number): string {
+  return `$ ${value.toFixed(2).replace('.', ',')}`
+}
 </script>
 
 <template>
@@ -171,7 +202,22 @@ const expandText = () => {
 
         <div class="product__info">
           <h1 class="product__title">Lira Earrings</h1>
-          <p class="product__price">$ 20,00</p>
+          <div
+            class="product__prices"
+            :class="{ 'product__prices--discount': displayListPrice != null }"
+          >
+            <template v-if="displayListPrice != null">
+              <span class="product__price product__price--old">
+                {{ formatPrice(displayListPrice) }}
+              </span>
+              <span class="product__price product__price--current">
+                {{ formatPrice(displayCurrentPrice) }}
+              </span>
+            </template>
+            <p v-else class="product__price product__price--current">
+              {{ formatPrice(displayCurrentPrice) }}
+            </p>
+          </div>
 
           <div class="product__rating">
             <StarsRate :rate="5" readonly />
@@ -195,16 +241,17 @@ const expandText = () => {
               View more <Icon name="chevron-right" />
             </button>
           </div>
+          <template v-if="!isSoldOut">
+            <div class="product__select">
+              <Select v-model="selectedColor" :options="colors" label="Choose an option" />
+            </div>
 
-          <div class="product__select">
-            <Select v-model="selectedColor" :options="colors" label="Choose an option" />
-          </div>
-
-          <div class="product__buy">
-            <Quantity v-model="quantity" />
-            <Button variant="outline" color="black" class="product__add">ADD TO CART</Button>
-          </div>
-
+            <div class="product__buy">
+              <Quantity v-model="quantity" />
+              <Button variant="outline" color="black" class="product__add">ADD TO CART</Button>
+            </div>
+          </template>
+          <p v-else class="product__sold-out">Out of stock</p>
           <div class="product__social">
             <button type="button" class="product__social-btn" aria-label="Add to wishlist">
               <Icon name="heart" />
@@ -303,7 +350,7 @@ const expandText = () => {
   &__top {
     display: grid;
     grid-template-columns: 699fr 486fr;
-    gap: clamp(24px, 4.5vw, 64px);
+    gap: clamp(24px, 4.5vw, 63px);
     align-items: start;
 
     @media (max-width: 1439px) {
@@ -414,7 +461,7 @@ const expandText = () => {
     position: relative;
     width: 100%;
     height: 2px;
-    margin-top: globalFunctions.fluidValue(15px, 22px, 320px, 1440px);
+    margin-top: globalFunctions.fluidValue(15px, 23px, 320px, 1440px);
   }
 
   &__progress-base {
@@ -459,16 +506,41 @@ const expandText = () => {
     }
   }
 
+  &__prices {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: 16px;
+    row-gap: 4px;
+    margin-bottom: globalFunctions.fluidValue(26px, 28px, 320px, 1440px);
+
+    @media (max-width: globalBreakpoints.$breakpoint-xs) {
+      order: 2;
+    }
+
+    &--discount {
+      .product__price--old {
+        text-decoration: line-through;
+        text-decoration-color: var(--light-colors-errors---light);
+      }
+    }
+  }
+
   &__price {
+    margin: 0;
     font-family: var(--font-family);
     font-weight: 500;
     font-size: globalFunctions.fluidValue(16px, 20px, 320px, 1440px);
     text-transform: capitalize;
     color: var(--light-colors-accent---light);
-    margin-bottom: globalFunctions.fluidValue(26px, 28px, 320px, 1440px);
 
-    @media (max-width: globalBreakpoints.$breakpoint-xs) {
-      order: 2;
+    &--old {
+      font-size: 20px;
+      color: var(--light-colors-errors---light);
+    }
+
+    &--current {
+      color: var(--light-colors-accent---light);
     }
   }
 
@@ -588,6 +660,17 @@ const expandText = () => {
       order: 3;
     }
   }
+  .hidden {
+    display: none;
+  }
+  &__sold-out {
+    margin-bottom: globalFunctions.fluidValue(16px, 41px, 320px, 1440px);
+    font-family: var(--font-family);
+    font-weight: 500;
+    font-size: globalFunctions.fluidValue(16px, 20px, 320px, 1440px);
+    text-transform: capitalize;
+    color: var(--light-colors-errors---light);
+  }
 
   &__add {
     height: 53px;
@@ -697,7 +780,7 @@ const expandText = () => {
     @media (max-width: globalBreakpoints.$breakpoint-xs) {
       display: block;
       margin-top: 12px;
-      padding-block: 16px;
+      padding-block: 17px;
       border-block: 1px solid var(--light-colors-gray---light);
     }
   }
