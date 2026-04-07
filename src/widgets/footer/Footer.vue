@@ -57,6 +57,7 @@ const isAgreed = ref(false)
 .footer {
   width: 100%;
   background: var(--light-colors-white---light);
+  padding-bottom: clamp(27px, 7.4vw, 107px);
 
   &__wrapper {
     border-top: 1px solid var(--light-colors-gray---light);

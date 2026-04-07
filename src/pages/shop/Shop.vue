@@ -6,7 +6,7 @@ import Input from '@/shared/ui/input/Input.vue'
 import Icon from '@/shared/ui/icon/Icon.vue'
 import Select from '@/shared/ui/select/Select.vue'
 import Loader from '@/shared/ui/loader/Loader.vue'
-import Toggle from './Toggle.vue'
+import Toggle from './ui/Toggle.vue'
 import Slider from '@vueform/slider'
 import '@vueform/slider/themes/default.css'
 import ProductCard from '@/entities/product/ui/product-card/ProductCard.vue'
@@ -73,7 +73,7 @@ const fetchProducts = async () => {
     hasDiscount: filters.onSale || undefined,
     isSoldOut: filters.inStock || undefined,
     sortBy: filters.sortBy as ProductsSortBy,
-    limit: 100,
+    limit: 6,
   }
 
   console.log('apiParams', apiParams)

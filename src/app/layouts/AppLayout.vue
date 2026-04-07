@@ -21,5 +21,6 @@ import Footer from '@/widgets/footer/Footer.vue'
 }
 .main-content {
   flex: 1;
+  padding-bottom: clamp(72px, 17.3vw, 249px);
 }
 </style>
