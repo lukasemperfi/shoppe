@@ -5,6 +5,7 @@ import { useMediaQuery, useDebounceFn } from '@vueuse/core'
 import Input from '@/shared/ui/input/Input.vue'
 import Icon from '@/shared/ui/icon/Icon.vue'
 import Select from '@/shared/ui/select/Select.vue'
+import Loader from '@/shared/ui/loader/Loader.vue'
 import Toggle from './Toggle.vue'
 import Slider from '@vueform/slider'
 import '@vueform/slider/themes/default.css'
@@ -185,7 +186,7 @@ onMounted(() => {
           </aside>
 
           <div class="catalog__main">
-            <div v-if="isLoading" class="catalog__loader">Loading...</div>
+            <Loader v-if="isLoading" class="catalog__loader" />
 
             <div v-else class="catalog__products">
               <ProductCard
