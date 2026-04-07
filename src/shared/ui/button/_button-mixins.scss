@@ -26,9 +26,11 @@
       border-color: var(--light-colors-black---light);
       border-radius: 4px;
 
-      &:hover {
-        background: var(--light-colors-white---light);
-        color: var(--light-colors-black---light);
+      @media (hover: hover) {
+        &:hover {
+          background: var(--light-colors-white---light);
+          color: var(--light-colors-black---light);
+        }
       }
     } @else {
       background: var(--light-colors-white---light);
@@ -36,9 +38,11 @@
       border-color: var(--light-colors-white---light);
       border-radius: 4px;
 
-      &:hover {
-        background: var(--light-colors-black---light);
-        color: var(--light-colors-white---light);
+      @media (hover: hover) {
+        &:hover {
+          background: var(--light-colors-black---light);
+          color: var(--light-colors-white---light);
+        }
       }
     }
   } @else if $variant == 'outline' {
@@ -48,9 +52,11 @@
       background: transparent;
       border-radius: 4px;
 
-      &:hover {
-        background: var(--light-colors-black---light);
-        color: var(--light-colors-white---light);
+      @media (hover: hover) {
+        &:hover {
+          background: var(--light-colors-black---light);
+          color: var(--light-colors-white---light);
+        }
       }
     } @else {
       border: 1px solid var(--light-colors-white---light);
@@ -58,9 +64,11 @@
       background: transparent;
       border-radius: 4px;
 
-      &:hover {
-        background: var(--light-colors-white---light);
-        color: var(--light-colors-black---light);
+      @media (hover: hover) {
+        &:hover {
+          background: var(--light-colors-white---light);
+          color: var(--light-colors-black---light);
+        }
       }
     }
   }

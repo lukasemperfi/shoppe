@@ -11,16 +11,11 @@ const routes: Array<RouteRecordRaw> = [
     name: 'shop',
     component: () => import('@/pages/shop/Shop.vue'),
   },
-  // {
-  //   path: '/blog',
-  //   name: 'blog',
-  //   component: () => import('@/pages/blog/Blog.vue'),
-  // },
-  // {
-  //   path: '/our-story',
-  //   name: 'our-story',
-  //   component: () => import('@/pages/our-story/OurStory.vue'),
-  // },
+  {
+    path: '/product/:id',
+    name: 'product',
+    component: () => import('@/pages/product/Product.vue'),
+  },
 ]
 
 const router = createRouter({
