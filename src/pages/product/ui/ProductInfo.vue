@@ -92,17 +92,17 @@ const reviewsLabel = computed(() => {
     <h1 class="product-info__title">{{ name }}</h1>
     <div
       class="product-info__prices"
-      :class="{ 'product-info__prices--discount': displayListPrice != null }"
+      :class="{ 'product-info__prices_discount': displayListPrice != null }"
     >
       <template v-if="displayListPrice != null">
-        <span class="product-info__price product-info__price--old">
+        <span class="product-info__price product-info__price_old">
           {{ formatPrice(displayListPrice) }}
         </span>
-        <span class="product-info__price product-info__price--current">
+        <span class="product-info__price product-info__price_current">
           {{ formatPrice(displayCurrentPrice) }}
         </span>
       </template>
-      <p v-else class="product-info__price product-info__price--current">
+      <p v-else class="product-info__price product-info__price_current">
         {{ formatPrice(displayCurrentPrice) }}
       </p>
     </div>
@@ -130,16 +130,17 @@ const reviewsLabel = computed(() => {
 
     <template v-if="!isSoldOut">
       <div v-if="colorOptions.length" class="product-info__select">
-        <Select
-          v-model="selectedColor"
-          :options="colorOptions"
-          :label="selectLabel"
-        />
+        <Select v-model="selectedColor" :options="colorOptions" :label="selectLabel" />
       </div>
 
       <div class="product-info__buy">
         <Quantity v-model="quantity" />
-        <Button variant="outline" color="black" class="product-info__add" @click="emit('addToCart')">
+        <Button
+          variant="outline"
+          color="black"
+          class="product-info__add"
+          @click="emit('addToCart')"
+        >
           ADD TO CART
         </Button>
       </div>
@@ -223,8 +224,8 @@ const reviewsLabel = computed(() => {
       order: 2;
     }
 
-    &--discount {
-      .product-info__price--old {
+    &_discount {
+      .product-info__price_old {
         text-decoration: line-through;
         text-decoration-color: var(--light-colors-errors---light);
       }
@@ -239,12 +240,11 @@ const reviewsLabel = computed(() => {
     text-transform: capitalize;
     color: var(--light-colors-accent---light);
 
-    &--old {
-      font-size: 20px;
+    &_old {
       color: var(--light-colors-errors---light);
     }
 
-    &--current {
+    &_current {
       color: var(--light-colors-accent---light);
     }
   }
