@@ -27,7 +27,7 @@ const isActive = computed(() => context.activeTab.value === props.id)
   justify-content: center;
   font-family: var(--font-family);
   font-weight: 400;
-  font-size: 20px;
+  font-size: globalFunctions.fluidValue(16px, 20px, 320px, 1440px);
   color: var(--light-colors-dark-gray---light);
 
   &_active {

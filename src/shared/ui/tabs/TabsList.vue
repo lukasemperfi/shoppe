@@ -70,13 +70,12 @@ onUnmounted(() => {
 
 .tabs-list {
   display: flex;
-  gap: 62px;
+  gap: globalFunctions.fluidValue(24px, 62px, 320px, 1440px);
   position: relative;
   padding-bottom: 12px;
   z-index: 2;
 
   @media (max-width: 768px) {
-    gap: 24px;
     overflow-x: auto;
     scrollbar-width: none;
     &::-webkit-scrollbar {

@@ -14,6 +14,7 @@ import Tabs from '@/shared/ui/tabs/Tabs.vue'
 import TabsList from '@/shared/ui/tabs/TabsList.vue'
 import TabsTrigger from '@/shared/ui/tabs/TabsTrigger.vue'
 import TabsPanel from '@/shared/ui/tabs/TabsPanel.vue'
+import Accordion from './Accordion.vue'
 
 type ProductSlide = {
   id: number
@@ -45,7 +46,6 @@ watch(showThumbs, (enabled) => {
   try {
     thumbsSwiper.value?.destroy(true, true)
   } catch {
-    // no-op
   } finally {
     thumbsSwiper.value = null
   }
@@ -69,12 +69,10 @@ const goTo = (index: number) => {
   mainSwiper.value?.slideTo(index)
 }
 
-// Удаляем жесткие константы PX
 const indicatorStyle = computed(() => {
   const count = slides.length
   if (count <= 1) return { width: '0%', transform: 'translateX(0)' }
 
-  // Ширина индикатора в процентах (например, если 4 слайда, один сегмент — 25%)
   const widthPercent = 100 / count
   const x = activeIndex.value * 100
 
@@ -94,6 +92,16 @@ const colors = [
 ]
 
 const tabs = ref<'description' | 'additional' | 'reviews'>('description')
+const accordionItems = [
+  { id: 'description', title: 'Description' },
+  { id: 'additional', title: 'Additional information' },
+  { id: 'reviews', title: 'Reviews(0)' },
+] as const
+
+const isTextExpanded = ref(false)
+const expandText = () => {
+  isTextExpanded.value = true
+}
 </script>
 
 <template>
@@ -170,14 +178,25 @@ const tabs = ref<'description' | 'additional' | 'reviews'>('description')
             <span class="product__reviews">1 customer review</span>
           </div>
 
-          <p class="product__text">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam placerat, augue a
-            volutpat hendrerit, sapien tortor faucibus augue, a maximus elit ex vitae libero. Sed
-            quis mauris eget arcu facilisis consequat sed eu felis.
-          </p>
+          <div class="product__text-block">
+            <p class="product__text" :class="{ product__text_expanded: isTextExpanded }">
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam placerat, augue a
+              volutpat hendrerit, sapien tortor faucibus augue, a maximus elit ex vitae libero. Sed
+              quis mauris eget arcu facilisis consequat sed eu felis.
+            </p>
+
+            <button
+              v-if="!isTextExpanded"
+              type="button"
+              class="product__text-more"
+              aria-label="View more"
+              @click="expandText"
+            >
+              View more <Icon name="chevron-right" />
+            </button>
+          </div>
 
           <div class="product__select">
-            <!-- <span class="product__select-label">COLORS</span> -->
             <Select v-model="selectedColor" :options="colors" label="Choose an option" />
           </div>
 
@@ -223,6 +242,25 @@ const tabs = ref<'description' | 'additional' | 'reviews'>('description')
         </div>
       </div>
 
+      <div class="product__accordion">
+        <Accordion v-model="tabs" :items="accordionItems" aria-label="Product details">
+          <template #description>
+            <p class="product__tab-text">
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam placerat, augue a
+              volutpat hendrerit, sapien tortor faucibus augue, a maximus elit ex vitae libero. Sed
+              quis mauris eget arcu facilisis consequat sed eu felis. Nunc sed porta augue. Morbi
+              porta tempor odio, in molestie diam bibendum sed.
+            </p>
+          </template>
+          <template #additional>
+            <p class="product__tab-text">Additional information will be here.</p>
+          </template>
+          <template #reviews>
+            <p class="product__tab-text">No reviews yet.</p>
+          </template>
+        </Accordion>
+      </div>
+
       <div class="product__tabs">
         <Tabs v-model="tabs" default-tab="description">
           <TabsList>
@@ -256,7 +294,7 @@ const tabs = ref<'description' | 'additional' | 'reviews'>('description')
 <style scoped lang="scss">
 .product {
   width: 100%;
-  padding-top: 127px;
+  padding-top: globalFunctions.fluidValue(17px, 127px, 320px, 1440px);
 
   &__container {
     width: 100%;
@@ -264,9 +302,8 @@ const tabs = ref<'description' | 'additional' | 'reviews'>('description')
 
   &__top {
     display: grid;
-    // Desktop: 2 колонки
     grid-template-columns: 699fr 486fr;
-    column-gap: clamp(12px, 4.5vw, 64px);
+    gap: clamp(24px, 4.5vw, 64px);
     align-items: start;
 
     @media (max-width: 1439px) {
@@ -286,32 +323,26 @@ const tabs = ref<'description' | 'additional' | 'reviews'>('description')
     min-width: 0;
 
     @media (max-width: 1439px) {
-      // Переключаем сетку в одну колонку
       grid-template-columns: 1fr;
-      row-gap: 20px; // Отступ между основным слайдером и превью
+      row-gap: 20px;
     }
   }
 
   &__thumbs {
     width: 100%;
     height: auto;
-    // Пропорции для вертикального вида (Desktop)
     aspect-ratio: 120 / 600;
     max-height: 600px;
 
     @media (max-width: 1439px) {
-      order: 2; // Thumbs под основным слайдером
-      //   max-height: none;
-      // В горизонтальном режиме: ширина 100%,
-      // а высота должна соответствовать одному ряду квадратных превью.
-      // Если у нас 4 слайда (как в конфиге), пропорция примерно 4 к 1.
+      order: 2;
       aspect-ratio: 4 / 1;
     }
   }
 
   &__thumb {
     width: 100%;
-    aspect-ratio: 1 / 1; // Превью всегда квадратное
+    aspect-ratio: 1 / 1;
     height: auto;
     border-radius: 8px;
     overflow: hidden;
@@ -339,7 +370,6 @@ const tabs = ref<'description' | 'additional' | 'reviews'>('description')
   }
 
   &__main {
-    // Убираем фиксированные 540px
     width: 100%;
     min-width: 0;
 
@@ -354,7 +384,6 @@ const tabs = ref<'description' | 'additional' | 'reviews'>('description')
 
   &__swiper {
     width: 100%;
-    // Задаем пропорцию, чтобы высота считалась от текущей ширины
     aspect-ratio: 540 / 600;
     border-radius: 8px;
     overflow: hidden;
@@ -362,6 +391,10 @@ const tabs = ref<'description' | 'additional' | 'reviews'>('description')
 
     @media (max-width: 1439px) {
       aspect-ratio: 1 / 1;
+    }
+
+    @media (max-width: 959px) {
+      aspect-ratio: 288 / 374;
     }
   }
 
@@ -381,7 +414,7 @@ const tabs = ref<'description' | 'additional' | 'reviews'>('description')
     position: relative;
     width: 100%;
     height: 2px;
-    margin-top: 22px;
+    margin-top: globalFunctions.fluidValue(15px, 22px, 320px, 1440px);
   }
 
   &__progress-base {
@@ -406,31 +439,48 @@ const tabs = ref<'description' | 'additional' | 'reviews'>('description')
   &__info {
     width: 100%;
     padding-top: 0;
+
+    @media (max-width: globalBreakpoints.$breakpoint-xs) {
+      display: flex;
+      flex-direction: column;
+    }
   }
 
   &__title {
     font-family: var(--font-family);
     font-weight: 400;
-    font-size: 26px;
-    line-height: 35px;
+    font-size: globalFunctions.fluidValue(20px, 26px, 320px, 1440px);
+    line-height: globalFunctions.fluidValue(27px, 35px, 320px, 1440px);
     color: var(--light-colors-black---light);
-    margin-bottom: 23px;
+    margin-bottom: globalFunctions.fluidValue(7px, 23px, 320px, 1440px);
+
+    @media (max-width: globalBreakpoints.$breakpoint-xs) {
+      order: 1;
+    }
   }
 
   &__price {
     font-family: var(--font-family);
     font-weight: 500;
-    font-size: 20px;
+    font-size: globalFunctions.fluidValue(16px, 20px, 320px, 1440px);
     text-transform: capitalize;
     color: var(--light-colors-accent---light);
-    margin-bottom: 28px;
+    margin-bottom: globalFunctions.fluidValue(26px, 28px, 320px, 1440px);
+
+    @media (max-width: globalBreakpoints.$breakpoint-xs) {
+      order: 2;
+    }
   }
 
   &__rating {
     display: flex;
     align-items: center;
-    gap: 25px;
+    gap: globalFunctions.fluidValue(15px, 25px, 320px, 1440px);
     margin-bottom: 21px;
+
+    @media (max-width: globalBreakpoints.$breakpoint-xs) {
+      display: none;
+    }
   }
 
   &__reviews {
@@ -445,13 +495,73 @@ const tabs = ref<'description' | 'additional' | 'reviews'>('description')
     margin-bottom: 41px;
     font-family: var(--font-family);
     font-weight: 400;
-    font-size: 16px;
-    line-height: 27px;
+    font-size: globalFunctions.fluidValue(12px, 16px, 320px, 1440px);
+    line-height: globalFunctions.fluidValue(20px, 27px, 320px, 1440px);
     color: var(--light-colors-dark-gray---light);
+
+    @media (max-width: 449px) {
+      margin-bottom: 4px;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      overflow: hidden;
+    }
+  }
+
+  &__text_expanded {
+    @media (max-width: 449px) {
+      display: block;
+      -webkit-line-clamp: initial;
+      line-clamp: initial;
+      overflow: visible;
+    }
+  }
+
+  &__text-block {
+    margin-bottom: 41px;
+
+    @media (max-width: globalBreakpoints.$breakpoint-xs) {
+      order: 4;
+    }
+
+    @media (max-width: 449px) {
+      margin-bottom: 0;
+    }
+  }
+
+  &__text-more {
+    display: none;
+    align-items: center;
+    gap: 4px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-family: var(--font-family);
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 20px;
+    color: var(--light-colors-accent---light);
+    text-decoration: none;
+    font-size: 12px;
+
+    svg {
+      width: 5px;
+      height: 8px;
+    }
+
+    @media (max-width: 449px) {
+      display: inline-flex;
+    }
   }
 
   &__select {
     margin-bottom: 47px;
+
+    @media (max-width: globalBreakpoints.$breakpoint-xs) {
+      display: none;
+    }
   }
 
   &__select-label {
@@ -467,12 +577,16 @@ const tabs = ref<'description' | 'additional' | 'reviews'>('description')
 
   &__buy {
     display: grid;
-    // Колонки в кнопках тоже делаем более гибкими
     grid-template-columns: 102px 1fr;
     max-width: 486px;
     column-gap: 24px;
     align-items: center;
-    margin-bottom: 41px;
+    margin-bottom: globalFunctions.fluidValue(16px, 41px, 320px, 1440px);
+
+    @media (max-width: globalBreakpoints.$breakpoint-xs) {
+      grid-template-columns: 1fr;
+      order: 3;
+    }
   }
 
   &__add {
@@ -481,6 +595,14 @@ const tabs = ref<'description' | 'additional' | 'reviews'>('description')
     font-size: 16px;
     line-height: 21px;
     letter-spacing: 0.02em;
+
+    @media (max-width: globalBreakpoints.$breakpoint-xs) {
+      padding-inline: 10px;
+      padding-block: 5px;
+      height: auto;
+      font-weight: 400;
+      font-size: 12px;
+    }
   }
 
   :deep(.btn) {
@@ -491,11 +613,21 @@ const tabs = ref<'description' | 'additional' | 'reviews'>('description')
     text-transform: uppercase;
   }
 
+  :deep(.quantity) {
+    @media (max-width: globalBreakpoints.$breakpoint-xs) {
+      display: none;
+    }
+  }
+
   &__social {
     display: flex;
     align-items: center;
     gap: 30px;
     margin-bottom: 40px;
+
+    @media (max-width: globalBreakpoints.$breakpoint-xs) {
+      display: none;
+    }
   }
 
   &__social-btn {
@@ -527,6 +659,10 @@ const tabs = ref<'description' | 'additional' | 'reviews'>('description')
     display: flex;
     flex-direction: column;
     gap: 12px;
+
+    @media (max-width: globalBreakpoints.$breakpoint-xs) {
+      display: none;
+    }
   }
 
   &__meta-row {
@@ -549,25 +685,40 @@ const tabs = ref<'description' | 'additional' | 'reviews'>('description')
 
   &__tabs {
     margin-top: 99px;
+
+    @media (max-width: globalBreakpoints.$breakpoint-xs) {
+      display: none;
+    }
+  }
+
+  &__accordion {
+    display: none;
+
+    @media (max-width: globalBreakpoints.$breakpoint-xs) {
+      display: block;
+      margin-top: 12px;
+      padding-block: 16px;
+      border-block: 1px solid var(--light-colors-gray---light);
+    }
   }
 
   :deep(.tabs-list-wrapper) {
     .tabs-list {
-      gap: 96px;
-      padding-bottom: 34px;
+      gap: globalFunctions.fluidValue(16px, 96px, 320px, 1440px);
+      padding-bottom: globalFunctions.fluidValue(16px, 34px, 320px, 1440px);
     }
   }
 
   &__tab-panels {
-    padding-top: 38px;
+    padding-top: globalFunctions.fluidValue(16px, 38px, 320px, 1440px);
   }
 
   &__tab-text {
     margin: 0;
     font-family: var(--font-family);
     font-weight: 400;
-    font-size: 16px;
-    line-height: 27px;
+    font-size: globalFunctions.fluidValue(12px, 16px, 320px, 1440px);
+    line-height: globalFunctions.fluidValue(20px, 27px, 320px, 1440px);
     color: var(--light-colors-dark-gray---light);
   }
 }
