@@ -1,10 +1,7 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
-import { Swiper, SwiperSlide } from 'swiper/vue'
-import type { Swiper as SwiperInstance } from 'swiper/types'
-import 'swiper/css'
-import { useMediaQuery } from '@vueuse/core'
+import { computed, ref } from 'vue'
 
+import type { ProductImage } from '@/entities/product/model/types'
 import Icon from '@/shared/ui/icon/Icon.vue'
 import Button from '@/shared/ui/button/Button.vue'
 import StarsRate from '@/shared/ui/stars-rate/StarsRate.vue'
@@ -15,72 +12,38 @@ import TabsList from '@/shared/ui/tabs/TabsList.vue'
 import TabsTrigger from '@/shared/ui/tabs/TabsTrigger.vue'
 import TabsPanel from '@/shared/ui/tabs/TabsPanel.vue'
 import Accordion from '../../shared/ui/accordion/Accordion.vue'
+import ProductGallery from './ui/ProductGallery.vue'
 
-type ProductSlide = {
-  id: number
-  lock: number
-}
-
-const slides: ProductSlide[] = [
-  { id: 1, lock: 11 },
-  { id: 2, lock: 12 },
-  { id: 3, lock: 13 },
-  { id: 4, lock: 14 },
+const galleryImages: ProductImage[] = [
+  {
+    id: '2',
+    url: 'http://loremflickr.com/540/600/jewelry?lock=12',
+    is_main: false,
+    product_id: 'mock',
+    order_index: 0,
+  },
+  {
+    id: '1',
+    url: 'http://loremflickr.com/540/600/jewelry?lock=11',
+    is_main: true,
+    product_id: 'mock',
+    order_index: 1,
+  },
+  {
+    id: '3',
+    url: 'http://loremflickr.com/540/600/jewelry?lock=13',
+    is_main: false,
+    product_id: 'mock',
+    order_index: 2,
+  },
+  {
+    id: '4',
+    url: 'http://loremflickr.com/540/600/jewelry?lock=14',
+    is_main: false,
+    product_id: 'mock',
+    order_index: 3,
+  },
 ]
-
-const activeIndex = ref(0)
-const mainSwiper = ref<SwiperInstance | null>(null)
-const thumbsSwiper = ref<SwiperInstance | null>(null)
-
-const showThumbs = useMediaQuery('(min-width: 960px)')
-
-const onMainSwiper = (s: SwiperInstance) => {
-  mainSwiper.value = s
-}
-const onThumbsSwiper = (s: SwiperInstance) => {
-  thumbsSwiper.value = s
-}
-
-watch(showThumbs, (enabled) => {
-  if (enabled) return
-  try {
-    thumbsSwiper.value?.destroy(true, true)
-  } catch {
-  } finally {
-    thumbsSwiper.value = null
-  }
-})
-
-const syncFromMain = (s: SwiperInstance) => {
-  activeIndex.value = s.activeIndex
-  if (thumbsSwiper.value && thumbsSwiper.value.activeIndex !== s.activeIndex) {
-    thumbsSwiper.value.slideTo(s.activeIndex)
-  }
-}
-
-const syncFromThumbs = (s: SwiperInstance) => {
-  activeIndex.value = s.activeIndex
-  if (mainSwiper.value && mainSwiper.value.activeIndex !== s.activeIndex) {
-    mainSwiper.value.slideTo(s.activeIndex)
-  }
-}
-
-const goTo = (index: number) => {
-  mainSwiper.value?.slideTo(index)
-}
-
-const indicatorStyle = computed(() => {
-  const count = slides.length
-  if (count <= 1) return { width: '0%', transform: 'translateX(0)' }
-
-  const widthPercent = 100 / count
-  const x = activeIndex.value * 100
-
-  return {
-    width: `${widthPercent}%`,
-    transform: `translateX(${x}%)`,
-  }
-})
 
 const quantity = ref(1)
 const selectedColor = ref<string | number>('')
@@ -139,66 +102,7 @@ function formatPrice(value: number): string {
   <section class="product">
     <div class="app-container product__container">
       <div class="product__top">
-        <div class="product__gallery">
-          <Swiper
-            v-if="showThumbs"
-            class="product__thumbs"
-            direction="horizontal"
-            :slides-per-view="4"
-            :space-between="40"
-            :allow-touch-move="true"
-            @swiper="onThumbsSwiper"
-            @slideChange="syncFromThumbs"
-            :breakpoints="{
-              960: {
-                direction: 'horizontal',
-                spaceBetween: 10,
-              },
-              1440: {
-                direction: 'vertical',
-                spaceBetween: 40,
-              },
-            }"
-          >
-            <SwiperSlide
-              v-for="(slide, idx) in slides"
-              :key="slide.id"
-              class="product__thumb"
-              :class="{ product__thumb_active: idx === activeIndex }"
-              @click="goTo(idx)"
-            >
-              <img
-                class="product__thumb-img"
-                :src="`http://loremflickr.com/120/120/jewelry?lock=${slide.lock}`"
-                alt="Product thumbnail"
-              />
-            </SwiperSlide>
-          </Swiper>
-
-          <div class="product__main">
-            <Swiper
-              class="product__swiper"
-              :slides-per-view="1"
-              :space-between="0"
-              :allow-touch-move="true"
-              @swiper="onMainSwiper"
-              @slideChange="syncFromMain"
-            >
-              <SwiperSlide v-for="slide in slides" :key="slide.id" class="product__slide">
-                <img
-                  class="product__image"
-                  :src="`http://loremflickr.com/540/600/jewelry?lock=${slide.lock}`"
-                  alt="Product image"
-                />
-              </SwiperSlide>
-            </Swiper>
-
-            <div class="product__progress" aria-hidden="true">
-              <div class="product__progress-base" />
-              <div class="product__progress-indicator" :style="indicatorStyle" />
-            </div>
-          </div>
-        </div>
+        <ProductGallery :images="galleryImages" />
 
         <div class="product__info">
           <h1 class="product__title">Lira Earrings</h1>
@@ -402,127 +306,6 @@ function formatPrice(value: number): string {
     @media (max-width: 959px) {
       grid-template-columns: 1fr;
     }
-  }
-
-  &__gallery {
-    display: grid;
-    grid-template-columns: 120fr 540fr;
-    column-gap: 39px;
-    align-items: start;
-    min-width: 0;
-
-    @media (max-width: 1439px) {
-      grid-template-columns: 1fr;
-      row-gap: 20px;
-    }
-  }
-
-  &__thumbs {
-    width: 100%;
-    height: auto;
-    aspect-ratio: 120 / 600;
-    max-height: 600px;
-
-    @media (max-width: 1439px) {
-      order: 2;
-      aspect-ratio: 4 / 1;
-    }
-  }
-
-  &__thumb {
-    width: 100%;
-    aspect-ratio: 1 / 1;
-    height: auto;
-    border-radius: 8px;
-    overflow: hidden;
-    cursor: pointer;
-    box-sizing: border-box;
-    border: 1px solid transparent;
-    transition:
-      border-color 0.2s ease,
-      opacity 0.2s ease;
-
-    &:hover {
-      border-color: var(--light-colors-gray---light);
-    }
-
-    &_active {
-      border-color: var(--light-colors-black---light);
-    }
-  }
-
-  &__thumb-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
-
-  &__main {
-    width: 100%;
-    min-width: 0;
-
-    @media (max-width: 1439px) {
-      order: 1;
-    }
-
-    @media (max-width: 959px) {
-      order: 2;
-    }
-  }
-
-  &__swiper {
-    width: 100%;
-    aspect-ratio: 540 / 600;
-    border-radius: 8px;
-    overflow: hidden;
-    background: var(--light-colors-light-gray---light);
-
-    @media (max-width: 1439px) {
-      aspect-ratio: 1 / 1;
-    }
-
-    @media (max-width: 959px) {
-      aspect-ratio: 288 / 374;
-    }
-  }
-
-  &__slide {
-    width: 100%;
-    height: 100%;
-  }
-
-  &__image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
-
-  &__progress {
-    position: relative;
-    width: 100%;
-    height: 2px;
-    margin-top: globalFunctions.fluidValue(15px, 23px, 320px, 1440px);
-  }
-
-  &__progress-base {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 0;
-    border-top: 2px solid var(--light-colors-gray---light);
-  }
-
-  &__progress-indicator {
-    position: absolute;
-    left: 0;
-    top: 0;
-    height: 0;
-    border-top: 2px solid var(--light-colors-dark-gray---light);
-    transition: transform 0.25s ease;
-    pointer-events: none;
   }
 
   &__info {
