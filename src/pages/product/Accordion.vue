@@ -62,6 +62,37 @@ const toggle = (id: string) => {
 
 const panelId = (id: string) => `accordion-panel-${id}`
 const triggerId = (id: string) => `accordion-trigger-${id}`
+
+type TransitionEl = Element & { style: CSSStyleDeclaration }
+
+const onEnter = (el: Element) => {
+  const e = el as TransitionEl
+  e.style.height = '0'
+  e.style.opacity = '0'
+  void (e as any).offsetHeight
+  e.style.height = `${(el as HTMLElement).scrollHeight}px`
+  e.style.opacity = '1'
+}
+
+const onAfterEnter = (el: Element) => {
+  const e = el as TransitionEl
+  e.style.height = 'auto'
+}
+
+const onLeave = (el: Element) => {
+  const e = el as TransitionEl
+  e.style.height = `${(el as HTMLElement).scrollHeight}px`
+  e.style.opacity = '1'
+  void (e as any).offsetHeight
+  e.style.height = '0'
+  e.style.opacity = '0'
+}
+
+const onAfterLeave = (el: Element) => {
+  const e = el as TransitionEl
+  e.style.height = ''
+  e.style.opacity = ''
+}
 </script>
 
 <template>
@@ -84,17 +115,25 @@ const triggerId = (id: string) => `accordion-trigger-${id}`
         </span>
       </button>
 
-      <div
-        :id="panelId(item.id)"
-        class="accordion__panel"
-        role="region"
-        :aria-labelledby="triggerId(item.id)"
-        :class="{ accordion__panel_open: isOpen(item.id) }"
+      <Transition
+        name="accordion-panel"
+        @enter="onEnter"
+        @after-enter="onAfterEnter"
+        @leave="onLeave"
+        @after-leave="onAfterLeave"
       >
-        <div class="accordion__content">
-          <slot :name="item.id" :open="isOpen(item.id)" :item="item" />
+        <div
+          v-show="isOpen(item.id)"
+          :id="panelId(item.id)"
+          class="accordion__panel"
+          role="region"
+          :aria-labelledby="triggerId(item.id)"
+        >
+          <div class="accordion__content">
+            <slot :name="item.id" :open="isOpen(item.id)" :item="item" />
+          </div>
         </div>
-      </div>
+      </Transition>
     </div>
   </div>
 </template>
@@ -146,15 +185,25 @@ const triggerId = (id: string) => `accordion-trigger-${id}`
   }
 
   &__panel {
-    display: none;
-  }
-
-  &__panel_open {
-    display: block;
+    overflow: hidden;
+    will-change: height, opacity;
+    transition:
+      height 0.25s ease,
+      opacity 0.2s ease;
   }
 
   &__content {
     padding: 0 0 14px;
   }
+}
+
+.accordion-panel-enter-from,
+.accordion-panel-leave-to {
+  opacity: 0;
+}
+
+.accordion-panel-enter-active,
+.accordion-panel-leave-active {
+  overflow: hidden;
 }
 </style>
