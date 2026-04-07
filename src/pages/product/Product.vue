@@ -55,15 +55,18 @@ const goTo = (index: number) => {
   mainSwiper.value?.slideTo(index)
 }
 
-const indicatorWidthPx = 206.77
-const progressBaseWidthPx = 540
+// Удаляем жесткие константы PX
 const indicatorStyle = computed(() => {
   const count = slides.length
-  const maxX = Math.max(0, progressBaseWidthPx - indicatorWidthPx)
-  const x = count <= 1 ? 0 : (maxX * activeIndex.value) / (count - 1)
+  if (count <= 1) return { width: '0%', transform: 'translateX(0)' }
+
+  // Ширина индикатора в процентах (например, если 4 слайда, один сегмент — 25%)
+  const widthPercent = 100 / count
+  const x = activeIndex.value * 100
+
   return {
-    width: `${indicatorWidthPx}px`,
-    transform: `translateX(${x}px)`,
+    width: `${widthPercent}%`,
+    transform: `translateX(${x}%)`,
   }
 })
 
@@ -86,12 +89,22 @@ const tabs = ref<'description' | 'additional' | 'reviews'>('description')
         <div class="product__gallery">
           <Swiper
             class="product__thumbs"
-            direction="vertical"
+            direction="horizontal"
             :slides-per-view="4"
             :space-between="40"
             :allow-touch-move="true"
             @swiper="onThumbsSwiper"
             @slideChange="syncFromThumbs"
+            :breakpoints="{
+              0: {
+                direction: 'horizontal',
+                spaceBetween: 10,
+              },
+              1440: {
+                direction: 'vertical',
+                spaceBetween: 40,
+              },
+            }"
           >
             <SwiperSlide
               v-for="(slide, idx) in slides"
@@ -236,28 +249,51 @@ const tabs = ref<'description' | 'additional' | 'reviews'>('description')
 
   &__top {
     display: grid;
-    grid-template-columns: 1fr 486px;
-    column-gap: 64px;
+    // Desktop: 2 колонки
+    grid-template-columns: 699fr 486fr;
+    column-gap: clamp(12px, 4.5vw, 64px);
     align-items: start;
-    // display: flex;
-    // gap: 64px;
+
+    @media (max-width: 1439px) {
+      grid-template-columns: 1fr 1fr;
+    }
   }
 
   &__gallery {
     display: grid;
-    // grid-template-columns: 120px 540px;
     grid-template-columns: 120fr 540fr;
     column-gap: 39px;
     align-items: start;
+    min-width: 0;
+
+    @media (max-width: 1439px) {
+      // Переключаем сетку в одну колонку
+      grid-template-columns: 1fr;
+      row-gap: 20px; // Отступ между основным слайдером и превью
+    }
   }
 
   &__thumbs {
-    height: 600px;
+    width: 100%;
+    height: auto;
+    // Пропорции для вертикального вида (Desktop)
+    aspect-ratio: 120 / 600;
+    max-height: 600px;
+
+    @media (max-width: 1439px) {
+      order: 2; // Thumbs под основным слайдером
+      max-height: none;
+      // В горизонтальном режиме: ширина 100%,
+      // а высота должна соответствовать одному ряду квадратных превью.
+      // Если у нас 4 слайда (как в конфиге), пропорция примерно 4 к 1.
+      aspect-ratio: 4 / 1;
+    }
   }
 
   &__thumb {
-    width: 120px;
-    height: 120px;
+    width: 100%;
+    aspect-ratio: 1 / 1; // Превью всегда квадратное
+    height: auto;
     border-radius: 8px;
     overflow: hidden;
     cursor: pointer;
@@ -284,15 +320,26 @@ const tabs = ref<'description' | 'additional' | 'reviews'>('description')
   }
 
   &__main {
-    width: 540px;
+    // Убираем фиксированные 540px
+    width: 100%;
+    min-width: 0;
+
+    @media (max-width: 1439px) {
+      order: 1;
+    }
   }
 
   &__swiper {
-    // width: 540px;
-    // height: 600px;
+    width: 100%;
+    // Задаем пропорцию, чтобы высота считалась от текущей ширины
+    aspect-ratio: 540 / 600;
     border-radius: 8px;
     overflow: hidden;
     background: var(--light-colors-light-gray---light);
+
+    @media (max-width: 1439px) {
+      aspect-ratio: 1 / 1;
+    }
   }
 
   &__slide {
@@ -334,7 +381,7 @@ const tabs = ref<'description' | 'additional' | 'reviews'>('description')
   }
 
   &__info {
-    width: 486px;
+    width: 100%;
     padding-top: 0;
   }
 
@@ -397,7 +444,9 @@ const tabs = ref<'description' | 'additional' | 'reviews'>('description')
 
   &__buy {
     display: grid;
-    grid-template-columns: 102px 360px;
+    // Колонки в кнопках тоже делаем более гибкими
+    grid-template-columns: 102px 1fr;
+    max-width: 486px;
     column-gap: 24px;
     align-items: center;
     margin-bottom: 41px;
@@ -430,19 +479,12 @@ const tabs = ref<'description' | 'additional' | 'reviews'>('description')
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    // width: 20px;
-    // height: 20px;
     color: var(--light-colors-dark-gray---light);
     background: transparent;
     border: none;
     padding: 0;
     cursor: pointer;
     text-decoration: none;
-
-    :deep(svg) {
-      //   width: 20px;
-      //   height: 20px;
-    }
   }
 
   &__social-sep {
