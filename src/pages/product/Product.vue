@@ -300,7 +300,28 @@ function formatPrice(value: number): string {
             </p>
           </template>
           <template #additional>
-            <p class="product__tab-text">Additional information will be here.</p>
+            <div class="product__additional">
+              <div class="product__additional-panel product__additional-panel--specs">
+                <dl class="product__specs">
+                  <div class="product__spec">
+                    <dt class="product__spec-key">Weight:</dt>
+                    <dd class="product__spec-val">0.3 kg</dd>
+                  </div>
+                  <div class="product__spec">
+                    <dt class="product__spec-key">Dimentions:</dt>
+                    <dd class="product__spec-val">15 × 10 × 1 cm</dd>
+                  </div>
+                  <div class="product__spec">
+                    <dt class="product__spec-key">Colours:</dt>
+                    <dd class="product__spec-val">Black, Browns, White</dd>
+                  </div>
+                  <div class="product__spec">
+                    <dt class="product__spec-key">Material:</dt>
+                    <dd class="product__spec-val">Metal</dd>
+                  </div>
+                </dl>
+              </div>
+            </div>
           </template>
           <template #reviews>
             <p class="product__tab-text">No reviews yet.</p>
@@ -326,7 +347,28 @@ function formatPrice(value: number): string {
               </p>
             </TabsPanel>
             <TabsPanel id="additional">
-              <p class="product__tab-text">Additional information will be here.</p>
+              <div class="product__additional">
+                <div class="product__additional-panel product__additional-panel--specs">
+                  <dl class="product__specs">
+                    <div class="product__spec">
+                      <dt class="product__spec-key">Weight:</dt>
+                      <dd class="product__spec-val">0.3 kg</dd>
+                    </div>
+                    <div class="product__spec">
+                      <dt class="product__spec-key">Dimentions:</dt>
+                      <dd class="product__spec-val">15 × 10 × 1 cm</dd>
+                    </div>
+                    <div class="product__spec">
+                      <dt class="product__spec-key">Colours:</dt>
+                      <dd class="product__spec-val">Black, Browns, White</dd>
+                    </div>
+                    <div class="product__spec">
+                      <dt class="product__spec-key">Material:</dt>
+                      <dd class="product__spec-val">Metal</dd>
+                    </div>
+                  </dl>
+                </div>
+              </div>
             </TabsPanel>
             <TabsPanel id="reviews">
               <p class="product__tab-text">No reviews yet.</p>
@@ -783,6 +825,10 @@ function formatPrice(value: number): string {
       padding-block: 17px;
       border-block: 1px solid var(--light-colors-gray---light);
     }
+
+    :deep(.accordion__content) {
+      padding-block: 17px;
+    }
   }
 
   :deep(.tabs-list-wrapper) {
@@ -802,6 +848,60 @@ function formatPrice(value: number): string {
     font-weight: 400;
     font-size: globalFunctions.fluidValue(12px, 16px, 320px, 1440px);
     line-height: globalFunctions.fluidValue(20px, 27px, 320px, 1440px);
+    color: var(--light-colors-dark-gray---light);
+  }
+
+  &__additional {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    max-width: 1248px;
+    width: 100%;
+    color: var(--light-colors-black---light);
+
+    @media (max-width: 959px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  &__additional-panel {
+    width: 100%;
+    min-width: 0;
+  }
+
+  &__specs {
+    display: grid;
+    gap: 10px;
+
+    @media (max-width: globalBreakpoints.$breakpoint-xs) {
+      gap: 4px;
+    }
+  }
+
+  &__spec {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    column-gap: 13px;
+    row-gap: 0;
+    align-items: baseline;
+    font-family: var(--font-family);
+    font-style: normal;
+    font-weight: 400;
+    font-size: globalFunctions.fluidValue(12px, 16px, 320px, 1440px);
+    line-height: globalFunctions.fluidValue(20px, 27px, 320px, 1440px);
+    color: #000000;
+  }
+
+  &__spec-key {
+    margin: 0;
+    color: inherit;
+    font-weight: 400;
+  }
+
+  &__spec-val {
+    margin: 0;
+    color: inherit;
+    font-weight: 400;
     color: var(--light-colors-dark-gray---light);
   }
 }
