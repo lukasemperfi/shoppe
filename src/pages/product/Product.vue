@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import type { Swiper as SwiperInstance } from 'swiper/types'
 import 'swiper/css'
+import { useMediaQuery } from '@vueuse/core'
 
 import Icon from '@/shared/ui/icon/Icon.vue'
 import Button from '@/shared/ui/button/Button.vue'
@@ -30,12 +31,25 @@ const activeIndex = ref(0)
 const mainSwiper = ref<SwiperInstance | null>(null)
 const thumbsSwiper = ref<SwiperInstance | null>(null)
 
+const showThumbs = useMediaQuery('(min-width: 960px)')
+
 const onMainSwiper = (s: SwiperInstance) => {
   mainSwiper.value = s
 }
 const onThumbsSwiper = (s: SwiperInstance) => {
   thumbsSwiper.value = s
 }
+
+watch(showThumbs, (enabled) => {
+  if (enabled) return
+  try {
+    thumbsSwiper.value?.destroy(true, true)
+  } catch {
+    // no-op
+  } finally {
+    thumbsSwiper.value = null
+  }
+})
 
 const syncFromMain = (s: SwiperInstance) => {
   activeIndex.value = s.activeIndex
@@ -88,6 +102,7 @@ const tabs = ref<'description' | 'additional' | 'reviews'>('description')
       <div class="product__top">
         <div class="product__gallery">
           <Swiper
+            v-if="showThumbs"
             class="product__thumbs"
             direction="horizontal"
             :slides-per-view="4"
@@ -96,7 +111,7 @@ const tabs = ref<'description' | 'additional' | 'reviews'>('description')
             @swiper="onThumbsSwiper"
             @slideChange="syncFromThumbs"
             :breakpoints="{
-              0: {
+              960: {
                 direction: 'horizontal',
                 spaceBetween: 10,
               },
@@ -257,6 +272,10 @@ const tabs = ref<'description' | 'additional' | 'reviews'>('description')
     @media (max-width: 1439px) {
       grid-template-columns: 1fr 1fr;
     }
+
+    @media (max-width: 959px) {
+      grid-template-columns: 1fr;
+    }
   }
 
   &__gallery {
@@ -282,7 +301,7 @@ const tabs = ref<'description' | 'additional' | 'reviews'>('description')
 
     @media (max-width: 1439px) {
       order: 2; // Thumbs под основным слайдером
-      max-height: none;
+      //   max-height: none;
       // В горизонтальном режиме: ширина 100%,
       // а высота должна соответствовать одному ряду квадратных превью.
       // Если у нас 4 слайда (как в конфиге), пропорция примерно 4 к 1.
@@ -326,6 +345,10 @@ const tabs = ref<'description' | 'additional' | 'reviews'>('description')
 
     @media (max-width: 1439px) {
       order: 1;
+    }
+
+    @media (max-width: 959px) {
+      order: 2;
     }
   }
 
