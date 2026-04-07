@@ -9,6 +9,9 @@ import TabsPanel from '@/shared/ui/tabs/TabsPanel.vue'
 import Accordion from '../../shared/ui/accordion/Accordion.vue'
 import ProductGallery from './ui/ProductGallery.vue'
 import ProductInfo from './ui/ProductInfo.vue'
+import ProductDescriptionPanel from './ui/ProductDescriptionPanel.vue'
+import ProductSpecsPanel from './ui/ProductSpecsPanel.vue'
+import ProductReviewsPanel from './ui/ProductReviewsPanel.vue'
 
 const galleryImages: ProductImage[] = [
   {
@@ -54,6 +57,16 @@ const colorOptions = [
 const productDescription =
   'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam placerat, augue a volutpat hendrerit, sapien tortor faucibus augue, a maximus elit ex vitae libero. Sed quis mauris eget arcu facilisis consequat sed eu felis.'
 
+const productDetailsDescription =
+  'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam placerat, augue a volutpat hendrerit, sapien tortor faucibus augue, a maximus elit ex vitae libero. Sed quis mauris eget arcu facilisis consequat sed eu felis. Nunc sed porta augue. Morbi porta tempor odio, in molestie diam bibendum sed.'
+
+const productSpecs = {
+  weight: '0.3 kg',
+  dimensions: '15 × 10 × 1 cm',
+  colours: 'Black, Browns, White',
+  material: 'Metal',
+} as const
+
 const tabs = ref<'description' | 'additional' | 'reviews'>('description')
 const accordionItems = [
   { id: 'description', title: 'Description' },
@@ -88,39 +101,13 @@ const accordionItems = [
       <div class="product__accordion">
         <Accordion v-model="tabs" :items="accordionItems" aria-label="Product details">
           <template #description>
-            <p class="product__tab-text">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam placerat, augue a
-              volutpat hendrerit, sapien tortor faucibus augue, a maximus elit ex vitae libero. Sed
-              quis mauris eget arcu facilisis consequat sed eu felis. Nunc sed porta augue. Morbi
-              porta tempor odio, in molestie diam bibendum sed.
-            </p>
+            <ProductDescriptionPanel :text="productDetailsDescription" />
           </template>
           <template #additional>
-            <div class="product__additional">
-              <div class="product__additional-panel product__additional-panel--specs">
-                <dl class="product__specs">
-                  <div class="product__spec">
-                    <dt class="product__spec-key">Weight:</dt>
-                    <dd class="product__spec-val">0.3 kg</dd>
-                  </div>
-                  <div class="product__spec">
-                    <dt class="product__spec-key">Dimentions:</dt>
-                    <dd class="product__spec-val">15 × 10 × 1 cm</dd>
-                  </div>
-                  <div class="product__spec">
-                    <dt class="product__spec-key">Colours:</dt>
-                    <dd class="product__spec-val">Black, Browns, White</dd>
-                  </div>
-                  <div class="product__spec">
-                    <dt class="product__spec-key">Material:</dt>
-                    <dd class="product__spec-val">Metal</dd>
-                  </div>
-                </dl>
-              </div>
-            </div>
+            <ProductSpecsPanel v-bind="productSpecs" />
           </template>
           <template #reviews>
-            <p class="product__tab-text">No reviews yet.</p>
+            <ProductReviewsPanel />
           </template>
         </Accordion>
       </div>
@@ -135,39 +122,13 @@ const accordionItems = [
 
           <div class="product__tab-panels">
             <TabsPanel id="description">
-              <p class="product__tab-text">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam placerat, augue a
-                volutpat hendrerit, sapien tortor faucibus augue, a maximus elit ex vitae libero.
-                Sed quis mauris eget arcu facilisis consequat sed eu felis. Nunc sed porta augue.
-                Morbi porta tempor odio, in molestie diam bibendum sed.
-              </p>
+              <ProductDescriptionPanel :text="productDetailsDescription" />
             </TabsPanel>
             <TabsPanel id="additional">
-              <div class="product__additional">
-                <div class="product__additional-panel product__additional-panel--specs">
-                  <dl class="product__specs">
-                    <div class="product__spec">
-                      <dt class="product__spec-key">Weight:</dt>
-                      <dd class="product__spec-val">0.3 kg</dd>
-                    </div>
-                    <div class="product__spec">
-                      <dt class="product__spec-key">Dimentions:</dt>
-                      <dd class="product__spec-val">15 × 10 × 1 cm</dd>
-                    </div>
-                    <div class="product__spec">
-                      <dt class="product__spec-key">Colours:</dt>
-                      <dd class="product__spec-val">Black, Browns, White</dd>
-                    </div>
-                    <div class="product__spec">
-                      <dt class="product__spec-key">Material:</dt>
-                      <dd class="product__spec-val">Metal</dd>
-                    </div>
-                  </dl>
-                </div>
-              </div>
+              <ProductSpecsPanel v-bind="productSpecs" />
             </TabsPanel>
             <TabsPanel id="reviews">
-              <p class="product__tab-text">No reviews yet.</p>
+              <ProductReviewsPanel />
             </TabsPanel>
           </div>
         </Tabs>
@@ -232,69 +193,6 @@ const accordionItems = [
 
   &__tab-panels {
     padding-top: globalFunctions.fluidValue(16px, 38px, 320px, 1440px);
-  }
-
-  &__tab-text {
-    margin: 0;
-    font-family: var(--font-family);
-    font-weight: 400;
-    font-size: globalFunctions.fluidValue(12px, 16px, 320px, 1440px);
-    line-height: globalFunctions.fluidValue(20px, 27px, 320px, 1440px);
-    color: var(--light-colors-dark-gray---light);
-  }
-
-  &__additional {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 24px;
-    max-width: 1248px;
-    width: 100%;
-    color: var(--light-colors-black---light);
-
-    @media (max-width: 959px) {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  &__additional-panel {
-    width: 100%;
-    min-width: 0;
-  }
-
-  &__specs {
-    display: grid;
-    gap: 10px;
-
-    @media (max-width: globalBreakpoints.$breakpoint-xs) {
-      gap: 4px;
-    }
-  }
-
-  &__spec {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    column-gap: 13px;
-    row-gap: 0;
-    align-items: baseline;
-    font-family: var(--font-family);
-    font-style: normal;
-    font-weight: 400;
-    font-size: globalFunctions.fluidValue(12px, 16px, 320px, 1440px);
-    line-height: globalFunctions.fluidValue(20px, 27px, 320px, 1440px);
-    color: #000000;
-  }
-
-  &__spec-key {
-    margin: 0;
-    color: inherit;
-    font-weight: 400;
-  }
-
-  &__spec-val {
-    margin: 0;
-    color: inherit;
-    font-weight: 400;
-    color: var(--light-colors-dark-gray---light);
   }
 }
 </style>

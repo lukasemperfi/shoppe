@@ -1,0 +1,20 @@
+<script setup lang="ts">
+defineProps<{
+  text: string
+}>()
+</script>
+
+<template>
+  <p class="product-description-panel__text">{{ text }}</p>
+</template>
+
+<style scoped lang="scss">
+.product-description-panel__text {
+  margin: 0;
+  font-family: var(--font-family);
+  font-weight: 400;
+  font-size: globalFunctions.fluidValue(12px, 16px, 320px, 1440px);
+  line-height: globalFunctions.fluidValue(20px, 27px, 320px, 1440px);
+  color: var(--light-colors-dark-gray---light);
+}
+</style>
