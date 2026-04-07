@@ -77,6 +77,8 @@ export interface Product {
   isInWishlist?: boolean
 }
 
+export type ProductsSortBy = 'newest' | 'oldest' | 'price_low_to_high' | 'price_high_to_low'
+
 export interface GetProductsParams {
   searchName?: string
   minPrice?: number
@@ -84,7 +86,7 @@ export interface GetProductsParams {
   categoryId?: string
   hasDiscount?: boolean
   isSoldOut?: boolean
-  sortOrder?: 'asc' | 'desc'
+  sortBy?: ProductsSortBy
   page?: number
   limit?: number
 }

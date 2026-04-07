@@ -1,35 +1,55 @@
 <script setup lang="ts">
+import { onMounted, ref, watch, reactive } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { useMediaQuery, useDebounceFn } from '@vueuse/core'
 import Input from '@/shared/ui/input/Input.vue'
 import Icon from '@/shared/ui/icon/Icon.vue'
 import Select from '@/shared/ui/select/Select.vue'
 import Toggle from './Toggle.vue'
-import { useMediaQuery } from '@vueuse/core'
-import { onMounted, ref, watch } from 'vue'
 import Slider from '@vueform/slider'
 import '@vueform/slider/themes/default.css'
 import ProductCard from '@/entities/product/ui/product-card/ProductCard.vue'
 import { productApi } from '@/entities/product/api/product'
-import type { Product } from '@/entities/product/model/types'
+import type { Product, GetProductsParams, ProductsSortBy } from '@/entities/product/model/types'
 
-const priceRange = ref([40, 180])
+const route = useRoute()
+const router = useRouter()
 
-const shopByCategory = ref<string>('')
-const sortBy = ref<string>('')
-const onSale = ref(false)
-const inStock = ref(false)
+const PRICE_SLIDER_MIN = 0
+const PRICE_SLIDER_MAX = 1000
+
+const CATEGORY_SLUG_TO_ID: Record<string, string> = {
+  brooches: '1e9235bc-3529-4d07-9bd6-1e71ba6f81c8',
+  bracelets: '429b69a4-beda-44ae-8088-fa3f6c39b081',
+  rings: '9e02611e-331a-47d0-9c79-b8fced6e5d59',
+  earrings: 'a952980e-63a5-4bf1-bd16-ae43eb7bf9c0',
+  necklaces: 'f32ec6d9-facc-4352-b8b0-97dfa3b5d434',
+}
+
+const filters = reactive({
+  search: (route.query.search as string) || '',
+  category: (route.query.category as string) || 'all',
+  sortBy: (route.query.sortBy as ProductsSortBy) || 'newest',
+  priceRange: [
+    Number(route.query.minPrice) || PRICE_SLIDER_MIN,
+    Number(route.query.maxPrice) || PRICE_SLIDER_MAX,
+  ],
+  onSale: route.query.onSale === 'true',
+  inStock: route.query.inStock === 'true',
+})
+
 const filtersPanelOpen = ref(false)
 const isNarrowShopLayout = useMediaQuery('(max-width: 1024px)')
+const products = ref<Product[]>([])
+const isLoading = ref(false)
 
-watch(isNarrowShopLayout, (narrow) => {
-  if (!narrow) {
-    filtersPanelOpen.value = false
-  }
-})
 const shopByCategoryOptions = [
   { label: 'All', value: 'all' },
-  { label: 'Clothing', value: 'clothing' },
-  { label: 'Accessories', value: 'accessories' },
-  { label: 'Shoes', value: 'shoes' },
+  { label: 'Brooches', value: 'brooches' },
+  { label: 'Bracelets', value: 'bracelets' },
+  { label: 'Rings', value: 'rings' },
+  { label: 'Earrings', value: 'earrings' },
+  { label: 'Necklaces', value: 'necklaces' },
 ]
 const sortByOptions = [
   { label: 'Newest', value: 'newest' },
@@ -38,20 +58,64 @@ const sortByOptions = [
   { label: 'Price: High to Low', value: 'price_high_to_low' },
 ]
 
-const products = ref<Product[]>([])
+const fetchProducts = async () => {
+  isLoading.value = true
 
-onMounted(async () => {
-  const data = await productApi.getProducts({ limit: 6 })
+  const categorySlug = filters.category !== 'all' ? filters.category : ''
+  const categoryId = categorySlug ? CATEGORY_SLUG_TO_ID[categorySlug] : undefined
+
+  const apiParams: GetProductsParams = {
+    searchName: filters.search || undefined,
+    minPrice: filters.priceRange[0],
+    maxPrice: filters.priceRange[1],
+    categoryId,
+    hasDiscount: filters.onSale || undefined,
+    isSoldOut: filters.inStock || undefined,
+    sortBy: filters.sortBy as ProductsSortBy,
+    limit: 100,
+  }
+
+  console.log('apiParams', apiParams)
+
+  const data = await productApi.getProducts(apiParams)
   if (data) {
     products.value = data.items
+
     console.log('products', data.items)
   }
+  isLoading.value = false
+}
+
+const debouncedFetch = useDebounceFn(fetchProducts, 400)
+
+watch(
+  filters,
+  (newFilters) => {
+    const query: any = {}
+    if (newFilters.search) query.search = newFilters.search
+    if (newFilters.category !== 'all') query.category = newFilters.category
+    if (newFilters.sortBy !== 'newest') query.sortBy = newFilters.sortBy
+    if (newFilters.priceRange[0] !== PRICE_SLIDER_MIN) query.minPrice = newFilters.priceRange[0]
+    if (newFilters.priceRange[1] !== PRICE_SLIDER_MAX) query.maxPrice = newFilters.priceRange[1]
+    if (newFilters.onSale) query.onSale = 'true'
+    if (newFilters.inStock) query.inStock = 'true'
+
+    router.replace({ query })
+
+    debouncedFetch()
+  },
+  { deep: true },
+)
+
+watch(isNarrowShopLayout, (narrow) => {
+  if (!narrow) filtersPanelOpen.value = false
 })
 
-watch(onSale, (newVal) => {
-  console.log(newVal)
+onMounted(() => {
+  fetchProducts()
 })
 </script>
+
 <template>
   <div class="shop">
     <div class="app-container">
@@ -64,60 +128,66 @@ watch(onSale, (newVal) => {
             type="button"
             class="catalog__toggle-filters"
             :aria-expanded="filtersPanelOpen"
-            aria-controls="catalog-filters-panel"
             @click="filtersPanelOpen = !filtersPanelOpen"
           >
             <Icon name="filter" />
             <span class="catalog__toggle-filters-text"> Filters </span>
           </button>
-          <div
+
+          <aside
             id="catalog-filters-panel"
             class="catalog__aside"
             :class="{ catalog__aside_open: filtersPanelOpen }"
           >
             <div class="catalog__aside-inner">
               <div class="filters-bar">
-                <Input placeholder="Search..." class="filters-bar__search">
+                <Input v-model="filters.search" placeholder="Search..." class="filters-bar__search">
                   <template #append>
-                    <button type="button">
+                    <button type="button" @click="fetchProducts">
                       <Icon name="search" />
                     </button>
                   </template>
                 </Input>
 
                 <Select
+                  v-model="filters.category"
                   :options="shopByCategoryOptions"
-                  v-model="shopByCategory"
                   label="Shop by"
                   class="filters-bar__select-shop-by"
                 />
+
                 <Select
+                  v-model="filters.sortBy"
                   :options="sortByOptions"
-                  v-model="sortBy"
                   label="Sort by"
                   class="filters-bar__select-sort-by"
                 />
+
                 <div class="slider">
                   <Slider
-                    v-model="priceRange"
-                    :min="0"
-                    :max="180"
+                    v-model="filters.priceRange"
+                    :min="PRICE_SLIDER_MIN"
+                    :max="PRICE_SLIDER_MAX"
+                    :lazy="false"
                     :tooltips="false"
                     class="slider__input"
                   />
-
                   <div class="slider__footer">
-                    <span>Price: ${{ priceRange[0] }} - ${{ priceRange[1] }}</span>
-                    <button class="slider__filter-btn">Filter</button>
+                    <span>Price: ${{ filters.priceRange[0] }} - ${{ filters.priceRange[1] }}</span>
+                    <button class="slider__filter-btn" @click="fetchProducts">Filter</button>
                   </div>
                 </div>
-                <Toggle v-model="onSale" class="filters-bar__on-sale" label="On sale" />
-                <Toggle v-model="inStock" class="filters-bar__in-stock" label="In stock" />
+
+                <Toggle v-model="filters.onSale" class="filters-bar__on-sale" label="On sale" />
+                <Toggle v-model="filters.inStock" class="filters-bar__in-stock" label="In stock" />
               </div>
             </div>
-          </div>
+          </aside>
+
           <div class="catalog__main">
-            <div class="catalog__products">
+            <div v-if="isLoading" class="catalog__loader">Loading...</div>
+
+            <div v-else class="catalog__products">
               <ProductCard
                 v-for="product in products"
                 :key="product.id"
@@ -128,6 +198,9 @@ watch(onSale, (newVal) => {
                 :is-new="product.is_new"
                 :is-sold-out="product.is_sold_out"
               />
+              <div v-if="products.length === 0" class="catalog__empty">
+                No products found matching your filters.
+              </div>
             </div>
           </div>
         </div>

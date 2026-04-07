@@ -5,7 +5,6 @@ import type {
   GetProductsResponse,
   Product,
   Review,
-  WishlistItem,
 } from '../model/types'
 import { PRODUCT_BASE_SELECT, PRODUCT_DETAILS_SELECT } from './config'
 
@@ -18,7 +17,7 @@ class ProductApi {
       categoryId,
       hasDiscount,
       isSoldOut,
-      sortOrder = 'desc',
+      sortBy = 'newest',
       page = 1,
       limit = 10,
     } = params
@@ -53,7 +52,16 @@ class ProductApi {
       query = query.eq('is_sold_out', isSoldOut)
     }
 
-    query = query.order('price', { ascending: sortOrder === 'asc' })
+    if (sortBy === 'oldest') {
+      query = query.order('created_at', { ascending: true })
+    } else if (sortBy === 'price_low_to_high') {
+      query = query.order('price', { ascending: true })
+    } else if (sortBy === 'price_high_to_low') {
+      query = query.order('price', { ascending: false })
+    } else {
+      query = query.order('created_at', { ascending: false })
+    }
+
     query = query.range(from, to)
 
     const { data, error, count } = await query
