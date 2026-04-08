@@ -6,13 +6,21 @@ import type {
 } from '@/entities/product/model/types'
 import { computed } from 'vue'
 
+const PLACEHOLDER_IMAGE = 'https://loremflickr.com/300/300/jewelry,earring'
+
 const props = withDefaults(defineProps<ProductCardData>(), {
-  imageUrl: 'https://loremflickr.com/300/300/jewelry,earring',
   isSoldOut: false,
   oldPrice: null,
   discountRate: null,
   isNew: false,
   hasDiscount: false,
+})
+
+const displayImageUrl = computed((): string => {
+  const images = props.productImages
+  if (!images?.length) return PLACEHOLDER_IMAGE
+  const main = images.find((img) => img.is_main)
+  return main?.url ?? images[0]?.url ?? PLACEHOLDER_IMAGE
 })
 
 function isPositiveDiscountRate(): boolean {
@@ -81,7 +89,7 @@ function onAddToCart(): void {
     <div class="product-card__media">
       <img
         class="product-card__img"
-        :src="imageUrl"
+        :src="displayImageUrl"
         :alt="name"
         width="300"
         height="300"

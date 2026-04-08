@@ -48,7 +48,7 @@ export interface ProductCardData {
   price: number
   oldPrice?: number | null
   discountRate?: number | null
-  imageUrl?: string
+  productImages?: ProductImage[]
   badge?: ProductCardBadge | null
   isSoldOut?: boolean
   isNew?: boolean

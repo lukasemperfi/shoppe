@@ -196,7 +196,7 @@ onMounted(() => {
                 :name="product.name"
                 :price="product.price"
                 :discount-rate="product.discount"
-                :image-url="product?.product_images[0]?.url"
+                :product-images="product.product_images"
                 :is-new="product.is_new"
                 :is-sold-out="product.is_sold_out"
               />
