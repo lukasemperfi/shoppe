@@ -3,6 +3,15 @@ import { onMounted, onUnmounted, provide, watch } from 'vue'
 import Icon from '@/shared/ui/icon/Icon.vue'
 import { useScrollLock } from '@vueuse/core'
 
+const props = withDefaults(
+  defineProps<{
+    instantClose?: boolean
+  }>(),
+  {
+    instantClose: false,
+  },
+)
+
 const isOpen = defineModel<boolean>({ default: false })
 defineOptions({
   inheritAttrs: false,
@@ -29,7 +38,7 @@ onUnmounted(() => document.removeEventListener('keydown', handleEscape))
 
 <template>
   <Teleport to="body">
-    <Transition name="modal-fade">
+    <Transition name="modal-fade" :css="!props.instantClose">
       <div v-if="isOpen" class="modal-overlay" @click.self="close">
         <div class="modal-container" v-bind="$attrs">
           <header class="modal-header">
@@ -67,7 +76,8 @@ onUnmounted(() => document.removeEventListener('keydown', handleEscape))
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(35, 31, 32, 0.7);
+  background: rgba(0, 0, 0, 0.7);
+
   display: flex;
   align-items: center;
   justify-content: center;

@@ -1,9 +1,13 @@
 <script setup lang="ts">
 import type { Review } from '@/entities/product/model/types'
 import ReviewCard from '@/entities/product/ui/review-card/ReviewCard.vue'
+import AddReviewForm, {
+  type AddReviewFormValue,
+} from '@/features/review/add-review/ui/AddReviewForm.vue'
 import Button from '@/shared/ui/button/Button.vue'
 import Modal from '@/shared/ui/modal/Modal.vue'
-import { ref } from 'vue'
+import { useMediaQuery } from '@vueuse/core'
+import { ref, watch } from 'vue'
 
 withDefaults(
   defineProps<{
@@ -38,6 +42,35 @@ const reviews = ref<Review[]>([
 ])
 
 const isAddReviewModalOpen = ref(false)
+const isDesktop = useMediaQuery('(min-width: 1025px)')
+const isAddReviewModalInstantClose = ref(false)
+
+watch(isDesktop, (val) => {
+  if (!val) return
+  if (!isAddReviewModalOpen.value) return
+
+  isAddReviewModalInstantClose.value = true
+  isAddReviewModalOpen.value = false
+  setTimeout(() => {
+    isAddReviewModalInstantClose.value = false
+  }, 0)
+})
+
+const addReviewFormValue = ref<AddReviewFormValue>({
+  comment: '',
+  name: '',
+  email: '',
+  remember: false,
+  rating: 0,
+})
+
+const addReviewFormRef = ref<InstanceType<typeof AddReviewForm> | null>(null)
+
+const handleAddReviewSubmit = (value: AddReviewFormValue) => {
+  isAddReviewModalOpen.value = false
+  addReviewFormRef.value?.reset()
+  addReviewFormValue.value = { comment: '', name: '', email: '', remember: false, rating: 0 }
+}
 </script>
 
 <template>
@@ -73,16 +106,18 @@ const isAddReviewModalOpen = ref(false)
       <div
         class="product-reviews-panel__add-review-form product-reviews-panel__add-review-form_desktop"
       >
-        Form
+        <AddReviewForm v-model="addReviewFormValue" @submit="handleAddReviewSubmit" />
       </div>
 
-      <Modal v-model="isAddReviewModalOpen">
+      <Modal v-model="isAddReviewModalOpen" :instant-close="isAddReviewModalInstantClose">
         <template #header-center>Add a Review</template>
         <template #content>
-          <div
-            class="product-reviews-panel__add-review-form product-reviews-panel__add-review-form_modal"
-          >
-            Form
+          <div class="product-reviews-panel__add-review-form app-container">
+            <AddReviewForm
+              ref="addReviewFormRef"
+              v-model="addReviewFormValue"
+              @submit="handleAddReviewSubmit"
+            />
           </div>
         </template>
       </Modal>
@@ -93,23 +128,23 @@ const isAddReviewModalOpen = ref(false)
 <style scoped lang="scss">
 .product-reviews-panel {
   display: flex;
-  gap: globalFunctions.fluidValue(16px, 86px, globalBreakpoints.$breakpoint-sm, 1440px);
+  gap: globalFunctions.fluidValue(38px, 86px, globalBreakpoints.$breakpoint-md, 1440px);
 
-  @media (max-width: globalBreakpoints.$breakpoint-sm) {
+  @media (max-width: globalBreakpoints.$breakpoint-md) {
     flex-direction: column;
   }
 
   &__col-1 {
     flex: 1 1 580px;
 
-    @media (max-width: globalBreakpoints.$breakpoint-sm) {
+    @media (max-width: globalBreakpoints.$breakpoint-md) {
       flex: 1 1 100%;
     }
   }
   &__col-2 {
     flex: 1 1 580px;
 
-    @media (max-width: globalBreakpoints.$breakpoint-sm) {
+    @media (max-width: globalBreakpoints.$breakpoint-md) {
       flex: 1 1 100%;
     }
   }
@@ -120,7 +155,7 @@ const isAddReviewModalOpen = ref(false)
     font-size: globalFunctions.fluidValue(14px, 20px, 320px, 1440px);
     color: var(--light-colors-black---light);
 
-    @media (max-width: globalBreakpoints.$breakpoint-sm) {
+    @media (max-width: globalBreakpoints.$breakpoint-md) {
       display: none;
     }
   }
@@ -144,9 +179,9 @@ const isAddReviewModalOpen = ref(false)
   }
 
   &__add-review {
-    margin-bottom: globalFunctions.fluidValue(24px, 53px, 320px, 1440px);
+    margin-bottom: globalFunctions.fluidValue(24px, 55px, 320px, 1440px);
 
-    @media (max-width: globalBreakpoints.$breakpoint-sm) {
+    @media (max-width: globalBreakpoints.$breakpoint-md) {
       display: none;
     }
   }
@@ -154,9 +189,16 @@ const isAddReviewModalOpen = ref(false)
   &__add-review-open-modal-btn {
     display: none;
 
-    @media (max-width: globalBreakpoints.$breakpoint-sm) {
+    @media (max-width: globalBreakpoints.$breakpoint-md) {
       display: flex;
       width: 100%;
+      justify-self: center;
+      max-width: 50vw;
+    }
+
+    @media (max-width: globalBreakpoints.$breakpoint-sm) {
+      max-width: 100%;
+      justify-self: center;
     }
 
     @media (max-width: globalBreakpoints.$breakpoint-xs) {
@@ -166,7 +208,7 @@ const isAddReviewModalOpen = ref(false)
 
   &__add-review-form {
     &_desktop {
-      @media (max-width: globalBreakpoints.$breakpoint-sm) {
+      @media (max-width: globalBreakpoints.$breakpoint-md) {
         display: none;
       }
     }
@@ -190,6 +232,10 @@ const isAddReviewModalOpen = ref(false)
     font-size: 13px;
     color: var(--light-colors-dark-gray---light);
     text-transform: capitalize;
+  }
+
+  &__add-review-form {
+    padding-block: 16px;
   }
 }
 </style>
