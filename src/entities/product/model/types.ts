@@ -43,6 +43,7 @@ export interface ProductCardBadge {
 }
 
 export interface ProductCardData {
+  id: string
   name: string
   price: number
   oldPrice?: number | null

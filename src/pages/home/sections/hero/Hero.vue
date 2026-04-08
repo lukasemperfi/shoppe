@@ -4,7 +4,7 @@ import { Pagination } from 'swiper/modules'
 import 'swiper/css'
 import 'swiper/css/pagination'
 import AppButton from '@/shared/ui/button/Button.vue'
-
+import { useRouter } from 'vue-router'
 import img1 from '@/shared/assets/images/home-hero/img-1.jpg'
 import img2 from '@/shared/assets/images/home-hero/img-2.jpg'
 import img3 from '@/shared/assets/images/home-hero/img-3.jpg'
@@ -12,21 +12,52 @@ import img4 from '@/shared/assets/images/home-hero/img-4.jpg'
 import img5 from '@/shared/assets/images/home-hero/img-5.jpg'
 
 interface HeroSlide {
-  id: number
+  id: string
   image: string
   title: string
   price: string
 }
 
 const slides: HeroSlide[] = [
-  { id: 1, image: img1, title: 'Gold big hoops', price: '$ 68,00' },
-  { id: 2, image: img2, title: 'Silver earrings', price: '$ 52,00' },
-  { id: 3, image: img3, title: 'Pearl necklace', price: '$ 94,00' },
-  { id: 4, image: img4, title: 'Gold bracelet', price: '$ 78,00' },
-  { id: 5, image: img5, title: 'Diamond ring', price: '$ 120,00' },
+  {
+    id: 'ad2ab7ab-0cd1-42e0-a72a-581e6344d7f5',
+    image: img1,
+    title: 'Gold big hoops',
+    price: '$ 68,00',
+  },
+  {
+    id: '76ef0095-1602-4605-96b2-1ab2bd2f2673',
+    image: img2,
+    title: 'Silver earrings',
+    price: '$ 52,00',
+  },
+  {
+    id: '380d50a4-d14f-4615-bd3d-5fd58cb51fd4',
+    image: img3,
+    title: 'Pearl necklace',
+    price: '$ 94,00',
+  },
+  {
+    id: '0f3f2668-09af-4653-8460-cc57545f8b44',
+    image: img4,
+    title: 'Gold bracelet',
+    price: '$ 78,00',
+  },
+  {
+    id: 'f3a2a312-3b54-4619-aaba-c2e4ef0db210',
+    image: img5,
+    title: 'Diamond ring',
+    price: '$ 120,00',
+  },
 ]
 
 const modules = [Pagination]
+
+const router = useRouter()
+
+const onViewProduct = (id: string) => {
+  router.push(`/product/${id}`)
+}
 </script>
 
 <template>
@@ -43,7 +74,13 @@ const modules = [Pagination]
           <div class="hero__content">
             <p class="hero__title">{{ slide.title }}</p>
             <p class="hero__price">{{ slide.price }}</p>
-            <AppButton variant="outline" color="white" class="hero__btn">View Product</AppButton>
+            <AppButton
+              variant="outline"
+              color="white"
+              class="hero__btn"
+              @click="onViewProduct(slide.id)"
+              >View Product</AppButton
+            >
           </div>
           <img class="hero__image" :src="slide.image" :alt="slide.title" />
         </SwiperSlide>

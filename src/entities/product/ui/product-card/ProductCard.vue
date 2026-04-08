@@ -1,5 +1,9 @@
 <script setup lang="ts">
-import type { ProductCardBadge, ProductCardBadgeVariant, ProductCardData } from '@/entities/product/model/types'
+import type {
+  ProductCardBadge,
+  ProductCardBadgeVariant,
+  ProductCardData,
+} from '@/entities/product/model/types'
 import { computed } from 'vue'
 
 const props = withDefaults(defineProps<ProductCardData>(), {
@@ -98,9 +102,9 @@ function onAddToCart(): void {
       </div>
     </div>
     <div class="product-card__body">
-      <h3 class="product-card__title">
+      <RouterLink :to="`/product/${id}`" class="product-card__title">
         {{ name }}
-      </h3>
+      </RouterLink>
       <div
         class="product-card__prices"
         :class="{ 'product-card__prices--discount': displayListPrice != null }"
