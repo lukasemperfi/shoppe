@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { Review } from '@/entities/product/model/types'
 import ReviewCard from '@/entities/product/ui/review-card/ReviewCard.vue'
+import Button from '@/shared/ui/button/Button.vue'
+import Modal from '@/shared/ui/modal/Modal.vue'
 import { ref } from 'vue'
 
 withDefaults(
@@ -34,12 +36,23 @@ const reviews = ref<Review[]>([
     created_at: '2020-05-06',
   },
 ])
+
+const isAddReviewModalOpen = ref(false)
 </script>
 
 <template>
   <div class="product-reviews-panel">
     <div class="product-reviews-panel__col-1">
       <h2 class="product-reviews-panel__title">2 Reviews for lira earings</h2>
+      <Button
+        class="product-reviews-panel__add-review-open-modal-btn"
+        variant="outline"
+        color="black"
+        type="button"
+        @click="isAddReviewModalOpen = true"
+      >
+        Add a Review
+      </Button>
       <div class="product-reviews-panel__reviews reviews">
         <ReviewCard
           v-for="review in reviews"
@@ -56,7 +69,23 @@ const reviews = ref<Review[]>([
           Your email address will not be published. Required fields are marked *
         </div>
       </div>
-      <div class="product-reviews-panel__add-review-form">Form</div>
+
+      <div
+        class="product-reviews-panel__add-review-form product-reviews-panel__add-review-form_desktop"
+      >
+        Form
+      </div>
+
+      <Modal v-model="isAddReviewModalOpen">
+        <template #header-center>Add a Review</template>
+        <template #content>
+          <div
+            class="product-reviews-panel__add-review-form product-reviews-panel__add-review-form_modal"
+          >
+            Form
+          </div>
+        </template>
+      </Modal>
     </div>
   </div>
 </template>
@@ -64,13 +93,25 @@ const reviews = ref<Review[]>([
 <style scoped lang="scss">
 .product-reviews-panel {
   display: flex;
-  gap: globalFunctions.fluidValue(24px, 86px, 320px, 1440px);
+  gap: globalFunctions.fluidValue(16px, 86px, globalBreakpoints.$breakpoint-sm, 1440px);
+
+  @media (max-width: globalBreakpoints.$breakpoint-sm) {
+    flex-direction: column;
+  }
 
   &__col-1 {
     flex: 1 1 580px;
+
+    @media (max-width: globalBreakpoints.$breakpoint-sm) {
+      flex: 1 1 100%;
+    }
   }
   &__col-2 {
     flex: 1 1 580px;
+
+    @media (max-width: globalBreakpoints.$breakpoint-sm) {
+      flex: 1 1 100%;
+    }
   }
 
   &__title {
@@ -78,13 +119,17 @@ const reviews = ref<Review[]>([
     font-weight: 400;
     font-size: globalFunctions.fluidValue(14px, 20px, 320px, 1440px);
     color: var(--light-colors-black---light);
-    margin-bottom: globalFunctions.fluidValue(24px, 74px, 320px, 1440px);
+
+    @media (max-width: globalBreakpoints.$breakpoint-sm) {
+      display: none;
+    }
   }
 
   .reviews {
     display: flex;
     flex-direction: column;
     gap: globalFunctions.fluidValue(16px, 24px, 320px, 1440px);
+    margin-top: globalFunctions.fluidValue(24px, 74px, 320px, 1440px);
 
     &__item {
       border-bottom: 1px solid var(--light-colors-gray---light);
@@ -100,6 +145,35 @@ const reviews = ref<Review[]>([
 
   &__add-review {
     margin-bottom: globalFunctions.fluidValue(24px, 53px, 320px, 1440px);
+
+    @media (max-width: globalBreakpoints.$breakpoint-sm) {
+      display: none;
+    }
+  }
+
+  &__add-review-open-modal-btn {
+    display: none;
+
+    @media (max-width: globalBreakpoints.$breakpoint-sm) {
+      display: flex;
+      width: 100%;
+    }
+
+    @media (max-width: globalBreakpoints.$breakpoint-xs) {
+      font-weight: 400;
+    }
+  }
+
+  &__add-review-form {
+    &_desktop {
+      @media (max-width: globalBreakpoints.$breakpoint-sm) {
+        display: none;
+      }
+    }
+
+    &_modal {
+      padding: 24px;
+    }
   }
 
   &__add-review-title {

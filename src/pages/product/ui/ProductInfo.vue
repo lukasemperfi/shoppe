@@ -367,7 +367,6 @@ const reviewsLabel = computed(() => {
   &__add {
     height: 53px;
     font-weight: 700;
-    font-size: 16px;
     line-height: 21px;
     letter-spacing: 0.02em;
 
