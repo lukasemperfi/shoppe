@@ -181,12 +181,14 @@ const thumbSlides = computed(() =>
       border-color 0.2s ease,
       opacity 0.2s ease;
 
-    &:hover {
-      border-color: var(--light-colors-gray---light);
+    @media (hover: hover) {
+      &:hover {
+        border-color: var(--light-colors-gray---light);
+      }
     }
 
     &_active {
-      border-color: var(--light-colors-black---light);
+      border: 2px solid var(--light-colors-black---light);
     }
   }
 

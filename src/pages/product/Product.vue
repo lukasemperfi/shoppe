@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
 
-import type { ProductImage } from '@/entities/product/model/types'
+import type { Product } from '@/entities/product/model/types'
+import { productApi } from '@/entities/product/api/product'
 import Tabs from '@/shared/ui/tabs/Tabs.vue'
 import TabsList from '@/shared/ui/tabs/TabsList.vue'
 import TabsTrigger from '@/shared/ui/tabs/TabsTrigger.vue'
@@ -13,46 +15,53 @@ import ProductDescriptionPanel from './ui/ProductDescriptionPanel.vue'
 import ProductSpecsPanel from './ui/ProductSpecsPanel.vue'
 import ProductReviewsPanel from './ui/ProductReviewsPanel.vue'
 
-const galleryImages: ProductImage[] = [
-  {
-    id: '2',
-    url: 'http://loremflickr.com/540/600/jewelry?lock=12',
-    is_main: false,
-    product_id: 'mock',
-    order_index: 0,
-  },
-  {
-    id: '1',
-    url: 'http://loremflickr.com/540/600/jewelry?lock=11',
-    is_main: true,
-    product_id: 'mock',
-    order_index: 1,
-  },
-  {
-    id: '3',
-    url: 'http://loremflickr.com/540/600/jewelry?lock=13',
-    is_main: false,
-    product_id: 'mock',
-    order_index: 2,
-  },
-  {
-    id: '4',
-    url: 'http://loremflickr.com/540/600/jewelry?lock=14',
-    is_main: false,
-    product_id: 'mock',
-    order_index: 3,
-  },
-]
+const route = useRoute()
 
+const productId = computed(() => {
+  const id = route.params.id
+  return typeof id === 'string' ? id : (id?.[0] ?? '')
+})
+
+const product = ref<Product | null>(null)
 const quantity = ref(1)
 const selectedColor = ref<string | number>('')
 
-const colorOptions = [
-  { label: 'Choose an option', value: '' },
-  { label: 'Gold', value: 'gold' },
-  { label: 'Silver', value: 'silver' },
-  { label: 'Rose', value: 'rose' },
-]
+watch(
+  productId,
+  async (id) => {
+    if (!id) {
+      product.value = null
+      return
+    }
+    product.value = await productApi.getProductById(id)
+  },
+  { immediate: true },
+)
+
+watch(
+  () => product.value?.id,
+  () => {
+    selectedColor.value = ''
+  },
+)
+
+const galleryImages = computed(() => product.value?.product_images ?? [])
+
+const colorOptions = computed(() => {
+  const colors = product.value?.product_colors ?? []
+  return [
+    { label: 'Choose an option', value: '' },
+    ...colors.map((c) => ({ label: c.color_name, value: c.id })),
+  ]
+})
+
+const categoriesDisplay = computed(() => {
+  const links = product.value?.product_categories ?? []
+  return links
+    .map((l) => l.categories?.name)
+    .filter((name): name is string => Boolean(name))
+    .join(', ')
+})
 
 const productDescription =
   'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam placerat, augue a volutpat hendrerit, sapien tortor faucibus augue, a maximus elit ex vitae libero. Sed quis mauris eget arcu facilisis consequat sed eu felis.'
@@ -68,11 +77,16 @@ const productSpecs = {
 } as const
 
 const tabs = ref<'description' | 'additional' | 'reviews'>('description')
-const accordionItems = [
+
+const reviewCount = computed(() => product.value?.review_count ?? 0)
+
+const accordionItems = computed(() => [
   { id: 'description', title: 'Description' },
   { id: 'additional', title: 'Additional information' },
-  { id: 'reviews', title: 'Reviews(0)' },
-] as const
+  { id: 'reviews', title: `Reviews(${reviewCount.value})` },
+])
+
+const productReviews = computed(() => product.value?.reviews ?? [])
 </script>
 
 <template>
@@ -82,18 +96,18 @@ const accordionItems = [
         <ProductGallery :images="galleryImages" />
 
         <ProductInfo
+          v-if="product"
           v-model:quantity="quantity"
           v-model:selected-color="selectedColor"
-          name="Lira Earrings"
-          :price="30"
-          :discount="0.2"
-          :old-price="null"
-          :average-rating="5"
-          :review-count="1"
+          :name="product?.name ?? ''"
+          :price="product?.price ?? 0"
+          :discount="product?.discount ?? 0"
+          :average-rating="product?.average_rating ?? 0"
+          :review-count="product?.review_count ?? 0"
           :description="productDescription"
-          :is-sold-out="false"
-          sku="12"
-          categories-display="Fashion, Style"
+          :is-sold-out="product?.is_sold_out ?? false"
+          :sku="product?.sku ?? ''"
+          :categories-display="categoriesDisplay"
           :color-options="colorOptions"
         />
       </div>
@@ -107,7 +121,10 @@ const accordionItems = [
             <ProductSpecsPanel v-bind="productSpecs" />
           </template>
           <template #reviews>
-            <ProductReviewsPanel />
+            <ProductReviewsPanel
+              :reviews="productReviews"
+              :product-name="product?.name ?? ''"
+            />
           </template>
         </Accordion>
       </div>
@@ -117,7 +134,7 @@ const accordionItems = [
           <TabsList>
             <TabsTrigger id="description">Description</TabsTrigger>
             <TabsTrigger id="additional">Additional information</TabsTrigger>
-            <TabsTrigger id="reviews">Reviews(0)</TabsTrigger>
+            <TabsTrigger id="reviews">Reviews({{ reviewCount }})</TabsTrigger>
           </TabsList>
 
           <div class="product__tab-panels">
@@ -128,7 +145,10 @@ const accordionItems = [
               <ProductSpecsPanel v-bind="productSpecs" />
             </TabsPanel>
             <TabsPanel id="reviews">
-              <ProductReviewsPanel />
+              <ProductReviewsPanel
+                :reviews="productReviews"
+                :product-name="product?.name ?? ''"
+              />
             </TabsPanel>
           </div>
         </Tabs>
@@ -151,6 +171,7 @@ const accordionItems = [
     grid-template-columns: 699fr 486fr;
     gap: clamp(24px, 4.5vw, 63px);
     align-items: start;
+    aspect-ratio: 1248/625;
 
     @media (max-width: 1439px) {
       grid-template-columns: 1fr 1fr;
@@ -158,6 +179,7 @@ const accordionItems = [
 
     @media (max-width: 959px) {
       grid-template-columns: 1fr;
+      aspect-ratio: 1/2;
     }
   }
 

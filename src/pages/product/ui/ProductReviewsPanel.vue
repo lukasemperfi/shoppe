@@ -7,39 +7,27 @@ import AddReviewForm, {
 import Button from '@/shared/ui/button/Button.vue'
 import Modal from '@/shared/ui/modal/Modal.vue'
 import { useMediaQuery } from '@vueuse/core'
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
+    reviews?: Review[]
+    productName?: string
     emptyMessage?: string
   }>(),
   {
+    reviews: () => [],
+    productName: '',
     emptyMessage: 'No reviews yet.',
   },
 )
 
-const reviews = ref<Review[]>([
-  {
-    id: '1',
-    product_id: '1',
-    user_name: 'Scarlet withch',
-    email: 'john.doe@example.com',
-    rating: 3,
-    comment:
-      'Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet.',
-    created_at: '2020-05-06',
-  },
-  {
-    id: '2',
-    product_id: '1',
-    user_name: 'Scarlet withch',
-    email: 'john.doe@example.com',
-    rating: 3,
-    comment:
-      'Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam placerat.',
-    created_at: '2020-05-06',
-  },
-])
+const reviewsTitle = computed(() => {
+  const n = props.reviews.length
+  const word = n === 1 ? 'Review' : 'Reviews'
+  const name = props.productName.trim() || 'this product'
+  return `${n} ${word} for ${name}`
+})
 
 const isAddReviewModalOpen = ref(false)
 const isDesktop = useMediaQuery('(min-width: 1025px)')
@@ -76,7 +64,7 @@ const handleAddReviewSubmit = (value: AddReviewFormValue) => {
 <template>
   <div class="product-reviews-panel">
     <div class="product-reviews-panel__col-1">
-      <h2 class="product-reviews-panel__title">2 Reviews for lira earings</h2>
+      <h2 class="product-reviews-panel__title">{{ reviewsTitle }}</h2>
       <Button
         class="product-reviews-panel__add-review-open-modal-btn"
         variant="outline"
