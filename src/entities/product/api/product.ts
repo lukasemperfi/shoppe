@@ -84,6 +84,7 @@ class ProductApi {
       .from('products')
       .select(PRODUCT_DETAILS_SELECT)
       .eq('id', id)
+      .order('created_at', { referencedTable: 'reviews', ascending: false })
       .single()
 
     if (error) {
@@ -94,7 +95,7 @@ class ProductApi {
     return data as Product
   }
 
-  addReview = async (payload: CreateReviewPayload) => {
+  addReview = async (payload: CreateReviewPayload): Promise<Review> => {
     const { data, error } = await supabase.from('reviews').insert([payload]).select().single()
 
     if (error) {
@@ -102,7 +103,7 @@ class ProductApi {
       throw error
     }
 
-    return data
+    return data as Review
   }
 
   getProductReviews = async (productId: string): Promise<Review[]> => {

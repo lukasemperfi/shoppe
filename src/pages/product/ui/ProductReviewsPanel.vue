@@ -1,10 +1,12 @@
 <script setup lang="ts">
+import { productApi } from '@/entities/product/api/product'
 import type { Review } from '@/entities/product/model/types'
 import ReviewCard from '@/entities/product/ui/review-card/ReviewCard.vue'
 import AddReviewForm, {
   type AddReviewFormValue,
 } from '@/features/review/add-review/ui/AddReviewForm.vue'
 import Button from '@/shared/ui/button/Button.vue'
+import Loader from '@/shared/ui/loader/Loader.vue'
 import Modal from '@/shared/ui/modal/Modal.vue'
 import { useMediaQuery } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
@@ -12,6 +14,7 @@ import { computed, ref, watch } from 'vue'
 const props = withDefaults(
   defineProps<{
     reviews?: Review[]
+    productId: string
     productName?: string
     emptyMessage?: string
   }>(),
@@ -21,6 +24,10 @@ const props = withDefaults(
     emptyMessage: 'No reviews yet.',
   },
 )
+
+const emit = defineEmits<{
+  (e: 'review-added'): void
+}>()
 
 const reviewsTitle = computed(() => {
   const n = props.reviews.length
@@ -54,10 +61,29 @@ const addReviewFormValue = ref<AddReviewFormValue>({
 
 const addReviewFormRef = ref<InstanceType<typeof AddReviewForm> | null>(null)
 
-const handleAddReviewSubmit = (value: AddReviewFormValue) => {
-  isAddReviewModalOpen.value = false
-  addReviewFormRef.value?.reset()
-  addReviewFormValue.value = { comment: '', name: '', email: '', remember: false, rating: 0 }
+const isSubmittingReview = ref(false)
+
+const handleAddReviewSubmit = async (value: AddReviewFormValue) => {
+  const productId = props.productId?.trim()
+  if (!productId || isSubmittingReview.value) return
+
+  isSubmittingReview.value = true
+  try {
+    await productApi.addReview({
+      product_id: productId,
+      user_name: value.name,
+      email: value.email,
+      rating: value.rating,
+      comment: value.comment ?? '',
+    })
+    isAddReviewModalOpen.value = false
+    addReviewFormRef.value?.reset()
+    addReviewFormValue.value = { comment: '', name: '', email: '', remember: false, rating: 0 }
+    emit('review-added')
+  } catch {
+  } finally {
+    isSubmittingReview.value = false
+  }
 }
 </script>
 
@@ -94,14 +120,21 @@ const handleAddReviewSubmit = (value: AddReviewFormValue) => {
       <div
         class="product-reviews-panel__add-review-form product-reviews-panel__add-review-form_desktop"
       >
-        <AddReviewForm v-model="addReviewFormValue" @submit="handleAddReviewSubmit" />
+        <Loader v-if="isSubmittingReview" label="Sending your review..." />
+        <AddReviewForm
+          v-else
+          v-model="addReviewFormValue"
+          @submit="handleAddReviewSubmit"
+        />
       </div>
 
       <Modal v-model="isAddReviewModalOpen" :instant-close="isAddReviewModalInstantClose">
         <template #header-center>Add a Review</template>
         <template #content>
           <div class="product-reviews-panel__add-review-form app-container">
+            <Loader v-if="isSubmittingReview" label="Sending your review..." />
             <AddReviewForm
+              v-else
               ref="addReviewFormRef"
               v-model="addReviewFormValue"
               @submit="handleAddReviewSubmit"

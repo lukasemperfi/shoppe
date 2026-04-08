@@ -45,6 +45,12 @@ watch(
   },
 )
 
+async function refreshProduct() {
+  const id = productId.value
+  if (!id) return
+  product.value = await productApi.getProductById(id)
+}
+
 const galleryImages = computed(() => product.value?.product_images ?? [])
 
 const colorOptions = computed(() => {
@@ -123,7 +129,9 @@ const productReviews = computed(() => product.value?.reviews ?? [])
           <template #reviews>
             <ProductReviewsPanel
               :reviews="productReviews"
+              :product-id="productId"
               :product-name="product?.name ?? ''"
+              @review-added="refreshProduct"
             />
           </template>
         </Accordion>
@@ -147,7 +155,9 @@ const productReviews = computed(() => product.value?.reviews ?? [])
             <TabsPanel id="reviews">
               <ProductReviewsPanel
                 :reviews="productReviews"
+                :product-id="productId"
                 :product-name="product?.name ?? ''"
+                @review-added="refreshProduct"
               />
             </TabsPanel>
           </div>
