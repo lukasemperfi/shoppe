@@ -1,4 +1,5 @@
 {
+  "homepage": "https://lukasemperfi.github.io/shoppe",
   "name": "shoppe",
   "version": "0.0.0",
   "private": true,
@@ -14,7 +15,9 @@
     "lint:eslint": "eslint . --fix --cache",
     "format": "prettier --write --experimental-cli src/",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "predeploy": "npm run build-only",
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "@floating-ui/vue": "^1.1.11",
@@ -45,6 +48,7 @@
     "eslint-plugin-oxlint": "~1.57.0",
     "eslint-plugin-storybook": "^10.3.4",
     "eslint-plugin-vue": "~10.8.0",
+    "gh-pages": "^6.3.0",
     "jiti": "^2.6.1",
     "npm-run-all2": "^8.0.4",
     "oxlint": "~1.57.0",
