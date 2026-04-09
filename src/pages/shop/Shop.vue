@@ -73,7 +73,7 @@ const fetchProducts = async () => {
     hasDiscount: filters.onSale || undefined,
     isSoldOut: filters.inStock || undefined,
     sortBy: filters.sortBy as ProductsSortBy,
-    limit: 6,
+    limit: 100,
   }
 
   console.log('apiParams', apiParams)
