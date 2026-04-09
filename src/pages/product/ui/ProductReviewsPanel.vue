@@ -121,11 +121,7 @@ const handleAddReviewSubmit = async (value: AddReviewFormValue) => {
         class="product-reviews-panel__add-review-form product-reviews-panel__add-review-form_desktop"
       >
         <Loader v-if="isSubmittingReview" label="Sending your review..." />
-        <AddReviewForm
-          v-else
-          v-model="addReviewFormValue"
-          @submit="handleAddReviewSubmit"
-        />
+        <AddReviewForm v-else v-model="addReviewFormValue" @submit="handleAddReviewSubmit" />
       </div>
 
       <Modal v-model="isAddReviewModalOpen" :instant-close="isAddReviewModalInstantClose">
@@ -200,7 +196,7 @@ const handleAddReviewSubmit = async (value: AddReviewFormValue) => {
   }
 
   &__add-review {
-    margin-bottom: globalFunctions.fluidValue(24px, 55px, 320px, 1440px);
+    margin-bottom: globalFunctions.fluidValue(24px, 39px, 320px, 1440px);
 
     @media (max-width: globalBreakpoints.$breakpoint-md) {
       display: none;

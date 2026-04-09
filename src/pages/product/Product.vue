@@ -14,6 +14,7 @@ import ProductInfo from './ui/ProductInfo.vue'
 import ProductDescriptionPanel from './ui/ProductDescriptionPanel.vue'
 import ProductSpecsPanel from './ui/ProductSpecsPanel.vue'
 import ProductReviewsPanel from './ui/ProductReviewsPanel.vue'
+import SimilarItems from './sections/similar-items/SimilarItems.vue'
 
 const route = useRoute()
 
@@ -96,75 +97,78 @@ const productReviews = computed(() => product.value?.reviews ?? [])
 </script>
 
 <template>
-  <section class="product">
-    <div class="app-container product__container">
-      <div class="product__top">
-        <ProductGallery :images="galleryImages" />
+  <div class="product">
+    <div class="product__container">
+      <section class="product__info-section app-container">
+        <div class="product__top">
+          <ProductGallery :images="galleryImages" />
 
-        <ProductInfo
-          v-if="product"
-          v-model:quantity="quantity"
-          v-model:selected-color="selectedColor"
-          :name="product?.name ?? ''"
-          :price="product?.price ?? 0"
-          :discount="product?.discount ?? 0"
-          :average-rating="product?.average_rating ?? 0"
-          :review-count="product?.review_count ?? 0"
-          :description="productDescription"
-          :is-sold-out="product?.is_sold_out ?? false"
-          :sku="product?.sku ?? ''"
-          :categories-display="categoriesDisplay"
-          :color-options="colorOptions"
-        />
-      </div>
+          <ProductInfo
+            v-if="product"
+            v-model:quantity="quantity"
+            v-model:selected-color="selectedColor"
+            :name="product?.name ?? ''"
+            :price="product?.price ?? 0"
+            :discount="product?.discount ?? 0"
+            :average-rating="product?.average_rating ?? 0"
+            :review-count="product?.review_count ?? 0"
+            :description="productDescription"
+            :is-sold-out="product?.is_sold_out ?? false"
+            :sku="product?.sku ?? ''"
+            :categories-display="categoriesDisplay"
+            :color-options="colorOptions"
+          />
+        </div>
 
-      <div class="product__accordion">
-        <Accordion v-model="tabs" :items="accordionItems" aria-label="Product details">
-          <template #description>
-            <ProductDescriptionPanel :text="productDetailsDescription" />
-          </template>
-          <template #additional>
-            <ProductSpecsPanel v-bind="productSpecs" />
-          </template>
-          <template #reviews>
-            <ProductReviewsPanel
-              :reviews="productReviews"
-              :product-id="productId"
-              :product-name="product?.name ?? ''"
-              @review-added="refreshProduct"
-            />
-          </template>
-        </Accordion>
-      </div>
-
-      <div class="product__tabs">
-        <Tabs v-model="tabs" default-tab="description">
-          <TabsList>
-            <TabsTrigger id="description">Description</TabsTrigger>
-            <TabsTrigger id="additional">Additional information</TabsTrigger>
-            <TabsTrigger id="reviews">Reviews({{ reviewCount }})</TabsTrigger>
-          </TabsList>
-
-          <div class="product__tab-panels">
-            <TabsPanel id="description">
+        <div class="product__accordion">
+          <Accordion v-model="tabs" :items="accordionItems" aria-label="Product details">
+            <template #description>
               <ProductDescriptionPanel :text="productDetailsDescription" />
-            </TabsPanel>
-            <TabsPanel id="additional">
+            </template>
+            <template #additional>
               <ProductSpecsPanel v-bind="productSpecs" />
-            </TabsPanel>
-            <TabsPanel id="reviews">
+            </template>
+            <template #reviews>
               <ProductReviewsPanel
                 :reviews="productReviews"
                 :product-id="productId"
                 :product-name="product?.name ?? ''"
                 @review-added="refreshProduct"
               />
-            </TabsPanel>
-          </div>
-        </Tabs>
-      </div>
+            </template>
+          </Accordion>
+        </div>
+
+        <div class="product__tabs">
+          <Tabs v-model="tabs" default-tab="description">
+            <TabsList>
+              <TabsTrigger id="description">Description</TabsTrigger>
+              <TabsTrigger id="additional">Additional information</TabsTrigger>
+              <TabsTrigger id="reviews">Reviews({{ reviewCount }})</TabsTrigger>
+            </TabsList>
+
+            <div class="product__tab-panels">
+              <TabsPanel id="description">
+                <ProductDescriptionPanel :text="productDetailsDescription" />
+              </TabsPanel>
+              <TabsPanel id="additional">
+                <ProductSpecsPanel v-bind="productSpecs" />
+              </TabsPanel>
+              <TabsPanel id="reviews">
+                <ProductReviewsPanel
+                  :reviews="productReviews"
+                  :product-id="productId"
+                  :product-name="product?.name ?? ''"
+                  @review-added="refreshProduct"
+                />
+              </TabsPanel>
+            </div>
+          </Tabs>
+        </div>
+      </section>
+      <SimilarItems />
     </div>
-  </section>
+  </div>
 </template>
 
 <style scoped lang="scss">
@@ -174,6 +178,10 @@ const productReviews = computed(() => product.value?.reviews ?? [])
 
   &__container {
     width: 100%;
+  }
+
+  &__info-section {
+    margin-bottom: globalFunctions.fluidValue(21px, 96px, 320px, 1440px);
   }
 
   &__top {
