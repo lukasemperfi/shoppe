@@ -113,10 +113,6 @@ const cartSubtotal = computed(() =>
     list-style: none;
     display: flex;
     flex-direction: column;
-
-    @media (max-width: globalBreakpoints.$breakpoint-sm) {
-      gap: 40px;
-    }
   }
 
   &__item {

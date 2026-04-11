@@ -64,77 +64,75 @@ function onCheckout() {
   <section class="cart-totals" aria-labelledby="cart-totals-title">
     <h2 id="cart-totals-title" class="cart-totals__title">Cart totals</h2>
 
-    <div class="cart-totals__row">
+    <div class="cart-totals__row cart-totals__row_subtotal">
       <span class="cart-totals__label">Subtotal</span>
       <span class="cart-totals__value">{{ formatMoney(subtotal) }}</span>
     </div>
 
-    <div class="cart-totals__shipping-block">
-      <div class="cart-totals__row cart-totals__row_align-start">
-        <span class="cart-totals__label">Shipping</span>
-        <p class="cart-totals__shipping-note">
-          Shipping costs will be calculated once you have provided address.
-        </p>
-      </div>
-
-      <Accordion
-        class="cart-totals__accordion"
-        :items="accordionItems"
-        default-value="calculate-shipping"
-        aria-label="Calculate shipping"
-      >
-        <template #calculate-shipping>
-          <div class="cart-totals__form">
-            <div class="cart-totals__field">
-              <label class="cart-totals__field-label" for="cart-totals-country">Country</label>
-              <Select
-                id="cart-totals-country"
-                v-model="country"
-                name="cart-shipping-country"
-                class="cart-totals__select"
-                label="Select a country"
-                placeholder="Select a country"
-                :options="countryOptions"
-              />
-            </div>
-            <div class="cart-totals__field">
-              <label class="cart-totals__field-label" for="cart-totals-city">City</label>
-              <Select
-                id="cart-totals-city"
-                v-model="city"
-                name="cart-shipping-city"
-                class="cart-totals__select"
-                label="City"
-                placeholder="City"
-                :options="cityOptions"
-              />
-            </div>
-            <div class="cart-totals__field">
-              <label class="cart-totals__field-label" for="cart-totals-zip">Post code / ZIP</label>
-              <Select
-                id="cart-totals-zip"
-                v-model="postCode"
-                name="cart-shipping-zip"
-                class="cart-totals__select"
-                label="Post code / ZIP"
-                placeholder="Post code / ZIP"
-                :options="postCodeOptions"
-              />
-            </div>
-            <Button
-              type="button"
-              variant="outline"
-              color="black"
-              class="cart-totals__update-btn"
-              aria-label="Update cart totals after shipping"
-              @click="onUpdateTotals"
-            >
-              Update totals
-            </Button>
-          </div>
-        </template>
-      </Accordion>
+    <div class="cart-totals__row cart-totals__row_shipping">
+      <span class="cart-totals__label">Shipping</span>
+      <p class="cart-totals__shipping-note">
+        Shipping costs will be calculated once you have provided address.
+      </p>
     </div>
+
+    <Accordion
+      class="cart-totals__accordion"
+      :items="accordionItems"
+      default-value="calculate-shipping"
+      aria-label="Calculate shipping"
+    >
+      <template #calculate-shipping>
+        <div class="cart-totals__form">
+          <div class="cart-totals__field">
+            <label class="cart-totals__field-label" for="cart-totals-country">Country</label>
+            <Select
+              id="cart-totals-country"
+              v-model="country"
+              name="cart-shipping-country"
+              class="cart-totals__select"
+              label="Select a country"
+              placeholder="Select a country"
+              :options="countryOptions"
+            />
+          </div>
+          <div class="cart-totals__field">
+            <label class="cart-totals__field-label" for="cart-totals-city">City</label>
+            <Select
+              id="cart-totals-city"
+              v-model="city"
+              name="cart-shipping-city"
+              class="cart-totals__select"
+              label="City"
+              placeholder="City"
+              :options="cityOptions"
+            />
+          </div>
+          <div class="cart-totals__field">
+            <label class="cart-totals__field-label" for="cart-totals-zip">Post code / ZIP</label>
+            <Select
+              id="cart-totals-zip"
+              v-model="postCode"
+              name="cart-shipping-zip"
+              class="cart-totals__select"
+              label="Post code / ZIP"
+              placeholder="Post code / ZIP"
+              :options="postCodeOptions"
+            />
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            color="black"
+            class="cart-totals__update-btn"
+            aria-label="Update cart totals after shipping"
+            @click="onUpdateTotals"
+          >
+            Update totals
+          </Button>
+        </div>
+      </template>
+    </Accordion>
 
     <div class="cart-totals__divider" role="presentation" />
 
@@ -158,45 +156,51 @@ function onCheckout() {
 
 <style scoped lang="scss">
 .cart-totals {
-  box-sizing: border-box;
-  width: 100%;
-  max-width: 580px;
-  margin-left: auto;
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  column-gap: globalFunctions.fluidValue(36px, 134px, 320px, 1440px);
   background: #ffffff;
   border-radius: 4px;
-  padding: globalFunctions.fluidValue(24px, 40px, 320px, 1440px);
+  padding-inline: globalFunctions.fluidValue(16px, 57px, 320px, 1440px);
+  padding-block: globalFunctions.fluidValue(15px, 36px, 320px, 1440px);
   font-family: var(--font-family);
 
-  @media (max-width: 1300px) {
-    margin-left: 0;
-    max-width: none;
+  @media (max-width: globalBreakpoints.$breakpoint-xs) {
+    background: var(--light-colors-light-gray---light);
   }
 
   &__title {
-    margin: 0 0 globalFunctions.fluidValue(20px, 32px, 320px, 1440px);
+    margin-bottom: globalFunctions.fluidValue(23px, 40px, 320px, 1440px);
     font-weight: 500;
-    font-size: globalFunctions.fluidValue(18px, 26px, 320px, 1440px);
+    font-size: globalFunctions.fluidValue(16px, 26px, 320px, 1440px);
     color: var(--light-colors-black---light);
+    grid-column: 1 / -1;
   }
 
   &__row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: globalFunctions.fluidValue(12px, 24px, 320px, 1440px);
-    margin-bottom: globalFunctions.fluidValue(16px, 24px, 320px, 1440px);
+    display: grid;
+    grid-template-columns: subgrid;
 
-    &_align-start {
-      align-items: flex-start;
-    }
+    grid-column: 1 / -1;
 
     &_total {
-      margin-bottom: globalFunctions.fluidValue(24px, 32px, 320px, 1440px);
+      margin-bottom: globalFunctions.fluidValue(24px, 47px, 320px, 1440px);
+      margin-top: globalFunctions.fluidValue(10px, 20px, 320px, 1440px);
 
       .cart-totals__label,
       .cart-totals__value {
         font-weight: 700;
       }
+
+      .cart-totals__value {
+        text-align: right;
+      }
+    }
+    &_subtotal {
+      margin-bottom: globalFunctions.fluidValue(16px, 30px, 320px, 1440px);
+    }
+    &_shipping {
+      margin-bottom: globalFunctions.fluidValue(16px, 38px, 320px, 1440px);
     }
   }
 
@@ -210,42 +214,36 @@ function onCheckout() {
   &__value {
     font-size: globalFunctions.fluidValue(12px, 16px, 320px, 1440px);
     color: var(--light-colors-black---light);
-    text-align: right;
-  }
-
-  &__shipping-block {
-    margin-bottom: globalFunctions.fluidValue(8px, 16px, 320px, 1440px);
   }
 
   &__shipping-note {
     margin: 0;
-    max-width: 280px;
-    font-size: globalFunctions.fluidValue(11px, 14px, 320px, 1440px);
-    line-height: 1.45;
+    font-size: globalFunctions.fluidValue(12px, 16px, 320px, 1440px);
     color: var(--light-colors-dark-gray---light, #707070);
-    text-align: right;
-
-    @media (max-width: globalBreakpoints.$breakpoint-xs) {
-      max-width: none;
-      text-align: left;
-    }
+    line-height: globalFunctions.fluidValue(20px, 24px, 320px, 1440px);
   }
 
   &__accordion {
     margin-top: globalFunctions.fluidValue(8px, 12px, 320px, 1440px);
+    grid-column: 2;
 
     :deep(.accordion__title) {
       text-transform: uppercase;
       letter-spacing: 0.02em;
       font-size: globalFunctions.fluidValue(12px, 16px, 320px, 1440px);
     }
+
+    :deep(svg) {
+      width: 8px;
+      height: 4px;
+    }
   }
 
   &__form {
     display: flex;
     flex-direction: column;
-    gap: globalFunctions.fluidValue(16px, 24px, 320px, 1440px);
-    padding-top: globalFunctions.fluidValue(4px, 8px, 320px, 1440px);
+    gap: globalFunctions.fluidValue(16px, 16px, 320px, 1440px);
+    padding-top: globalFunctions.fluidValue(4px, 13px, 320px, 1440px);
   }
 
   &__field {
@@ -275,22 +273,23 @@ function onCheckout() {
   }
 
   &__update-btn {
-    align-self: flex-start;
-    min-width: 168px;
-    margin-top: globalFunctions.fluidValue(4px, 8px, 320px, 1440px);
+    margin-top: globalFunctions.fluidValue(4px, 10px, 320px, 1440px);
     text-transform: uppercase;
     letter-spacing: 0.02em;
+    grid-column: 2;
   }
 
   &__divider {
     height: 1px;
     margin: globalFunctions.fluidValue(16px, 24px, 320px, 1440px) 0;
     background: var(--light-colors-gray---light, #d8d8d8);
+    grid-column: 1 / -1;
   }
 
   &__checkout-btn {
     text-transform: uppercase;
     letter-spacing: 0.02em;
+    grid-column: 1 / -1;
   }
 }
 </style>
