@@ -1,5 +1,8 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed } from 'vue'
+import { autoUpdate, flip, offset, shift, useFloating } from '@floating-ui/vue'
+import { size } from '@floating-ui/dom'
+import { onClickOutside } from '@vueuse/core'
+import { computed, ref } from 'vue'
 import Icon from '@/shared/ui/icon/Icon.vue'
 
 interface Option {
@@ -19,7 +22,32 @@ const props = defineProps<Props>()
 const emit = defineEmits(['update:modelValue'])
 
 const isOpen = ref(false)
-const selectRef = ref<HTMLElement | null>(null)
+const reference = ref<HTMLElement | null>(null)
+const floating = ref<HTMLElement | null>(null)
+
+const { floatingStyles } = useFloating(reference, floating, {
+  open: computed(() => isOpen.value),
+  placement: 'bottom',
+  strategy: 'fixed',
+  whileElementsMounted: autoUpdate,
+  middleware: [
+    offset(8),
+    flip({
+      fallbackPlacements: ['top', 'bottom'],
+      padding: 10,
+    }),
+    shift({
+      padding: 10,
+    }),
+    size({
+      apply({ rects, elements }) {
+        Object.assign(elements.floating.style, {
+          width: `${rects.reference.width}px`,
+        })
+      },
+    }),
+  ],
+})
 
 const toggleSelect = () => {
   isOpen.value = !isOpen.value
@@ -35,14 +63,13 @@ const onNativeChange = (event: Event) => {
   emit('update:modelValue', target.value)
 }
 
-const handleClickOutside = (event: MouseEvent) => {
-  if (selectRef.value && !selectRef.value.contains(event.target as Node)) {
-    isOpen.value = false
-  }
-}
-
-onMounted(() => document.addEventListener('click', handleClickOutside))
-onUnmounted(() => document.removeEventListener('click', handleClickOutside))
+onClickOutside(
+  floating,
+  () => {
+    if (isOpen.value) isOpen.value = false
+  },
+  { ignore: [reference] },
+)
 
 const selectedLabel = computed(() => {
   const option = props.options.find((opt) => opt.value === props.modelValue)
@@ -51,7 +78,7 @@ const selectedLabel = computed(() => {
 </script>
 
 <template>
-  <div class="select" ref="selectRef" :class="{ 'is-open': isOpen }">
+  <div class="select" ref="reference" :class="{ 'is-open': isOpen }">
     <select
       class="select__native"
       :value="modelValue"
@@ -67,12 +94,11 @@ const selectedLabel = computed(() => {
     </select>
 
     <div class="select__trigger" @click="toggleSelect">
-      <span class="select__value" :class="{ 'is-placeholder': !modelValue && !label }">
-        {{ !modelValue ? label : selectedLabel }}
-        <!-- <template v-if="label"> {{ label }}<template v-if="selectedLabel"></template> </template>
-        <template v-else>
-          {{ selectedLabel ?? placeholder }}
-        </template> -->
+      <span
+        class="select__value"
+        :class="{ 'is-placeholder': !modelValue && Boolean(label ?? placeholder) }"
+      >
+        {{ !modelValue ? (label ?? placeholder) : selectedLabel }}
       </span>
 
       <div class="select__icon" :class="{ 'is-rotated': isOpen }">
@@ -80,19 +106,29 @@ const selectedLabel = computed(() => {
       </div>
     </div>
 
-    <Transition name="fade-slide">
-      <ul v-if="isOpen" class="select__dropdown">
-        <li
-          v-for="option in options"
-          :key="option.value"
-          class="select__option"
-          :class="{ 'is-selected': option.value === modelValue }"
-          @click="selectOption(option)"
+    <Teleport to="body">
+      <Transition name="fade-slide">
+        <ul
+          v-if="isOpen"
+          ref="floating"
+          class="select__dropdown"
+          :style="{
+            ...floatingStyles,
+            zIndex: 99999,
+          }"
         >
-          {{ option.label }}
-        </li>
-      </ul>
-    </Transition>
+          <li
+            v-for="option in options"
+            :key="option.value"
+            class="select__option"
+            :class="{ 'is-selected': option.value === modelValue }"
+            @click="selectOption(option)"
+          >
+            {{ option.label }}
+          </li>
+        </ul>
+      </Transition>
+    </Teleport>
   </div>
 </template>
 
@@ -159,11 +195,7 @@ const selectedLabel = computed(() => {
 }
 
 .select__dropdown {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  width: 100%;
-  margin: 4px 0 0;
+  margin: 0;
   padding: 8px 0;
   background: #ffffff;
   border: 1px solid #d8d8d8;
@@ -192,14 +224,11 @@ const selectedLabel = computed(() => {
 
 .fade-slide-enter-active,
 .fade-slide-leave-active {
-  transition:
-    opacity 0.2s ease,
-    transform 0.2s ease;
+  transition: opacity 0.2s ease;
 }
 
 .fade-slide-enter-from,
 .fade-slide-leave-to {
   opacity: 0;
-  transform: translateY(-10px);
 }
 </style>

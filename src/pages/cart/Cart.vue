@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import type { CartItem } from '@/entities/cart/model/types'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import CartItemCard from '@/pages/cart/ui/CartItemCard.vue'
+import CartTotals from '@/pages/cart/ui/CartTotals.vue'
 import Button from '@/shared/ui/button/Button.vue'
 import Input from '@/shared/ui/input/Input.vue'
 
@@ -38,6 +39,10 @@ const items = ref<CartItem[]>([
 function removeItem(id: string) {
   items.value = items.value.filter((line) => line.id !== id)
 }
+
+const cartSubtotal = computed(() =>
+  items.value.reduce((sum, line) => sum + line.price * line.quantity, 0),
+)
 </script>
 
 <template>
@@ -58,7 +63,7 @@ function removeItem(id: string) {
           </div>
         </div>
         <div class="cart-page__col-2">
-          <div class="cart-page__total">dfg</div>
+          <CartTotals :subtotal="cartSubtotal" />
         </div>
       </div>
     </div>
