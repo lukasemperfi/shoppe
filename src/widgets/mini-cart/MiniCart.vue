@@ -173,7 +173,7 @@ function removeLine(id: string): void {
   &__footer {
     flex-shrink: 0;
     padding-inline: $padding-inline;
-    padding-bottom: 27px;
+    padding-bottom: globalFunctions.fluidValue(37px, 27px, 320px, 1440px);
     padding-top: 24px;
     border-top: 1px solid var(--light-colors-gray---light);
     background: var(--light-colors-white---light);
@@ -386,22 +386,26 @@ function removeLine(id: string): void {
     align-items: center;
     justify-content: space-between;
     gap: 16px;
-    margin-bottom: 23px;
+    margin-bottom: globalFunctions.fluidValue(15px, 23px, 320px, 1440px);
   }
 
   &__subtotal-label {
     font-weight: 500;
-    font-size: 16px;
+    font-size: globalFunctions.fluidValue(12px, 16px, 320px, 1440px);
     color: var(--light-colors-black---light);
     text-transform: capitalize;
   }
 
   &__subtotal-value {
     font-weight: 500;
-    font-size: 16px;
+    font-size: globalFunctions.fluidValue(12px, 16px, 320px, 1440px);
 
     color: var(--light-colors-black---light);
     text-transform: capitalize;
+  }
+
+  :deep(.button) {
+    font-size: globalFunctions.fluidValue(12px, 16px, 320px, 1440px);
   }
 
   &__cta {
