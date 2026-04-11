@@ -2,6 +2,8 @@
 import type { CartItem } from '@/entities/cart/model/types'
 import { ref } from 'vue'
 import CartItemCard from '@/pages/cart/ui/CartItemCard.vue'
+import Button from '@/shared/ui/button/Button.vue'
+import Input from '@/shared/ui/input/Input.vue'
 
 const items = ref<CartItem[]>([
   {
@@ -49,6 +51,11 @@ function removeItem(id: string) {
               <CartItemCard v-model:quantity="item.quantity" :item="item" @remove="removeItem" />
             </li>
           </ul>
+          <Button variant="outline" class="cart-page__update-cart-btn">Update Cart</Button>
+          <div class="coupon">
+            <Input class="coupon__input" placeholder="Coupon Code" />
+            <Button variant="primary" class="coupon__button">Apply Coupon</Button>
+          </div>
         </div>
         <div class="cart-page__col-2">
           <div class="cart-page__total">dfg</div>
@@ -87,6 +94,8 @@ function removeItem(id: string) {
 
   &__col-1 {
     flex: 1 1 50%;
+    display: flex;
+    flex-direction: column;
   }
 
   &__col-2 {
@@ -103,9 +112,6 @@ function removeItem(id: string) {
     @media (max-width: globalBreakpoints.$breakpoint-sm) {
       gap: 40px;
     }
-
-    :deep(.cart-item-card) {
-    }
   }
 
   &__item {
@@ -115,6 +121,34 @@ function removeItem(id: string) {
     &:first-child {
       padding-top: 0;
     }
+  }
+
+  &__update-cart-btn {
+    align-self: flex-end;
+    margin-top: globalFunctions.fluidValue(24px, 39px, 320px, 1440px);
+    margin-bottom: globalFunctions.fluidValue(48px, 64px, 320px, 1440px);
+
+    @media (max-width: globalBreakpoints.$breakpoint-xs) {
+      width: 100%;
+    }
+  }
+
+  .coupon {
+    display: flex;
+    gap: globalFunctions.fluidValue(16px, 76px, 320px, 1440px);
+
+    :deep(.coupon__input::placeholder) {
+      font-size: 12px;
+    }
+
+    @media (max-width: globalBreakpoints.$breakpoint-xs) {
+      flex-direction: column;
+    }
+  }
+
+  &__update-cart-btn,
+  .coupon__button {
+    min-width: 168px;
   }
 }
 </style>
