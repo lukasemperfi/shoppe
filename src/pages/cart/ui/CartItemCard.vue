@@ -100,7 +100,6 @@ function onSelectQuantity(e: Event) {
   box-sizing: border-box;
   width: 100%;
   font-family: var(--font-family);
-
   display: flex;
 
   &__remove {
@@ -216,7 +215,7 @@ function onSelectQuantity(e: Event) {
 
   &__quantity {
     flex-shrink: 0;
-    margin-right: 35px;
+    margin-right: globalFunctions.fluidValue(16px, 64px, 320px, 1440px);
 
     &_desktop {
       @container cart-item (max-width: 515px) {

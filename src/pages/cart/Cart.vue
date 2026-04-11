@@ -40,22 +40,57 @@ function removeItem(id: string) {
 
 <template>
   <div class="cart-page">
-    <h1 class="cart-page__heading">Cart</h1>
-    <ul class="cart-page__list" role="list">
-      <li v-for="item in items" :key="item.id" class="cart-page__item">
-        <CartItemCard v-model:quantity="item.quantity" :item="item" @remove="removeItem" />
-      </li>
-    </ul>
+    <div class="app-container">
+      <h1 class="cart-page__title">Shopping Cart</h1>
+      <div class="cart-page__body">
+        <div class="cart-page__col-1">
+          <ul class="cart-page__list" role="list">
+            <li v-for="item in items" :key="item.id" class="cart-page__item">
+              <CartItemCard v-model:quantity="item.quantity" :item="item" @remove="removeItem" />
+            </li>
+          </ul>
+        </div>
+        <div class="cart-page__col-2">
+          <div class="cart-page__total">dfg</div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <style scoped lang="scss">
 .cart-page {
-  width: 100%;
   font-family: var(--font-family);
+  padding-top: globalFunctions.fluidValue(24px, 96px, 320px, 1440px);
 
-  &__heading {
-    margin: 0 0 24px;
+  &__title {
+    font-family: var(--font-family);
+    font-weight: 500;
+    font-size: globalFunctions.fluidValue(16px, 31px, 320px, 1440px);
+    color: var(--light-colors-black---light);
+    text-align: center;
+    margin-bottom: globalFunctions.fluidValue(15px, 65px, 320px, 1440px);
+
+    @media (max-width: globalBreakpoints.$breakpoint-sm) {
+      font-weight: 400;
+    }
+  }
+
+  &__body {
+    display: flex;
+    gap: globalFunctions.fluidValue(39px, 90px, 320px, 1440px);
+
+    @media (max-width: 1300px) {
+      flex-direction: column;
+    }
+  }
+
+  &__col-1 {
+    flex: 1 1 50%;
+  }
+
+  &__col-2 {
+    flex: 1 1 50%;
   }
 
   &__list {
@@ -64,16 +99,22 @@ function removeItem(id: string) {
     list-style: none;
     display: flex;
     flex-direction: column;
-    gap: 48px;
 
     @media (max-width: globalBreakpoints.$breakpoint-sm) {
       gap: 40px;
     }
+
+    :deep(.cart-item-card) {
+    }
   }
 
   &__item {
-    margin: 0;
-    padding: 0;
+    padding-block: globalFunctions.fluidValue(22px, 39px, 320px, 1440px);
+    border-bottom: 1px solid var(--light-colors-gray---light);
+
+    &:first-child {
+      padding-top: 0;
+    }
   }
 }
 </style>
