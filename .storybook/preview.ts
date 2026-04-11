@@ -5,7 +5,10 @@ import '@/app/styles/main.scss'
 
 const router = createRouter({
   history: createMemoryHistory(import.meta.env.BASE_URL),
-  routes: [{ path: '/', name: 'home', component: { template: '<div />' } }],
+  routes: [
+    { path: '/', name: 'home', component: { template: '<div />' } },
+    { path: '/cart', name: 'cart', component: { template: '<div />' } },
+  ],
 })
 
 setup((app) => {

@@ -5,12 +5,14 @@ interface Props {
   min?: number
   max?: number
   step?: number
+  variant?: 'default' | 'minimal'
 }
 
 const props = withDefaults(defineProps<Props>(), {
   min: 1,
   max: 99,
   step: 1,
+  variant: 'default',
 })
 
 const model = defineModel<number>({ required: true })
@@ -64,7 +66,7 @@ const decrement = () => {
 </script>
 
 <template>
-  <div class="quantity">
+  <div class="quantity" :class="{ 'quantity_minimal': props.variant === 'minimal' }">
     <button type="button" class="quantity__btn" @click="decrement" :disabled="model <= min">
       &minus;
     </button>
@@ -138,6 +140,48 @@ const decrement = () => {
     font-size: 16px;
     line-height: 27px;
     color: var(--light-colors-dark-gray---light);
+  }
+
+  &_minimal {
+    width: auto;
+    height: 22px;
+    min-height: 22px;
+    background: transparent;
+    padding: 0;
+    gap: 6px;
+    justify-content: flex-start;
+
+    @media (max-width: globalBreakpoints.$breakpoint-sm) {
+      height: 20px;
+      min-height: 20px;
+      gap: 4px;
+    }
+
+    .quantity__btn {
+      width: auto;
+      min-width: 8px;
+      height: 100%;
+      font-size: 14px;
+      line-height: 22px;
+
+      @media (max-width: globalBreakpoints.$breakpoint-sm) {
+        font-size: 12px;
+        line-height: 20px;
+      }
+    }
+
+    .quantity__input {
+      width: auto;
+      min-width: 10px;
+      max-width: 28px;
+      font-size: 14px;
+      line-height: 22px;
+
+      @media (max-width: globalBreakpoints.$breakpoint-sm) {
+        font-size: 12px;
+        line-height: 20px;
+      }
+    }
   }
 }
 </style>

@@ -55,3 +55,30 @@ alwaysApply: true
 
 - Ensure all new styles are written in `.scss` files.
 - When generating HTML, prioritize semantic tags while strictly adhering to the "independent component" rule for classes.
+
+## Responsive Design (Desktop-First)
+
+- **Desktop-First Approach**: Always write base styles for the desktop version first. Use media queries to scale down for tablets and mobile devices.
+- **Nested Media Queries**: Always place media queries **inside** the SCSS class/selector they refer to. Do not write separate media blocks at the end of the file.
+- **Max-Width Only**: For Desktop-First, primarily use `max-width` breakpoints.
+- **Example**:
+
+  ```scss
+  .card {
+    width: 1000px;
+    padding: 40px;
+
+    @media (max-width: 1024px) {
+      width: 100%;
+      padding: 20px;
+    }
+
+    &__title {
+      font-size: 32px;
+
+      @media (max-width: 768px) {
+        font-size: 24px;
+      }
+    }
+  }
+  ```

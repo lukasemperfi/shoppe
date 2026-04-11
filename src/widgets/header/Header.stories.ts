@@ -7,12 +7,6 @@ const meta: Meta<typeof Header> = {
     layout: 'fullscreen',
   },
   tags: ['autodocs'],
-  argTypes: {
-    cartCount: { control: { type: 'number', min: 0, max: 120 } },
-  },
-  args: {
-    cartCount: 1,
-  },
 }
 
 export default meta

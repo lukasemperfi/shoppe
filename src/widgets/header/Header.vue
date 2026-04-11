@@ -1,24 +1,86 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import Icon from '@/shared/ui/icon/Icon.vue'
+import img1 from '@/shared/assets/images/home-hero/img-1.jpg'
+import img2 from '@/shared/assets/images/home-hero/img-2.jpg'
+import img3 from '@/shared/assets/images/home-hero/img-3.jpg'
+import img4 from '@/shared/assets/images/home-hero/img-4.jpg'
+import img5 from '@/shared/assets/images/home-hero/img-5.jpg'
+import MiniCart from '@/widgets/mini-cart/MiniCart.vue'
+import type { MiniCartLine } from '@/widgets/mini-cart/types'
 import HeaderMobileMenu from './HeaderMobileMenu.vue'
 import HeaderBlogMegaMenu from './HeaderBlogMegaMenu.vue'
 import HeaderShopMegaMenu from './HeaderShopMegaMenu.vue'
 
-const props = withDefaults(
-  defineProps<{
-    cartCount?: number
-  }>(),
-  {
-    cartCount: 0,
-  },
-)
-
 const searchQuery = defineModel<string>('searchQuery', { default: '' })
 
 const isMenuOpen = ref(false)
+const isMiniCartOpen = ref(false)
 
-const showCartBadge = computed(() => props.cartCount > 0)
+const cartLines = ref<MiniCartLine[]>([
+  {
+    id: '1',
+    name: 'Lira Earrings',
+    variant: 'Black / Medium',
+    unitPrice: 20,
+    quantity: 1,
+    imageSrc: img1,
+    imageAlt: 'Lira Earrings',
+  },
+  {
+    id: '2',
+    name: 'Ollie Earrings',
+    variant: 'Black / Medium',
+    unitPrice: 20,
+    quantity: 3,
+    imageSrc: img2,
+    imageAlt: 'Ollie Earrings',
+  },
+  {
+    id: '3',
+    name: 'Kaede Hair Pin',
+    variant: 'Gold / One size',
+    unitPrice: 20,
+    quantity: 1,
+    imageSrc: img3,
+    imageAlt: 'Kaede Hair Pin',
+  },
+  {
+    id: '4',
+    name: 'Ollie Earrings',
+    variant: 'Silver / Small',
+    unitPrice: 20,
+    quantity: 1,
+    imageSrc: img4,
+    imageAlt: 'Ollie Earrings',
+  },
+  {
+    id: '5',
+    name: 'Lira Earrings',
+    variant: 'Rose / Medium',
+    unitPrice: 20,
+    quantity: 1,
+    imageSrc: img5,
+    imageAlt: 'Lira Earrings',
+  },
+])
+
+const cartCount = computed(() => cartLines.value.reduce((sum, line) => sum + line.quantity, 0))
+
+const showCartBadge = computed(() => cartCount.value > 0)
+
+const openMiniCart = () => {
+  isMiniCartOpen.value = true
+}
+
+const onMiniCartUpdateQuantity = (payload: { id: string; quantity: number }) => {
+  const line = cartLines.value.find((l) => l.id === payload.id)
+  if (line) line.quantity = payload.quantity
+}
+
+const onMiniCartRemove = (id: string) => {
+  cartLines.value = cartLines.value.filter((l) => l.id !== id)
+}
 
 const toggleMenu = () => {
   isMenuOpen.value = !isMenuOpen.value
@@ -57,14 +119,21 @@ const closeMenu = () => {
               <Icon name="search" class="header__icon" />
             </button>
 
-            <RouterLink to="#" class="header__icon-btn header__cart" aria-label="Shopping cart">
+            <button
+              type="button"
+              class="header__icon-btn header__cart"
+              aria-label="Open shopping bag"
+              aria-haspopup="dialog"
+              :aria-expanded="isMiniCartOpen"
+              @click="openMiniCart"
+            >
               <span class="header__cart-inner">
-                <Icon name="cart" class="header__icon" />
+                <Icon name="cart" class="header__icon" aria-hidden="true" />
                 <span v-if="showCartBadge" class="header__badge">{{
                   cartCount > 99 ? '99+' : cartCount
                 }}</span>
               </span>
-            </RouterLink>
+            </button>
 
             <RouterLink
               to="#"
@@ -107,6 +176,13 @@ const closeMenu = () => {
           v-model:search-query="searchQuery"
           :cart-count="cartCount"
           @close="closeMenu"
+        />
+
+        <MiniCart
+          v-model="isMiniCartOpen"
+          :items="cartLines"
+          @update:quantity="onMiniCartUpdateQuantity"
+          @remove="onMiniCartRemove"
         />
       </div>
     </div>

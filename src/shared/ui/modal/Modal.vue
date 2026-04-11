@@ -6,9 +6,11 @@ import { useScrollLock } from '@vueuse/core'
 const props = withDefaults(
   defineProps<{
     instantClose?: boolean
+    variant?: 'default' | 'drawer-end'
   }>(),
   {
     instantClose: false,
+    variant: 'default',
   },
 )
 
@@ -38,11 +40,26 @@ onUnmounted(() => document.removeEventListener('keydown', handleEscape))
 
 <template>
   <Teleport to="body">
-    <Transition name="modal-fade" :css="!props.instantClose">
-      <div v-if="isOpen" class="modal-overlay" @click.self="close">
-        <div class="modal-container" v-bind="$attrs">
-          <header class="modal-header">
-            <slot v-if="$slots['header-left-default']" name="header-left-default" />
+    <Transition
+      :name="props.variant === 'drawer-end' ? 'modal-drawer' : 'modal-fade'"
+      :css="!props.instantClose"
+    >
+      <div
+        v-if="isOpen"
+        class="modal-overlay"
+        :class="{ 'modal-overlay_drawer-end': props.variant === 'drawer-end' }"
+        @click.self="close"
+      >
+        <div
+          class="modal-container"
+          :class="{ 'modal-container_drawer-end': props.variant === 'drawer-end' }"
+          v-bind="$attrs"
+        >
+          <header
+            class="modal-header"
+            :class="{ 'modal-header_drawer-end': props.variant === 'drawer-end' }"
+          >
+            <slot />
             <div v-if="$slots['header-left']" class="modal-header__left">
               <slot name="header-left" />
             </div>
@@ -118,38 +135,38 @@ onUnmounted(() => document.removeEventListener('keydown', handleEscape))
   }
 }
 
-.modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-inline: 24px;
-  position: relative;
+// .modal-header {
+//   display: flex;
+//   align-items: center;
+//   justify-content: space-between;
+//   padding-inline: 24px;
+//   position: relative;
 
-  &__center {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 24px;
-    line-height: 28px;
-    color: var(--light-colors-black---light);
+//   &__center {
+//     flex: 1;
+//     display: flex;
+//     justify-content: center;
+//     font-weight: 700;
+//     font-size: 24px;
+//     line-height: 28px;
+//     color: var(--light-colors-black---light);
 
-    @media (max-width: globalBreakpoints.$breakpoint-sm) {
-      font-size: 22px;
-    }
-  }
+//     @media (max-width: globalBreakpoints.$breakpoint-sm) {
+//       font-size: 22px;
+//     }
+//   }
 
-  &__right {
-    flex: 0 0 40px;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    position: absolute;
-    right: 24px;
-    left: 24px;
-    justify-self: flex-end;
-  }
-}
+//   &__right {
+//     flex: 0 0 40px;
+//     display: flex;
+//     align-items: center;
+//     justify-content: flex-end;
+//     position: absolute;
+//     right: 24px;
+//     left: 24px;
+//     justify-self: flex-end;
+//   }
+// }
 
 .modal-close {
   background: transparent;
@@ -198,6 +215,101 @@ onUnmounted(() => document.removeEventListener('keydown', handleEscape))
 
   .modal-container {
     transform: scale(0.9) translateY(20px);
+  }
+}
+
+.modal-overlay_drawer-end {
+  padding: 0;
+  justify-content: flex-end;
+  align-items: stretch;
+}
+
+.modal-container_drawer-end {
+  width: 360px;
+  height: 100vh;
+  max-height: 100vh;
+  min-height: 100vh;
+  max-width: none;
+  border-radius: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  box-shadow: none;
+  border: 1px solid var(--light-colors-gray---light);
+  border-right: none;
+
+  @media (max-width: globalBreakpoints.$breakpoint-sm) {
+    width: 100vw;
+    height: 100vh;
+    max-height: 100vh;
+    border: none;
+  }
+
+  .modal-content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+}
+
+// .modal-header_drawer-end {
+//   display: grid;
+//   grid-template-columns: minmax(32px, auto) 1fr minmax(32px, auto);
+//   align-items: center;
+//   gap: 8px;
+//   padding-inline: 16px;
+//   padding-block: 13px 8px;
+
+//   @media (min-width: 769px) {
+//     padding-inline: 36px;
+//     padding-block: 24px 16px;
+//   }
+
+//   .modal-header__left {
+//     display: flex;
+//     align-items: center;
+//     justify-content: flex-start;
+//   }
+
+//   .modal-header__center {
+//     position: static;
+//     flex: unset;
+//     justify-content: center;
+//     font-weight: 400;
+//     font-size: 16px;
+//     line-height: 27px;
+//     color: var(--light-colors-black---light);
+
+//     @media (min-width: 769px) {
+//       justify-content: flex-start;
+//     }
+//   }
+
+//   .modal-header__right {
+//     position: static;
+//     flex: unset;
+//     left: auto;
+//     right: auto;
+//     justify-content: flex-end;
+//   }
+// }
+
+.modal-drawer-enter-active,
+.modal-drawer-leave-active {
+  transition: opacity 0.3s ease;
+
+  .modal-container_drawer-end {
+    transition: transform 0.3s ease;
+  }
+}
+
+.modal-drawer-enter-from,
+.modal-drawer-leave-to {
+  opacity: 0;
+
+  .modal-container_drawer-end {
+    transform: translateX(100%);
   }
 }
 </style>
