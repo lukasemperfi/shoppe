@@ -1,48 +1,22 @@
 <script setup lang="ts">
-import type { CartItem } from '@/entities/cart/model/types'
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
+import { mapViewItemToCartItem, useCartStore } from '@/entities/cart'
 import CartItemCard from '@/pages/cart/ui/CartItemCard.vue'
 import CartTotals from '@/pages/cart/ui/CartTotals.vue'
 import Button from '@/shared/ui/button/Button.vue'
 import Input from '@/shared/ui/input/Input.vue'
 
-const items = ref<CartItem[]>([
-  {
-    id: '1',
-    title: 'Lira Earrings',
-    description: 'Black / Medium',
-    price: 20,
-    quantity: 3,
-    imageSrc: 'https://loremflickr.com/136/136/jewelry,earring?lock=11',
-    imageAlt: 'Gold Lira hoop earrings',
-  },
-  {
-    id: '2',
-    title: 'Ollie Earrings',
-    description: 'Gold / One size',
-    price: 30,
-    quantity: 1,
-    imageSrc: 'https://loremflickr.com/136/136/jewelry,earring?lock=22',
-    imageAlt: 'Gold Ollie earrings',
-  },
-  {
-    id: '3',
-    title: 'Kaede Hair Pin',
-    description: 'Silver / Large',
-    price: 30,
-    quantity: 2,
-    imageSrc: 'https://loremflickr.com/136/136/hairpin,jewelry?lock=33',
-    imageAlt: 'Silver Kaede hair pin',
-  },
-])
+const cart = useCartStore()
 
-function removeItem(id: string) {
-  items.value = items.value.filter((line) => line.id !== id)
+const cartSubtotal = computed(() => cart.totalSum)
+
+function removeItem(cartItemId: string) {
+  cart.removeItem(cartItemId)
 }
 
-const cartSubtotal = computed(() =>
-  items.value.reduce((sum, line) => sum + line.price * line.quantity, 0),
-)
+function onRefreshCart() {
+  void cart.refreshViewItems()
+}
 </script>
 
 <template>
@@ -51,12 +25,32 @@ const cartSubtotal = computed(() =>
       <h1 class="cart-page__title">Shopping Cart</h1>
       <div class="cart-page__body">
         <div class="cart-page__col-1">
-          <ul class="cart-page__list" role="list">
-            <li v-for="item in items" :key="item.id" class="cart-page__item">
-              <CartItemCard v-model:quantity="item.quantity" :item="item" @remove="removeItem" />
+          <p v-if="cart.viewItemsError" class="cart-page__message" role="alert">
+            {{ cart.viewItemsError }}
+          </p>
+          <p v-else-if="cart.isViewItemsLoading && cart.items.length" class="cart-page__message">
+            Loading cart…
+          </p>
+          <p v-else-if="!cart.items.length" class="cart-page__message">Your cart is empty.</p>
+          <ul v-else class="cart-page__list" role="list">
+            <li v-for="v in cart.viewItems" :key="v.cartItemId" class="cart-page__item">
+              <CartItemCard
+                :item="mapViewItemToCartItem(v)"
+                :quantity="v.quantity"
+                @update:quantity="(q) => cart.setQuantity(v.cartItemId, q)"
+                @remove="removeItem"
+              />
             </li>
           </ul>
-          <Button variant="outline" class="cart-page__update-cart-btn">Update Cart</Button>
+          <Button
+            variant="outline"
+            class="cart-page__update-cart-btn"
+            type="button"
+            :disabled="!cart.items.length || cart.isViewItemsLoading"
+            @click="onRefreshCart"
+          >
+            Update Cart
+          </Button>
           <div class="coupon">
             <Input class="coupon__input" placeholder="Coupon Code" />
             <Button variant="primary" class="coupon__button">Apply Coupon</Button>
@@ -86,6 +80,13 @@ const cartSubtotal = computed(() =>
     @media (max-width: globalBreakpoints.$breakpoint-sm) {
       font-weight: 400;
     }
+  }
+
+  &__message {
+    margin: 0 0 globalFunctions.fluidValue(16px, 32px, 320px, 1440px);
+    font-family: var(--font-family);
+    font-size: globalFunctions.fluidValue(14px, 16px, 320px, 1440px);
+    color: var(--light-colors-dark-gray---light);
   }
 
   &__body {

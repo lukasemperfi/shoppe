@@ -3,8 +3,14 @@ import ProductCard from '@/entities/product/ui/product-card/ProductCard.vue'
 import { productApi } from '@/entities/product/api/product'
 import { onMounted, ref } from 'vue'
 import type { Product } from '@/entities/product/model/types'
+import { useCartStore } from '@/entities/cart'
 
 const products = ref<Product[]>([])
+const cart = useCartStore()
+
+function onAddProductToCart(productId: string) {
+  void cart.addProductFromListing(productId)
+}
 
 onMounted(async () => {
   const data = await productApi.getProducts({ limit: 6 })
@@ -34,6 +40,7 @@ onMounted(async () => {
             :product-images="product.product_images"
             :is-new="product.is_new"
             :is-sold-out="product.is_sold_out"
+            @add-to-cart="() => onAddProductToCart(product.id)"
           />
         </div>
       </div>

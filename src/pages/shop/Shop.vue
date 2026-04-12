@@ -12,8 +12,10 @@ import '@vueform/slider/themes/default.css'
 import ProductCard from '@/entities/product/ui/product-card/ProductCard.vue'
 import { productApi } from '@/entities/product/api/product'
 import type { Product, GetProductsParams, ProductsSortBy } from '@/entities/product/model/types'
+import { useCartStore } from '@/entities/cart'
 
 const route = useRoute()
+const cart = useCartStore()
 const router = useRouter()
 
 const PRICE_SLIDER_MIN = 0
@@ -115,6 +117,10 @@ watch(isNarrowShopLayout, (narrow) => {
 onMounted(() => {
   fetchProducts()
 })
+
+function onAddProductToCart(productId: string) {
+  void cart.addProductFromListing(productId)
+}
 </script>
 
 <template>
@@ -199,6 +205,7 @@ onMounted(() => {
                 :product-images="product.product_images"
                 :is-new="product.is_new"
                 :is-sold-out="product.is_sold_out"
+                @add-to-cart="() => onAddProductToCart(product.id)"
               />
               <div v-if="products.length === 0" class="catalog__empty">
                 No products found matching your filters.

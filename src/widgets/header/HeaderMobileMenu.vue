@@ -50,7 +50,12 @@ watch(
               <Icon name="logo" />
             </RouterLink>
             <div class="header__mobile-bar-actions">
-              <RouterLink to="#" class="header__icon-btn header__cart" aria-label="Shopping cart">
+              <RouterLink
+                to="/cart"
+                class="header__icon-btn header__cart"
+                aria-label="Shopping cart"
+                @click="close"
+              >
                 <span class="header__cart-inner">
                   <Icon name="cart" class="header__icon" />
                   <span v-if="showCartBadge" class="header__badge">{{

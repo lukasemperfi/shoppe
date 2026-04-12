@@ -15,8 +15,10 @@ import ProductDescriptionPanel from './ui/ProductDescriptionPanel.vue'
 import ProductSpecsPanel from './ui/ProductSpecsPanel.vue'
 import ProductReviewsPanel from './ui/ProductReviewsPanel.vue'
 import SimilarItems from './sections/similar-items/SimilarItems.vue'
+import { useCartStore } from '@/entities/cart'
 
 const route = useRoute()
+const cart = useCartStore()
 
 const productId = computed(() => {
   const id = route.params.id
@@ -94,6 +96,31 @@ const accordionItems = computed(() => [
 ])
 
 const productReviews = computed(() => product.value?.reviews ?? [])
+
+function onAddToCart() {
+  const p = product.value
+  if (!p || p.is_sold_out) return
+
+  const colors = p.product_colors ?? []
+  if (colors.length > 0) {
+    const cid = String(selectedColor.value)
+    if (!cid) return
+    cart.addItem({
+      productId: p.id,
+      colorId: cid,
+      quantity: quantity.value,
+      product: p,
+    })
+    return
+  }
+
+  cart.addItem({
+    productId: p.id,
+    colorId: null,
+    quantity: quantity.value,
+    product: p,
+  })
+}
 </script>
 
 <template>
@@ -117,6 +144,7 @@ const productReviews = computed(() => product.value?.reviews ?? [])
             :sku="product?.sku ?? ''"
             :categories-display="categoriesDisplay"
             :color-options="colorOptions"
+            @add-to-cart="onAddToCart"
           />
         </div>
 

@@ -95,6 +95,20 @@ class ProductApi {
     return data as Product
   }
 
+  getProductsByIds = async (ids: string[]): Promise<Product[]> => {
+    const unique = [...new Set(ids)].filter(Boolean)
+    if (!unique.length) return []
+
+    const { data, error } = await supabase.from('products').select(PRODUCT_BASE_SELECT).in('id', unique)
+
+    if (error) {
+      console.error('Error fetching products by ids:', error)
+      return []
+    }
+
+    return (data as Product[]) ?? []
+  }
+
   addReview = async (payload: CreateReviewPayload): Promise<Review> => {
     const { data, error } = await supabase.from('reviews').insert([payload]).select().single()
 
