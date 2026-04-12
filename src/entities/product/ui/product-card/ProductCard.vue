@@ -103,11 +103,11 @@ function onAddToCart(): void {
       >
         {{ displayBadge.text }}
       </span>
-      <div v-if="!isSoldOut" class="product-card__overlay">
+      <!-- <div v-if="!isSoldOut" class="product-card__overlay">
         <div class="product-card__overlay-bar">
           <button type="button" class="product-card__cart" @click="onAddToCart">Add to cart</button>
         </div>
-      </div>
+      </div> -->
     </div>
     <div class="product-card__body">
       <RouterLink :to="`/product/${id}`" class="product-card__title">
