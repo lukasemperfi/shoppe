@@ -326,11 +326,7 @@ function onCheckout() {
     border: 0;
     display: flex;
     flex-direction: column;
-    gap: globalFunctions.fluidValue(12px, 20px, $layout-min, $layout-max);
-
-    :deep(.radio) {
-      gap: globalFunctions.fluidValue(8px, 12px, $layout-min, $layout-max);
-    }
+    gap: globalFunctions.fluidValue(12px, 19px, $layout-min, $layout-max);
 
     :deep(.radio__label) {
       font-size: globalFunctions.fluidValue(12px, 16px, $layout-min, $layout-max);
@@ -376,7 +372,7 @@ function onCheckout() {
   }
 
   &__place-order {
-    margin-top: globalFunctions.fluidValue(20px, 32px, $layout-min, $layout-max);
+    margin-top: globalFunctions.fluidValue(35px, 43px, $layout-min, $layout-max);
     width: 100%;
   }
 
