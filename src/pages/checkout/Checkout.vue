@@ -6,10 +6,20 @@ import CartTotals from '@/pages/cart/ui/CartTotals.vue'
 import Button from '@/shared/ui/button/Button.vue'
 import Input from '@/shared/ui/input/Input.vue'
 import Select from '@/shared/ui/select/Select.vue'
+import Checkbox from '@/shared/ui/checkbox/Checkbox.vue'
+import CheckoutTotals from './ui/CheckoutTotals.vue'
 
 const cart = useCartStore()
 
 const cartSubtotal = computed(() => cart.totalSum)
+
+const checkoutLineItems = computed(() =>
+  cart.viewItems.map((v) => ({
+    id: v.cartItemId,
+    name: v.product.name,
+    lineTotal: v.unitPrice * v.quantity,
+  })),
+)
 
 function removeItem(cartItemId: string) {
   cart.removeItem(cartItemId)
@@ -55,7 +65,7 @@ const country = ref('')
           </div>
         </div>
         <div class="cart-page__billing-details">
-          <h2 class="cart-page__billing-details-title">Billing Details</h2>
+          <h2 class="cart-page__billing-details-title h2-title">Billing Details</h2>
           <form class="cart-page__billing-details-form billing-details-form">
             <div class="billing-details-form__item billing-details-form__item_first-name">
               <Input
@@ -111,10 +121,25 @@ const country = ref('')
             <div class="billing-details-form__item billing-details-form__item_email">
               <Input class="billing-details-form__input" placeholder="Email *" name="email" />
             </div>
+            <div class="billing-details-form__item billing-details-form__item_checkboxes">
+              <Checkbox label="Create an account?" class="billing-details-form__checkbox" />
+              <Checkbox
+                label="Ship to a different address?"
+                class="billing-details-form__checkbox"
+              />
+            </div>
+            <div class="billing-details-form__item billing-details-form__item_order-notes">
+              <Input
+                class="billing-details-form__input"
+                placeholder="Order Notes"
+                name="order_notes"
+              />
+            </div>
           </form>
         </div>
         <div class="cart-page__order">
-          <CartTotals :subtotal="cartSubtotal" />
+          <h2 class="cart-page__order-title h2-title">Your Order</h2>
+          <CheckoutTotals :subtotal="cartSubtotal" :line-items="checkoutLineItems" />
         </div>
       </div>
     </div>
@@ -127,6 +152,14 @@ const country = ref('')
 
   font-family: var(--font-family);
   padding-top: globalFunctions.fluidValue(24px, 96px, 320px, 1440px);
+
+  .h2-title {
+    font-family: var(--font-family);
+    font-weight: 400;
+    font-size: globalFunctions.fluidValue(16px, 26px, 320px, 1440px);
+    color: var(--light-colors-black---light);
+    margin-bottom: globalFunctions.fluidValue(21px, 26px, 320px, 1440px);
+  }
 
   &__title {
     font-family: var(--font-family);
@@ -185,6 +218,11 @@ const country = ref('')
     padding-bottom: globalFunctions.fluidValue(16px, 40px, 320px, 1440px);
     margin-top: globalFunctions.fluidValue(16px, 28px, 320px, 1440px);
 
+    @media (max-width: $breakpoint-md) {
+      border: none;
+      padding: 0;
+    }
+
     &-description {
       font-family: var(--font-family);
       font-weight: 400;
@@ -232,9 +270,17 @@ const country = ref('')
     &__item {
       &_first-name {
         grid-column: 1;
+
+        @media (max-width: $breakpoint-md) {
+          grid-column: 1 / -1;
+        }
       }
       &_last-name {
         grid-column: 2;
+
+        @media (max-width: $breakpoint-md) {
+          grid-column: 1 / -1;
+        }
       }
 
       &_company-name,
@@ -243,8 +289,29 @@ const country = ref('')
       &_postcode-zip,
       &_town-city,
       &_phone,
-      &_email {
+      &_email,
+      &_order-notes {
         grid-column: 1 / -1;
+      }
+
+      &_checkboxes {
+        grid-column: 1 / -1;
+        display: flex;
+        flex-direction: column;
+        gap: globalFunctions.fluidValue(12px, 25px, 320px, 1440px);
+
+        :deep(.checkbox) {
+          .checkbox__box {
+            width: 16px;
+            height: 16px;
+          }
+          .checkbox__label {
+            font-family: var(--font-family);
+            font-weight: 400;
+            font-size: globalFunctions.fluidValue(12px, 16px, 320px, 1440px);
+            color: var(--light-colors-black---light);
+          }
+        }
       }
     }
   }

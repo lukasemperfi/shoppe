@@ -1,4 +1,6 @@
 <script setup lang="ts">
+defineOptions({ inheritAttrs: false })
+
 const model = defineModel<string | number | boolean>()
 
 interface Props {
@@ -20,6 +22,7 @@ defineProps<Props>()
       :name="name"
       :disabled="disabled"
       v-model="model"
+      v-bind="$attrs"
     />
 
     <div class="radio__ui">
