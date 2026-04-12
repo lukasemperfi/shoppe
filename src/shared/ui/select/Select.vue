@@ -155,7 +155,8 @@ const selectedLabel = computed(() => {
   align-items: center;
   justify-content: space-between;
   min-height: 40px;
-  padding: 8px 0;
+  padding-bottom: clamp(4px, 1.05vw, 15px);
+  padding-top: 3px;
   border-bottom: 1px solid var(--light-colors-gray---light, #d8d8d8);
   cursor: pointer;
   transition: border-color 0.3s ease;
@@ -170,11 +171,12 @@ const selectedLabel = computed(() => {
 }
 
 .select__value {
-  font-size: 12px;
+  font-size: clamp(12px, 1.12vw, 16px);
   color: var(--light-colors-black---light, #000000);
   text-transform: capitalize;
 
   &.is-placeholder {
+    font-size: clamp(12px, 1.12vw, 16px);
     color: var(--light-colors-dark-gray---light, #707070);
   }
 }
@@ -208,7 +210,7 @@ const selectedLabel = computed(() => {
 
 .select__option {
   padding: 10px 16px;
-  font-size: 12px;
+  font-size: clamp(12px, 1.12vw, 16px);
   cursor: pointer;
   transition: background 0.2s ease;
 

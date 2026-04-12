@@ -79,6 +79,7 @@ async function onRefreshCart() {
 
     @media (max-width: globalBreakpoints.$breakpoint-sm) {
       font-weight: 400;
+      text-align: left;
     }
   }
 
