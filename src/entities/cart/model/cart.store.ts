@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import type { PiniaPluginContext } from 'pinia'
 import { computed, ref } from 'vue'
+import { toast } from 'vue-sonner'
 
 import { productApi } from '@/entities/product/api/product'
 import type { Product } from '@/entities/product/model/types'
@@ -95,11 +96,19 @@ export const useCartStore = defineStore(
       const cartItemId = makeCartItemId(payload.productId, payload.colorId)
       const existing = items.value.find((i) => i.cartItemId === cartItemId)
 
+      const productName = payload.product?.name ?? 'Item'
+
       if (existing) {
         items.value = items.value.map((i) =>
           i.cartItemId === cartItemId ? { ...i, quantity: i.quantity + qty } : i,
         )
         syncViewQuantitiesFromItems()
+        toast.success('Added to cart', {
+          description:
+            qty > 1
+              ? `${qty} more of "${productName}" in your cart.`
+              : `"${productName}" quantity updated in your cart.`,
+        })
         return
       }
 
@@ -118,6 +127,13 @@ export const useCartStore = defineStore(
       } else {
         refreshViewItems()
       }
+
+      toast.success('Added to cart', {
+        description:
+          qty > 1
+            ? `${qty} × "${productName}" added to your cart.`
+            : `"${productName}" added to your cart.`,
+      })
     }
 
     async function addProductFromListing(productId: string, quantity = 1) {
@@ -132,8 +148,15 @@ export const useCartStore = defineStore(
     }
 
     function removeItem(cartItemId: string) {
+      const viewItem = viewItems.value.find((v) => v.cartItemId === cartItemId)
+      const productName = viewItem?.product.name ?? 'Item'
+
       items.value = items.value.filter((i) => i.cartItemId !== cartItemId)
       syncViewQuantitiesFromItems()
+
+      toast.warning('Removed from cart', {
+        description: `"${productName}" was removed from your cart.`,
+      })
     }
 
     function incrementQuantity(cartItemId: string) {
