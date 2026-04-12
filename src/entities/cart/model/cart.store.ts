@@ -12,7 +12,6 @@ export interface AddCartItemPayload {
   productId: string
   colorId: string | null
   quantity?: number
-  /** When set (e.g. product page or listing), avoids an extra products-by-ids fetch. */
   product?: Product
 }
 
@@ -165,9 +164,7 @@ export const useCartStore = defineStore(
         return
       }
 
-      items.value = items.value.map((i) =>
-        i.cartItemId === cartItemId ? { ...i, quantity } : i,
-      )
+      items.value = items.value.map((i) => (i.cartItemId === cartItemId ? { ...i, quantity } : i))
       syncViewQuantitiesFromItems()
     }
 

@@ -149,16 +149,6 @@ watch(isDesktop, (desktop) => {
 
   background: var(--light-colors-white---light);
   border: 1px solid var(--light-colors-gray---light);
-
-  // &::before {
-  //   content: '';
-  //   position: absolute;
-  //   top: -25px;
-  //   left: 0;
-  //   right: 0;
-  //   height: 25px;
-  //   background: transparent;
-  // }
 }
 
 .header__mega-inner {

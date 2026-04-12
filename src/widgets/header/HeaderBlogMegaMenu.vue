@@ -108,16 +108,6 @@ watch(isDesktop, (val) => {
   padding-block: 12px;
   background: #fff;
   border: 1px solid #e0e0e0;
-
-  // &::before {
-  //   content: '';
-  //   position: absolute;
-  //   top: -25px;
-  //   left: 0;
-  //   right: 0;
-  //   height: 25px;
-  //   background: transparent;
-  // }
 }
 
 .header__blog-list {
