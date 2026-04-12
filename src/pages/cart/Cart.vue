@@ -14,8 +14,8 @@ function removeItem(cartItemId: string) {
   cart.removeItem(cartItemId)
 }
 
-function onRefreshCart() {
-  void cart.refreshViewItems()
+async function onRefreshCart() {
+  await cart.refreshViewItems()
 }
 </script>
 

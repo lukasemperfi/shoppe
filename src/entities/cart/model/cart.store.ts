@@ -48,7 +48,7 @@ export const useCartStore = defineStore(
       if (line.colorId) {
         selectedColor = product.product_colors?.find((c) => c.id === line.colorId) ?? null
         if (!selectedColor) {
-          void refreshViewItems()
+          refreshViewItems()
           return
         }
       }
@@ -116,7 +116,7 @@ export const useCartStore = defineStore(
       if (payload.product) {
         mergeProductIntoViewItems(payload.product, cartItemId, qty)
       } else {
-        void refreshViewItems()
+        refreshViewItems()
       }
     }
 
@@ -202,7 +202,7 @@ export const useCartStore = defineStore(
           refreshViewItems?: () => Promise<void>
         }
         if (store.items?.length && store.refreshViewItems) {
-          void store.refreshViewItems()
+          store.refreshViewItems()
         }
       },
     },

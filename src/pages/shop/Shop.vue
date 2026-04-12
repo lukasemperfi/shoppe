@@ -118,8 +118,8 @@ onMounted(() => {
   fetchProducts()
 })
 
-function onAddProductToCart(productId: string) {
-  void cart.addProductFromListing(productId)
+async function onAddProductToCart(productId: string) {
+  await cart.addProductFromListing(productId)
 }
 </script>
 

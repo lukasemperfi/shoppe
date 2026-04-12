@@ -13,8 +13,8 @@ import 'swiper/css/navigation'
 const products = ref<Product[]>([])
 const cart = useCartStore()
 
-function onAddProductToCart(productId: string) {
-  void cart.addProductFromListing(productId)
+async function onAddProductToCart(productId: string) {
+  await cart.addProductFromListing(productId)
 }
 
 onMounted(async () => {
