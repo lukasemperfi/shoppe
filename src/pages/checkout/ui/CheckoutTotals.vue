@@ -16,10 +16,12 @@ const props = withDefaults(
     shippingCost: number
     total?: number
     lineItems: CheckoutTotalsLineItem[]
+    showBottom?: boolean
   }>(),
   {
     shippingCost: 0,
     total: undefined,
+    showBottom: true,
   },
 )
 
@@ -127,52 +129,54 @@ function onCheckout() {
       </div>
     </div>
 
-    <fieldset class="checkout-totals__payments">
-      <legend class="checkout-totals__payments-legend">Payment method</legend>
+    <div v-if="showBottom" class="checkout-totals__bottom">
+      <fieldset class="checkout-totals__payments">
+        <legend class="checkout-totals__payments-legend">Payment method</legend>
 
-      <div
-        v-for="option in paymentOptions"
-        :key="option.value"
-        class="checkout-totals__payment-block"
-      >
         <div
-          class="checkout-totals__payment-line"
-          :class="{ 'checkout-totals__payment-line_paypal': option.showPayPalIcon }"
+          v-for="option in paymentOptions"
+          :key="option.value"
+          class="checkout-totals__payment-block"
         >
-          <Radio
-            v-model="selectedPayment"
-            name="checkout-payment"
-            :value="option.value"
-            :label="option.label"
-            :aria-describedby="selectedPayment === option.value ? option.descId : undefined"
-          />
-          <Icon
-            v-if="option.showPayPalIcon"
-            class="checkout-totals__paypal-icon"
-            name="pay-pal"
-            aria-hidden="true"
-          />
+          <div
+            class="checkout-totals__payment-line"
+            :class="{ 'checkout-totals__payment-line_paypal': option.showPayPalIcon }"
+          >
+            <Radio
+              v-model="selectedPayment"
+              name="checkout-payment"
+              :value="option.value"
+              :label="option.label"
+              :aria-describedby="selectedPayment === option.value ? option.descId : undefined"
+            />
+            <Icon
+              v-if="option.showPayPalIcon"
+              class="checkout-totals__paypal-icon"
+              name="pay-pal"
+              aria-hidden="true"
+            />
+          </div>
+          <p
+            v-if="selectedPayment === option.value"
+            :id="option.descId"
+            class="checkout-totals__payment-desc"
+          >
+            {{ option.description }}
+          </p>
         </div>
-        <p
-          v-if="selectedPayment === option.value"
-          :id="option.descId"
-          class="checkout-totals__payment-desc"
-        >
-          {{ option.description }}
-        </p>
-      </div>
-    </fieldset>
+      </fieldset>
 
-    <Button
-      type="button"
-      variant="primary"
-      color="black"
-      class="checkout-totals__place-order full"
-      aria-label="Place order"
-      @click="onCheckout"
-    >
-      Place order
-    </Button>
+      <Button
+        type="button"
+        variant="primary"
+        color="black"
+        class="checkout-totals__place-order full"
+        aria-label="Place order"
+        @click="onCheckout"
+      >
+        Place order
+      </Button>
+    </div>
   </section>
 </template>
 

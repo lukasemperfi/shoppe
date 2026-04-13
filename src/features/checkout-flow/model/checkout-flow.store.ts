@@ -3,9 +3,17 @@ import { computed, ref } from 'vue'
 
 import type { CreateOrderRPCParams } from '@/entities/order/model/types'
 
+/** Snapshot for order summary UI (product names are not in the RPC payload). */
+export interface OrderConfirmationSummaryLineItem {
+  id: string
+  name: string
+  lineTotal: number
+}
+
 export interface OrderConfirmationData {
   orderId: string | null
   payload: CreateOrderRPCParams
+  summaryLineItems: OrderConfirmationSummaryLineItem[]
 }
 
 export const useCheckoutFlowStore = defineStore('checkoutFlow', () => {

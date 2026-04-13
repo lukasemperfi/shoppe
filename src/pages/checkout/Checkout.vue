@@ -191,7 +191,15 @@ const submitCheckout = handleSubmit(async (values) => {
   console.log('payload', payload)
 
   const orderId = await orderApi.createOrder(payload)
-  flow.setOrderConfirmation({ orderId, payload })
+  flow.setOrderConfirmation({
+    orderId,
+    payload,
+    summaryLineItems: cart.viewItems.map((v) => ({
+      id: v.cartItemId,
+      name: v.product.name,
+      lineTotal: v.unitPrice * v.quantity,
+    })),
+  })
   cart.clearCart()
   checkoutMeta.value = null
   resetForm()

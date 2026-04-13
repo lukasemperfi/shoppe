@@ -1,91 +1,136 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useRouter } from 'vue-router'
-
 import { pinia } from '@/app/providers/pinia'
+import type { OrderAddressPayload } from '@/entities/order/model/types'
 import { useCheckoutFlowStore } from '@/features/checkout-flow/model/checkout-flow.store'
-import Button from '@/shared/ui/button/Button.vue'
+import CheckoutTotals, { type CheckoutTotalsLineItem } from '@/pages/checkout/ui/CheckoutTotals.vue'
+import Toast from '@/shared/ui/toast/Toast.vue'
+import OrderDetails from './ui/OrderDetails.vue'
 
-const router = useRouter()
 const flow = useCheckoutFlowStore(pinia)
 
-const order = computed(() => flow.orderConfirmation)
+/** Totals and lines come from the checkout snapshot — the cart is cleared before this page. */
+const orderSummaryForTotals = computed(() => {
+  const data = flow.orderConfirmation
+  if (!data?.payload) {
+    return { subtotal: 0, shippingCost: 0, total: 0, lineItems: [] as CheckoutTotalsLineItem[] }
+  }
+  const { payload, summaryLineItems } = data
+  const subtotal = payload.p_items.reduce(
+    (sum, i) => sum + i.price_at_purchase * i.quantity,
+    0,
+  )
+  return {
+    subtotal,
+    shippingCost: payload.p_shipping_cost,
+    total: payload.p_total_sum,
+    lineItems: summaryLineItems,
+  }
+})
 
-function goToShop() {
-  flow.resetFlow()
-  router.push({ name: 'shop' })
+const confirmationPayload = computed(() => flow.orderConfirmation?.payload ?? null)
+const confirmationOrderId = computed(() => flow.orderConfirmation?.orderId ?? null)
+
+function formatCountry(code: string): string {
+  const map: Record<string, string> = {
+    us: 'United States',
+    uk: 'United Kingdom',
+    de: 'Germany',
+  }
+  return map[code.toLowerCase()] ?? code
 }
 
-function goToCart() {
-  flow.resetFlow()
-  router.push({ name: 'cart' })
+function formatDeliveryAddress(addr: OrderAddressPayload): string {
+  const name = [addr.first_name, addr.last_name].filter(Boolean).join(' ')
+  const cityLine = [String(addr.post_code), addr.city].filter(Boolean).join(' ')
+  const parts = [
+    name,
+    addr.company_name?.trim(),
+    addr.street_address,
+    cityLine,
+    formatCountry(addr.country),
+  ]
+  return parts.filter((p) => p && String(p).trim().length > 0).join(' ')
 }
+
+function formatDeliveryOption(value: string): string {
+  if (value === 'standard') return 'Standard delivery'
+  if (value === 'express') return 'Express delivery'
+  return value
+}
+
+function formatPaymentMethod(value: string): string {
+  const map: Record<string, string> = {
+    direct_bank: 'Direct bank transfer',
+    check: 'Check payments',
+    cash_on_delivery: 'Cash on delivery',
+    paypal: 'PayPal',
+  }
+  return map[value] ?? value
+}
+
+const orderDetailsProps = computed(() => {
+  const payload = confirmationPayload.value
+  const orderId = confirmationOrderId.value
+
+  if (!payload) {
+    return {
+      orderNumber: '—',
+      email: '—',
+      paymentMethod: '—',
+      orderDate: '—',
+      deliveryOptions: '—',
+      deliveryAddress: '—',
+      contactNumber: '—',
+    }
+  }
+
+  const orderDate = new Date().toLocaleDateString('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  })
+
+  return {
+    orderNumber: orderId && orderId.length > 0 ? orderId : '—',
+    email: payload.p_email,
+    paymentMethod: formatPaymentMethod(payload.p_payment_method),
+    orderDate,
+    deliveryOptions: formatDeliveryOption(payload.p_delivery_option),
+    deliveryAddress: formatDeliveryAddress(payload.p_delivery_address),
+    contactNumber: payload.p_phone,
+  }
+})
 </script>
 
 <template>
-  <div class="order-confirmation">
+  <div class="order-confirmation-page">
     <div class="app-container">
-      <h1 class="order-confirmation__title">Order confirmation</h1>
-
-      <div v-if="order" class="order-confirmation__body">
-        <p class="order-confirmation__message" role="status">
-          Thank you. Your order has been received.
-        </p>
-
-        <div class="order-summary" aria-label="Order summary">
-          <div class="order-summary__grid">
-            <div class="order-summary__item">
-              <div class="order-summary__label">Order ID</div>
-              <div class="order-summary__value">{{ order.orderId ?? '—' }}</div>
-            </div>
-            <div class="order-summary__item">
-              <div class="order-summary__label">Email</div>
-              <div class="order-summary__value">{{ order.payload.p_email }}</div>
-            </div>
-            <div class="order-summary__item">
-              <div class="order-summary__label">Phone</div>
-              <div class="order-summary__value">{{ order.payload.p_phone }}</div>
-            </div>
-            <div class="order-summary__item">
-              <div class="order-summary__label">Payment method</div>
-              <div class="order-summary__value">{{ order.payload.p_payment_method }}</div>
-            </div>
-            <div class="order-summary__item">
-              <div class="order-summary__label">Delivery option</div>
-              <div class="order-summary__value">{{ order.payload.p_delivery_option }}</div>
-            </div>
-            <div class="order-summary__item">
-              <div class="order-summary__label">Shipping</div>
-              <div class="order-summary__value">${{ order.payload.p_shipping_cost }}</div>
-            </div>
-            <div class="order-summary__item">
-              <div class="order-summary__label">Total</div>
-              <div class="order-summary__value">${{ order.payload.p_total_sum }}</div>
-            </div>
-          </div>
-
-          <div class="order-summary__items">
-            <div class="order-summary__items-title">Items</div>
-            <ul class="order-summary__list" role="list">
-              <li v-for="(i, idx) in order.payload.p_items" :key="idx" class="order-summary__list-item">
-                <span class="order-summary__list-left">
-                  Product: {{ i.product_id }}
-                </span>
-                <span class="order-summary__list-right">
-                  Qty: {{ i.quantity }} · Price: ${{ i.price_at_purchase }}
-                </span>
-              </li>
-            </ul>
-          </div>
+      <div class="order-confirmation-page__toast">
+        <Toast type="success" text="We’ve received your order" />
+      </div>
+      <div class="order-confirmation-page__body">
+        <div class="order-confirmation-page__billing-details">
+          <h2 class="order-confirmation-page__billing-details-title h2-title">Order Details</h2>
+          <OrderDetails
+            :order-number="orderDetailsProps.orderNumber"
+            :email="orderDetailsProps.email"
+            :payment-method="orderDetailsProps.paymentMethod"
+            :order-date="orderDetailsProps.orderDate"
+            :delivery-options="orderDetailsProps.deliveryOptions"
+            :delivery-address="orderDetailsProps.deliveryAddress"
+            :contact-number="orderDetailsProps.contactNumber"
+          />
         </div>
-
-        <div class="order-confirmation__actions">
-          <Button type="button" variant="primary" class="order-confirmation__btn" @click="goToShop">
-            Go to shop
-          </Button>
-          <Button type="button" variant="outline" class="order-confirmation__btn" @click="goToCart">
-            Back to cart
-          </Button>
+        <div class="order-confirmation-page__order">
+          <h2 class="order-confirmation-page__order-title h2-title">Order Summary</h2>
+          <CheckoutTotals
+            :subtotal="orderSummaryForTotals.subtotal"
+            :shipping-cost="orderSummaryForTotals.shippingCost"
+            :total="orderSummaryForTotals.total"
+            :line-items="orderSummaryForTotals.lineItems"
+            :show-bottom="false"
+          />
         </div>
       </div>
     </div>
@@ -93,9 +138,23 @@ function goToCart() {
 </template>
 
 <style scoped lang="scss">
-.order-confirmation {
+.order-confirmation-page {
+  $breakpoint-md: 1024px;
+
   font-family: var(--font-family);
   padding-top: globalFunctions.fluidValue(24px, 96px, 320px, 1440px);
+
+  .h2-title {
+    font-family: var(--font-family);
+    font-weight: 400;
+    font-size: globalFunctions.fluidValue(16px, 26px, 320px, 1440px);
+    color: var(--light-colors-black---light);
+    margin-bottom: globalFunctions.fluidValue(21px, 26px, 320px, 1440px);
+  }
+
+  &__toast {
+    margin-bottom: globalFunctions.fluidValue(24px, 96px, 320px, 1440px);
+  }
 
   &__title {
     font-family: var(--font-family);
@@ -112,111 +171,13 @@ function goToCart() {
   }
 
   &__body {
-    display: flex;
-    flex-direction: column;
-    gap: globalFunctions.fluidValue(16px, 28px, 320px, 1440px);
-  }
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: globalFunctions.fluidValue(39px, 90px, 320px, 1440px);
 
-  &__message {
-    margin: 0;
-    font-family: var(--font-family);
-    font-size: globalFunctions.fluidValue(14px, 16px, 320px, 1440px);
-    color: var(--light-colors-dark-gray---light);
-  }
-
-  &__actions {
-    display: flex;
-    gap: globalFunctions.fluidValue(12px, 20px, 320px, 1440px);
-
-    @media (max-width: globalBreakpoints.$breakpoint-xs) {
-      flex-direction: column;
-    }
-  }
-
-  &__btn {
-    min-width: 168px;
-  }
-
-  .order-summary {
-    border: 1px solid var(--light-colors-gray---light);
-    padding: globalFunctions.fluidValue(16px, 24px, 320px, 1440px);
-
-    @media (max-width: globalBreakpoints.$breakpoint-sm) {
-      border: none;
-      padding: 0;
-    }
-
-    &__grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: globalFunctions.fluidValue(12px, 20px, 320px, 1440px);
-
-      @media (max-width: globalBreakpoints.$breakpoint-sm) {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    &__item {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    &__label {
-      font-family: var(--font-family);
-      font-weight: 400;
-      font-size: globalFunctions.fluidValue(12px, 14px, 320px, 1440px);
-      color: var(--light-colors-dark-gray---light);
-    }
-
-    &__value {
-      font-family: var(--font-family);
-      font-weight: 500;
-      font-size: globalFunctions.fluidValue(12px, 16px, 320px, 1440px);
-      color: var(--light-colors-black---light);
-      word-break: break-word;
-    }
-
-    &__items {
-      margin-top: globalFunctions.fluidValue(16px, 28px, 320px, 1440px);
-    }
-
-    &__items-title {
-      font-family: var(--font-family);
-      font-weight: 500;
-      font-size: globalFunctions.fluidValue(14px, 16px, 320px, 1440px);
-      color: var(--light-colors-black---light);
-      margin-bottom: globalFunctions.fluidValue(10px, 14px, 320px, 1440px);
-    }
-
-    &__list {
-      margin: 0;
-      padding: 0;
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: globalFunctions.fluidValue(10px, 14px, 320px, 1440px);
-    }
-
-    &__list-item {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      font-family: var(--font-family);
-      font-weight: 400;
-      font-size: globalFunctions.fluidValue(12px, 14px, 320px, 1440px);
-      color: var(--light-colors-black---light);
-
-      @media (max-width: globalBreakpoints.$breakpoint-sm) {
-        flex-direction: column;
-      }
-    }
-
-    &__list-left,
-    &__list-right {
-      word-break: break-word;
+    @media (max-width: $breakpoint-md) {
+      grid-template-columns: 1fr;
     }
   }
 }
 </style>
-
