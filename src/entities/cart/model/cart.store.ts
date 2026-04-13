@@ -16,6 +16,12 @@ export interface AddCartItemPayload {
   product?: Product
 }
 
+export interface ShippingAddress {
+  country: string
+  city: string
+  postCode: string
+}
+
 function makeCartItemId(productId: string, colorId: string | null): string {
   return colorId ? `${productId}_${colorId}` : `${productId}_default`
 }
@@ -28,17 +34,32 @@ export const useCartStore = defineStore(
     const isViewItemsLoading = ref(false)
     const viewItemsError = ref<string | null>(null)
 
+    const shippingAddress = ref<ShippingAddress | null>(null)
+    const shippingCost = ref<number>(0)
+
     const cartCount = computed(() => items.value.reduce((sum, line) => sum + line.quantity, 0))
 
-    const totalSum = computed(() =>
+    const subtotal = computed(() =>
       viewItems.value.reduce((sum, v) => sum + v.unitPrice * v.quantity, 0),
     )
+
+    const totalSum = computed(() => subtotal.value + shippingCost.value)
 
     function syncViewQuantitiesFromItems() {
       const qtyById = new Map(items.value.map((i) => [i.cartItemId, i.quantity]))
       viewItems.value = viewItems.value
         .filter((v) => qtyById.has(v.cartItemId))
         .map((v) => ({ ...v, quantity: qtyById.get(v.cartItemId)! }))
+    }
+
+    function setShipping(payload: { address: ShippingAddress; cost: number }) {
+      shippingAddress.value = payload.address
+      shippingCost.value = payload.cost
+    }
+
+    function clearShipping() {
+      shippingAddress.value = null
+      shippingCost.value = 0
     }
 
     function mergeProductIntoViewItems(product: Product, cartItemId: string, quantity: number) {
@@ -196,6 +217,7 @@ export const useCartStore = defineStore(
       viewItems.value = []
       viewItemsError.value = null
       isViewItemsLoading.value = false
+      clearShipping()
     }
 
     return {
@@ -204,7 +226,12 @@ export const useCartStore = defineStore(
       isViewItemsLoading,
       viewItemsError,
       cartCount,
+      shippingAddress,
+      shippingCost,
+      subtotal,
       totalSum,
+      setShipping,
+      clearShipping,
       addItem,
       addProductFromListing,
       removeItem,
@@ -218,7 +245,7 @@ export const useCartStore = defineStore(
   {
     persist: {
       key: 'shoppe-cart',
-      pick: ['items'],
+      pick: ['items', 'shippingAddress', 'shippingCost'],
       afterHydrate: (ctx: PiniaPluginContext) => {
         const store = ctx.store as {
           items?: CartLineStored[]

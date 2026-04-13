@@ -10,9 +10,17 @@ const props = withDefaults(
   defineProps<{
     subtotal: number
     total?: number
+    defaultShippingAddress?: {
+      country: string
+      city: string
+      postCode: string
+    } | null
+    defaultShippingCost?: number | null
   }>(),
   {
     total: undefined,
+    defaultShippingAddress: null,
+    defaultShippingCost: null,
   },
 )
 
@@ -22,6 +30,11 @@ const emit = defineEmits<{
       shippingPrice: number | null
       shippingLabel: string | null
       shippingKey: string | null
+      shippingAddress: {
+        country: string
+        city: string
+        postCode: string
+      } | null
     },
   ]
   checkout: []
@@ -81,9 +94,9 @@ const { defineField, errors, handleSubmit } = useForm<{
 }>({
   validationSchema,
   initialValues: {
-    country: '',
-    city: '',
-    postCode: '',
+    country: props.defaultShippingAddress?.country ?? '',
+    city: props.defaultShippingAddress?.city ?? '',
+    postCode: props.defaultShippingAddress?.postCode ?? '',
   },
 })
 
@@ -113,6 +126,37 @@ const shippingAppliedKey = ref<ShippingKey | null>(null)
 const shippingPrice = ref<number | null>(null)
 const shippingLabel = ref<string | null>(null)
 
+function setDefaultShippingIfPresent(): void {
+  const addr = props.defaultShippingAddress
+  if (!addr) return
+
+  const c = String(addr.country || '').trim()
+  const ct = String(addr.city || '').trim()
+  const pc = String(addr.postCode || '').trim()
+
+  if (c) country.value = c
+  if (ct) city.value = ct
+  if (pc) postCode.value = pc
+
+  const key = c && ct ? (`${c}|${ct}` as ShippingKey) : null
+  shippingAppliedKey.value = key
+
+  const cost = props.defaultShippingCost ?? 0
+  shippingPrice.value = cost
+  shippingLabel.value = formatMoney(cost)
+}
+
+setDefaultShippingIfPresent()
+
+watch(
+  () => [props.defaultShippingAddress, props.defaultShippingCost] as const,
+  () => {
+    if (shippingAppliedKey.value !== null || shippingPrice.value !== null) return
+    setDefaultShippingIfPresent()
+  },
+  { deep: true },
+)
+
 const shippingKey = computed<ShippingKey | null>(() => {
   const c = String(country.value || '').trim()
   const ct = String(city.value || '').trim()
@@ -134,6 +178,7 @@ async function applyShipping(): Promise<{
   shippingPrice: number | null
   shippingLabel: string | null
   shippingKey: ShippingKey | null
+  shippingAddress: { country: string; city: string; postCode: string } | null
 }> {
   const key = shippingKey.value
   shippingAppliedKey.value = key
@@ -141,14 +186,23 @@ async function applyShipping(): Promise<{
   if (!key) {
     shippingPrice.value = null
     shippingLabel.value = null
-    return { shippingPrice: null, shippingLabel: null, shippingKey: null }
+    return { shippingPrice: null, shippingLabel: null, shippingKey: null, shippingAddress: null }
   }
 
   const price = shippingRates[key] ?? 0
 
   shippingPrice.value = price
   shippingLabel.value = `${formatMoney(price)}`
-  return { shippingPrice: price, shippingLabel: shippingLabel.value, shippingKey: key }
+  return {
+    shippingPrice: price,
+    shippingLabel: shippingLabel.value,
+    shippingKey: key,
+    shippingAddress: {
+      country: String(country.value || '').trim(),
+      city: String(city.value || '').trim(),
+      postCode: String(postCode.value || '').trim(),
+    },
+  }
 }
 
 const onUpdateTotals = handleSubmit(async () => {
@@ -158,7 +212,8 @@ const onUpdateTotals = handleSubmit(async () => {
 
 const onCheckout = handleSubmit(async () => {
   if (isShippingStale.value) {
-    await applyShipping()
+    const payload = await applyShipping()
+    emit('update-totals', payload)
   }
   emit('checkout')
 })

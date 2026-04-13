@@ -14,7 +14,22 @@ const cartTotalsRef = ref<null | {
   applyShippingIfNeeded: () => Promise<void>
 }>(null)
 
-const cartSubtotal = computed(() => cart.totalSum)
+const cartSubtotal = computed(() => cart.subtotal)
+
+function onUpdateTotals(payload: {
+  shippingPrice: number | null
+  shippingKey: string | null
+  shippingAddress: { country: string; city: string; postCode: string } | null
+}) {
+  cart.setShipping({
+    address: {
+      country: payload.shippingAddress?.country ?? '',
+      city: payload.shippingAddress?.city ?? '',
+      postCode: payload.shippingAddress?.postCode ?? '',
+    },
+    cost: payload.shippingPrice ?? 0,
+  })
+}
 
 function removeItem(cartItemId: string) {
   cart.removeItem(cartItemId)
@@ -68,7 +83,14 @@ async function onProceedToCheckout() {
           </div>
         </div>
         <div class="cart-page__col-2">
-          <CartTotals ref="cartTotalsRef" :subtotal="cartSubtotal" @checkout="onProceedToCheckout" />
+          <CartTotals
+            ref="cartTotalsRef"
+            :subtotal="cartSubtotal"
+            :default-shipping-address="cart.shippingAddress"
+            :default-shipping-cost="cart.shippingCost"
+            @update-totals="onUpdateTotals"
+            @checkout="onProceedToCheckout"
+          />
         </div>
       </div>
     </div>
