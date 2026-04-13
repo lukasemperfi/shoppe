@@ -11,7 +11,9 @@ import CheckoutTotals from './ui/CheckoutTotals.vue'
 
 const cart = useCartStore()
 
-const cartSubtotal = computed(() => cart.totalSum)
+const cartSubtotal = computed(() => cart.subtotal)
+const cartShippingCost = computed(() => cart.shippingCost)
+const cartTotal = computed(() => cart.totalSum)
 
 const checkoutLineItems = computed(() =>
   cart.viewItems.map((v) => ({
@@ -139,7 +141,12 @@ const country = ref('')
         </div>
         <div class="cart-page__order">
           <h2 class="cart-page__order-title h2-title">Your Order</h2>
-          <CheckoutTotals :subtotal="cartSubtotal" :line-items="checkoutLineItems" />
+          <CheckoutTotals
+            :subtotal="cartSubtotal"
+            :shipping-cost="cartShippingCost"
+            :total="cartTotal"
+            :line-items="checkoutLineItems"
+          />
         </div>
       </div>
     </div>

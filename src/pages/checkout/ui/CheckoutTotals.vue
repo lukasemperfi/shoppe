@@ -13,13 +13,13 @@ export interface CheckoutTotalsLineItem {
 const props = withDefaults(
   defineProps<{
     subtotal: number
+    shippingCost: number
     total?: number
     lineItems: CheckoutTotalsLineItem[]
-    shippingLabel?: string
   }>(),
   {
+    shippingCost: 0,
     total: undefined,
-    shippingLabel: 'Free shipping',
   },
 )
 
@@ -115,7 +115,7 @@ function onCheckout() {
 
       <div class="checkout-totals__row">
         <span class="checkout-totals__label">Shipping</span>
-        <span class="checkout-totals__value_muted">{{ shippingLabel }}</span>
+        <span class="checkout-totals__value_muted">{{ formatPrice(shippingCost) }}</span>
       </div>
 
       <div class="checkout-totals__row checkout-totals__row_total">
