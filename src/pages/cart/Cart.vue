@@ -2,6 +2,8 @@
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { mapViewItemToCartItem, useCartStore } from '@/entities/cart'
+import { pinia } from '@/app/providers/pinia'
+import { useCheckoutFlowStore } from '@/features/checkout-flow/model/checkout-flow.store'
 import CartItemCard from '@/pages/cart/ui/CartItemCard.vue'
 import CartTotals from '@/pages/cart/ui/CartTotals.vue'
 import Button from '@/shared/ui/button/Button.vue'
@@ -9,12 +11,14 @@ import Input from '@/shared/ui/input/Input.vue'
 
 const cart = useCartStore()
 const router = useRouter()
+const flow = useCheckoutFlowStore(pinia)
 
 const cartTotalsRef = ref<null | {
   applyShippingIfNeeded: () => Promise<void>
 }>(null)
 
 const cartSubtotal = computed(() => cart.subtotal)
+const isCartEmpty = computed(() => cart.items.length === 0)
 
 function onUpdateTotals(payload: {
   shippingPrice: number | null
@@ -41,7 +45,12 @@ async function onRefreshCart() {
 
 async function onProceedToCheckout() {
   await cartTotalsRef.value?.applyShippingIfNeeded()
+  flow.grantCheckoutAccess()
   router.push({ name: 'checkout' })
+}
+
+function onGoToShop() {
+  router.push({ name: 'shop' })
 }
 </script>
 
@@ -49,7 +58,14 @@ async function onProceedToCheckout() {
   <div class="cart-page">
     <div class="app-container">
       <h1 class="cart-page__title">Shopping Cart</h1>
-      <div class="cart-page__body">
+      <div v-if="isCartEmpty" class="cart-page__empty" role="status" aria-live="polite">
+        <p class="cart-page__message">Your cart is empty.</p>
+        <Button type="button" variant="primary" class="cart-page__go-to-shop-btn" @click="onGoToShop">
+          Go to shop
+        </Button>
+      </div>
+
+      <div v-else class="cart-page__body">
         <div class="cart-page__col-1">
           <p v-if="cart.viewItemsError" class="cart-page__message" role="alert">
             {{ cart.viewItemsError }}
@@ -57,7 +73,6 @@ async function onProceedToCheckout() {
           <p v-else-if="cart.isViewItemsLoading && cart.items.length" class="cart-page__message">
             Loading cart…
           </p>
-          <p v-else-if="!cart.items.length" class="cart-page__message">Your cart is empty.</p>
           <ul v-else class="cart-page__list" role="list">
             <li v-for="v in cart.viewItems" :key="v.cartItemId" class="cart-page__item">
               <CartItemCard
@@ -72,7 +87,7 @@ async function onProceedToCheckout() {
             variant="outline"
             class="cart-page__update-cart-btn"
             type="button"
-            :disabled="!cart.items.length || cart.isViewItemsLoading"
+            :disabled="cart.isViewItemsLoading"
             @click="onRefreshCart"
           >
             Update Cart
@@ -121,6 +136,25 @@ async function onProceedToCheckout() {
     font-family: var(--font-family);
     font-size: globalFunctions.fluidValue(14px, 16px, 320px, 1440px);
     color: var(--light-colors-dark-gray---light);
+  }
+
+  &__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: globalFunctions.fluidValue(12px, 20px, 320px, 1440px);
+
+    @media (max-width: globalBreakpoints.$breakpoint-sm) {
+      align-items: flex-start;
+    }
+  }
+
+  &__go-to-shop-btn {
+    min-width: 168px;
+
+    @media (max-width: globalBreakpoints.$breakpoint-xs) {
+      width: 100%;
+    }
   }
 
   &__body {

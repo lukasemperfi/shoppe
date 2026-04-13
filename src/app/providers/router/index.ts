@@ -1,4 +1,6 @@
 import { createRouter, createWebHashHistory, type RouteRecordRaw } from 'vue-router'
+import { pinia } from '@/app/providers/pinia'
+import { useCheckoutFlowStore } from '@/features/checkout-flow/model/checkout-flow.store'
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -26,11 +28,30 @@ const routes: Array<RouteRecordRaw> = [
     name: 'checkout',
     component: () => import('@/pages/checkout/Checkout.vue'),
   },
+  {
+    path: '/order-confirmation',
+    name: 'order-confirmation',
+    component: () => import('@/pages/order-confirmation/OrderConfirmation.vue'),
+  },
 ]
 
 const router = createRouter({
   history: createWebHashHistory(import.meta.env.BASE_URL),
   routes,
+})
+
+router.beforeEach((to) => {
+  const flow = useCheckoutFlowStore(pinia)
+
+  if (to.name === 'checkout' && !flow.canEnterCheckout) {
+    return { name: 'cart' }
+  }
+
+  if (to.name === 'order-confirmation' && !flow.canEnterOrderConfirmation) {
+    return { name: 'cart' }
+  }
+
+  return true
 })
 
 export default router

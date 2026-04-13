@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { mapViewItemToCartItem, useCartStore } from '@/entities/cart'
 import CartItemCard from '@/pages/cart/ui/CartItemCard.vue'
 import CartTotals from '@/pages/cart/ui/CartTotals.vue'
@@ -12,8 +13,12 @@ import { useForm } from 'vee-validate'
 import * as yup from 'yup'
 import { orderApi } from '@/entities/order/api/order'
 import type { CreateOrderRPCParams } from '@/entities/order/model/types'
+import { pinia } from '@/app/providers/pinia'
+import { useCheckoutFlowStore } from '@/features/checkout-flow/model/checkout-flow.store'
 
 const cart = useCartStore()
+const router = useRouter()
+const flow = useCheckoutFlowStore(pinia)
 
 const cartSubtotal = computed(() => cart.subtotal)
 const cartShippingCost = computed(() => cart.shippingCost)
@@ -185,10 +190,13 @@ const submitCheckout = handleSubmit(async (values) => {
 
   console.log('payload', payload)
 
-  // await orderApi.createOrder(payload)
+  const orderId = await orderApi.createOrder(payload)
+  flow.setOrderConfirmation({ orderId, payload })
   cart.clearCart()
   checkoutMeta.value = null
   resetForm()
+  flow.clearCheckoutAccess()
+  router.push({ name: 'order-confirmation' })
 })
 
 function onCheckout(meta: { paymentMethod: string; deliveryOption: string }) {
