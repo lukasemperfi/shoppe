@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { mapViewItemToCartItem, useCartStore } from '@/entities/cart'
 import CartItemCard from '@/pages/cart/ui/CartItemCard.vue'
 import CartTotals from '@/pages/cart/ui/CartTotals.vue'
@@ -7,6 +8,11 @@ import Button from '@/shared/ui/button/Button.vue'
 import Input from '@/shared/ui/input/Input.vue'
 
 const cart = useCartStore()
+const router = useRouter()
+
+const cartTotalsRef = ref<null | {
+  applyShippingIfNeeded: () => Promise<void>
+}>(null)
 
 const cartSubtotal = computed(() => cart.totalSum)
 
@@ -16,6 +22,11 @@ function removeItem(cartItemId: string) {
 
 async function onRefreshCart() {
   await cart.refreshViewItems()
+}
+
+async function onProceedToCheckout() {
+  await cartTotalsRef.value?.applyShippingIfNeeded()
+  router.push({ name: 'checkout' })
 }
 </script>
 
@@ -57,7 +68,7 @@ async function onRefreshCart() {
           </div>
         </div>
         <div class="cart-page__col-2">
-          <CartTotals :subtotal="cartSubtotal" />
+          <CartTotals ref="cartTotalsRef" :subtotal="cartSubtotal" @checkout="onProceedToCheckout" />
         </div>
       </div>
     </div>

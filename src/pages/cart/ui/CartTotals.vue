@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useForm } from 'vee-validate'
 import * as yup from 'yup'
 import Accordion from '@/shared/ui/accordion/Accordion.vue'
@@ -17,7 +17,13 @@ const props = withDefaults(
 )
 
 const emit = defineEmits<{
-  'update-totals': []
+  'update-totals': [
+    payload: {
+      shippingPrice: number | null
+      shippingLabel: string | null
+      shippingKey: string | null
+    },
+  ]
   checkout: []
 }>()
 
@@ -29,17 +35,33 @@ const countryOptions = [
   { label: 'Germany', value: 'de' },
 ]
 
-const cityOptions = [
-  { label: 'New York', value: 'ny' },
-  { label: 'Los Angeles', value: 'la' },
-  { label: 'London', value: 'london' },
-]
+const citiesByCountry: Record<string, { label: string; value: string }[]> = {
+  us: [
+    { label: 'New York', value: 'ny' },
+    { label: 'Los Angeles', value: 'la' },
+  ],
+  uk: [{ label: 'London', value: 'london' }],
+  de: [
+    { label: 'Berlin', value: 'berlin' },
+    { label: 'Munich', value: 'munich' },
+  ],
+}
 
 const postCodeOptions = [
   { label: '10001', value: '10001' },
   { label: '90210', value: '90210' },
   { label: 'SW1A 1AA', value: 'sw1a1aa' },
 ]
+
+type ShippingKey = `${string}|${string}`
+
+const shippingRates: Partial<Record<ShippingKey, number>> = {
+  'us|ny': 14.99,
+  'us|la': 19.99,
+  'uk|london': 9.99,
+  'de|berlin': 12.99,
+  'de|munich': 13.99,
+}
 
 const selectRequired = (message: string) =>
   yup
@@ -69,20 +91,83 @@ const [country] = defineField('country')
 const [city] = defineField('city')
 const [postCode] = defineField('postCode')
 
-const displayTotal = computed(() =>
-  props.total !== undefined && props.total !== null ? props.total : props.subtotal,
+const cityOptions = computed(() => citiesByCountry[String(country.value || '').trim()] ?? [])
+
+watch(
+  () => String(country.value || '').trim(),
+  () => {
+    const allowed = new Set(cityOptions.value.map((c) => c.value))
+    if (!allowed.has(String(city.value || '').trim())) {
+      city.value = ''
+    }
+  },
 )
+
+const displayTotal = computed(() => props.subtotal + (shippingPrice.value ?? 0))
 
 function formatMoney(value: number): string {
   return `$ ${value.toFixed(2).replace('.', ',')}`
 }
 
-function onUpdateTotals() {
-  emit('update-totals')
+const shippingAppliedKey = ref<ShippingKey | null>(null)
+const shippingPrice = ref<number | null>(null)
+const shippingLabel = ref<string | null>(null)
+
+const shippingKey = computed<ShippingKey | null>(() => {
+  const c = String(country.value || '').trim()
+  const ct = String(city.value || '').trim()
+  if (!c || !ct) return null
+  return `${c}|${ct}` as ShippingKey
+})
+
+const isShippingStale = computed(() => {
+  if (!shippingKey.value) return shippingAppliedKey.value !== null
+  return shippingAppliedKey.value !== shippingKey.value
+})
+
+const shippingNote = computed(() => {
+  if (shippingAppliedKey.value && shippingLabel.value) return shippingLabel.value
+  return 'Shipping costs will be calculated once you have provided address.'
+})
+
+async function applyShipping(): Promise<{
+  shippingPrice: number | null
+  shippingLabel: string | null
+  shippingKey: ShippingKey | null
+}> {
+  const key = shippingKey.value
+  shippingAppliedKey.value = key
+
+  if (!key) {
+    shippingPrice.value = null
+    shippingLabel.value = null
+    return { shippingPrice: null, shippingLabel: null, shippingKey: null }
+  }
+
+  const price = shippingRates[key] ?? 0
+
+  shippingPrice.value = price
+  shippingLabel.value = `${formatMoney(price)}`
+  return { shippingPrice: price, shippingLabel: shippingLabel.value, shippingKey: key }
 }
 
-const onCheckout = handleSubmit(() => {
+const onUpdateTotals = handleSubmit(async () => {
+  const payload = await applyShipping()
+  emit('update-totals', payload)
+})
+
+const onCheckout = handleSubmit(async () => {
+  if (isShippingStale.value) {
+    await applyShipping()
+  }
   emit('checkout')
+})
+
+defineExpose({
+  async applyShippingIfNeeded() {
+    if (!isShippingStale.value) return
+    await applyShipping()
+  },
 })
 </script>
 
@@ -98,7 +183,7 @@ const onCheckout = handleSubmit(() => {
     <div class="cart-totals__row cart-totals__row_shipping">
       <span class="cart-totals__label">Shipping</span>
       <p class="cart-totals__shipping-note">
-        Shipping costs will be calculated once you have provided address.
+        {{ shippingNote }}
       </p>
     </div>
 
@@ -242,7 +327,7 @@ const onCheckout = handleSubmit(() => {
 
   &__value {
     font-size: globalFunctions.fluidValue(12px, 16px, 320px, 1440px);
-    color: var(--light-colors-black---light);
+    color: var(--light-colors-dark-gray---light);
   }
 
   &__shipping-note {
