@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { mapViewItemToCartItem, useCartStore } from '@/entities/cart'
 import CartItemCard from '@/pages/cart/ui/CartItemCard.vue'
 import CartTotals from '@/pages/cart/ui/CartTotals.vue'
@@ -10,6 +10,8 @@ import Checkbox from '@/shared/ui/checkbox/Checkbox.vue'
 import CheckoutTotals from './ui/CheckoutTotals.vue'
 import { useForm } from 'vee-validate'
 import * as yup from 'yup'
+import { orderApi } from '@/entities/order/api/order'
+import type { CreateOrderRPCParams } from '@/entities/order/model/types'
 
 const cart = useCartStore()
 
@@ -64,7 +66,12 @@ const validationSchema = yup.object({
     .max(50, 'Last Name must be at most 50 characters')
     .matches(nameLikeRegex, 'Last Name contains invalid characters')
     .required('Last Name is required'),
-  company_name: yup.string().trim().max(80, 'Company Name must be at most 80 characters').default('').optional(),
+  company_name: yup
+    .string()
+    .trim()
+    .max(80, 'Company Name must be at most 80 characters')
+    .default('')
+    .optional(),
   country: selectRequired('Country is required'),
   street_address: yup
     .string()
@@ -97,10 +104,15 @@ const validationSchema = yup.object({
     .max(25, 'Phone must be at most 25 characters')
     .required('Phone is required'),
   email: yup.string().trim().email('Email must be valid').required('Email is required'),
-  order_notes: yup.string().trim().max(500, 'Order Notes must be at most 500 characters').default('').optional(),
+  order_notes: yup
+    .string()
+    .trim()
+    .max(500, 'Order Notes must be at most 500 characters')
+    .default('')
+    .optional(),
 })
 
-const { defineField, errors, handleSubmit, submitCount } = useForm<{
+const { defineField, errors, handleSubmit, submitCount, resetForm } = useForm<{
   first_name: string
   last_name: string
   company_name?: string
@@ -138,12 +150,51 @@ const [phone, phoneAttrs] = defineField('phone')
 const [email, emailAttrs] = defineField('email')
 const [orderNotes, orderNotesAttrs] = defineField('order_notes')
 
-const onCheckout = handleSubmit(async (values) => {
-  // TODO: интеграция реальной отправки заказа
-  // Сейчас условие задачи: отправка только когда валидация ok
-  // eslint-disable-next-line no-console
-  console.log('Checkout payload', values)
+const checkoutMeta = ref<{ paymentMethod: string; deliveryOption: string } | null>(null)
+
+const submitCheckout = handleSubmit(async (values) => {
+  if (cart.viewItems.length === 0) return
+  if (!checkoutMeta.value) return
+
+  const { paymentMethod, deliveryOption } = checkoutMeta.value
+
+  const payload: CreateOrderRPCParams = {
+    p_email: values.email,
+    p_phone: values.phone,
+    p_payment_method: paymentMethod,
+    p_delivery_option: deliveryOption,
+    p_delivery_address: {
+      first_name: values.first_name,
+      last_name: values.last_name,
+      company_name: values.company_name || undefined,
+      country: String(values.country),
+      street_address: values.street_address,
+      post_code: values.post_code,
+      city: values.city,
+      phone: values.phone,
+      email: values.email,
+    },
+    p_shipping_cost: cartShippingCost.value,
+    p_total_sum: cartTotal.value,
+    p_items: cart.viewItems.map((v) => ({
+      product_id: v.productId,
+      quantity: v.quantity,
+      price_at_purchase: v.unitPrice,
+    })),
+  }
+
+  console.log('payload', payload)
+
+  // await orderApi.createOrder(payload)
+  cart.clearCart()
+  checkoutMeta.value = null
+  resetForm()
 })
+
+function onCheckout(meta: { paymentMethod: string; deliveryOption: string }) {
+  checkoutMeta.value = meta
+  return submitCheckout()
+}
 </script>
 
 <template>
@@ -182,7 +233,7 @@ const onCheckout = handleSubmit(async (values) => {
                 name="first_name"
                 v-model="firstName"
                 v-bind="firstNameAttrs"
-                :error-message="submitCount > 0 ? errors.first_name : undefined"
+                :error-message="errors.first_name"
               />
             </div>
             <div class="billing-details-form__item billing-details-form__item_last-name">
@@ -192,7 +243,7 @@ const onCheckout = handleSubmit(async (values) => {
                 name="last_name"
                 v-model="lastName"
                 v-bind="lastNameAttrs"
-                :error-message="submitCount > 0 ? errors.last_name : undefined"
+                :error-message="errors.last_name"
               />
             </div>
             <div class="billing-details-form__item billing-details-form__item_company-name">
@@ -202,7 +253,7 @@ const onCheckout = handleSubmit(async (values) => {
                 name="company_name"
                 v-model="companyName"
                 v-bind="companyNameAttrs"
-                :error-message="submitCount > 0 ? errors.company_name : undefined"
+                :error-message="errors.company_name"
               />
             </div>
             <div class="billing-details-form__item billing-details-form__item_country">
@@ -213,7 +264,7 @@ const onCheckout = handleSubmit(async (values) => {
                 name="country"
                 placeholder="Country *"
                 class="billing-details-form__select"
-                :error-message="submitCount > 0 ? errors.country : undefined"
+                :error-message="errors.country"
                 error-id="billing-details-country-error"
               />
             </div>
@@ -224,7 +275,7 @@ const onCheckout = handleSubmit(async (values) => {
                 name="street_address"
                 v-model="streetAddress"
                 v-bind="streetAddressAttrs"
-                :error-message="submitCount > 0 ? errors.street_address : undefined"
+                :error-message="errors.street_address"
               />
             </div>
             <div class="billing-details-form__item billing-details-form__item_postcode-zip">
@@ -234,7 +285,7 @@ const onCheckout = handleSubmit(async (values) => {
                 name="post_code"
                 v-model="postCode"
                 v-bind="postCodeAttrs"
-                :error-message="submitCount > 0 ? errors.post_code : undefined"
+                :error-message="errors.post_code"
               />
             </div>
             <div class="billing-details-form__item billing-details-form__item_town-city">
@@ -244,7 +295,7 @@ const onCheckout = handleSubmit(async (values) => {
                 name="city"
                 v-model="city"
                 v-bind="cityAttrs"
-                :error-message="submitCount > 0 ? errors.city : undefined"
+                :error-message="errors.city"
               />
             </div>
             <div class="billing-details-form__item billing-details-form__item_phone">
@@ -254,7 +305,7 @@ const onCheckout = handleSubmit(async (values) => {
                 name="phone"
                 v-model="phone"
                 v-bind="phoneAttrs"
-                :error-message="submitCount > 0 ? errors.phone : undefined"
+                :error-message="errors.phone"
               />
             </div>
             <div class="billing-details-form__item billing-details-form__item_email">
@@ -264,7 +315,7 @@ const onCheckout = handleSubmit(async (values) => {
                 name="email"
                 v-model="email"
                 v-bind="emailAttrs"
-                :error-message="submitCount > 0 ? errors.email : undefined"
+                :error-message="errors.email"
               />
             </div>
             <div class="billing-details-form__item billing-details-form__item_checkboxes">
@@ -281,7 +332,7 @@ const onCheckout = handleSubmit(async (values) => {
                 name="order_notes"
                 v-model="orderNotes"
                 v-bind="orderNotesAttrs"
-                :error-message="submitCount > 0 ? errors.order_notes : undefined"
+                :error-message="errors.order_notes"
               />
             </div>
           </form>

@@ -23,8 +23,10 @@ const props = withDefaults(
   },
 )
 
+type DeliveryOption = 'standard' | 'express'
+
 const emit = defineEmits<{
-  checkout: []
+  checkout: [{ paymentMethod: PaymentMethod; deliveryOption: DeliveryOption }]
 }>()
 
 const displayTotal = computed(() =>
@@ -34,6 +36,7 @@ const displayTotal = computed(() =>
 type PaymentMethod = 'direct_bank' | 'check' | 'cash_on_delivery' | 'paypal'
 
 const selectedPayment = ref<PaymentMethod>('direct_bank')
+const selectedDelivery = ref<DeliveryOption>('standard')
 
 const paymentOptions: {
   value: PaymentMethod
@@ -82,7 +85,7 @@ function formatPrice(value: number): string {
 }
 
 function onCheckout() {
-  emit('checkout')
+  emit('checkout', { paymentMethod: selectedPayment.value, deliveryOption: selectedDelivery.value })
 }
 </script>
 
@@ -369,6 +372,24 @@ function onCheckout() {
     font-size: 12px;
     line-height: 20px;
     color: var(--light-colors-dark-gray---light, #707070);
+  }
+
+  &__delivery-legend {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  &__delivery-options {
+    display: flex;
+    flex-direction: column;
+    gap: globalFunctions.fluidValue(10px, 12px, $layout-min, $layout-max);
   }
 
   &__place-order {
