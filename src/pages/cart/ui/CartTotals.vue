@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { useForm } from 'vee-validate'
+import * as yup from 'yup'
 import Accordion from '@/shared/ui/accordion/Accordion.vue'
 import Button from '@/shared/ui/button/Button.vue'
 import Select from '@/shared/ui/select/Select.vue'
@@ -39,9 +41,33 @@ const postCodeOptions = [
   { label: 'SW1A 1AA', value: 'sw1a1aa' },
 ]
 
-const country = ref<string | number>('')
-const city = ref<string | number>('')
-const postCode = ref<string | number>('')
+const selectRequired = (message: string) =>
+  yup
+    .mixed<string | number>()
+    .test('required', message, (value) => value !== '' && value !== null && value !== undefined)
+
+const validationSchema = yup.object({
+  country: selectRequired('Country is required'),
+  city: selectRequired('City is required'),
+  postCode: selectRequired('Post code / ZIP is required'),
+})
+
+const { defineField, errors, handleSubmit } = useForm<{
+  country: string | number
+  city: string | number
+  postCode: string | number
+}>({
+  validationSchema,
+  initialValues: {
+    country: '',
+    city: '',
+    postCode: '',
+  },
+})
+
+const [country] = defineField('country')
+const [city] = defineField('city')
+const [postCode] = defineField('postCode')
 
 const displayTotal = computed(() =>
   props.total !== undefined && props.total !== null ? props.total : props.subtotal,
@@ -55,9 +81,9 @@ function onUpdateTotals() {
   emit('update-totals')
 }
 
-function onCheckout() {
+const onCheckout = handleSubmit(() => {
   emit('checkout')
-}
+})
 </script>
 
 <template>
@@ -85,7 +111,6 @@ function onCheckout() {
       <template #calculate-shipping>
         <div class="cart-totals__form">
           <div class="cart-totals__field">
-            <label class="cart-totals__field-label" for="cart-totals-country">Country</label>
             <Select
               id="cart-totals-country"
               v-model="country"
@@ -94,10 +119,11 @@ function onCheckout() {
               label="Select a country"
               placeholder="Select a country"
               :options="countryOptions"
+              :error-message="errors.country"
+              error-id="cart-totals-country-error"
             />
           </div>
           <div class="cart-totals__field">
-            <label class="cart-totals__field-label" for="cart-totals-city">City</label>
             <Select
               id="cart-totals-city"
               v-model="city"
@@ -106,10 +132,11 @@ function onCheckout() {
               label="City"
               placeholder="City"
               :options="cityOptions"
+              :error-message="errors.city"
+              error-id="cart-totals-city-error"
             />
           </div>
           <div class="cart-totals__field">
-            <label class="cart-totals__field-label" for="cart-totals-zip">Post code / ZIP</label>
             <Select
               id="cart-totals-zip"
               v-model="postCode"
@@ -118,6 +145,8 @@ function onCheckout() {
               label="Post code / ZIP"
               placeholder="Post code / ZIP"
               :options="postCodeOptions"
+              :error-message="errors.postCode"
+              error-id="cart-totals-zip-error"
             />
           </div>
           <Button
@@ -250,6 +279,16 @@ function onCheckout() {
     display: flex;
     flex-direction: column;
     gap: 6px;
+    position: relative;
+  }
+
+  &__field-error {
+    margin: 0;
+    font-size: 10px;
+    color: var(--light-colors-errors---light);
+    position: absolute;
+    top: 100%;
+    left: 0;
   }
 
   &__field-label {

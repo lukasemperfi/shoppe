@@ -16,6 +16,9 @@ interface Props {
   placeholder?: string
   name?: string
   label?: string
+  id?: string
+  errorMessage?: string
+  errorId?: string
 }
 
 const props = defineProps<Props>()
@@ -81,6 +84,7 @@ const selectedLabel = computed(() => {
   <div class="select" ref="reference" :class="{ 'is-open': isOpen }">
     <select
       class="select__native"
+      :id="id ? `${id}-native` : undefined"
       :value="modelValue"
       :name="name"
       tabindex="-1"
@@ -93,7 +97,16 @@ const selectedLabel = computed(() => {
       </option>
     </select>
 
-    <div class="select__trigger" @click="toggleSelect">
+    <div
+      class="select__trigger"
+      :id="id"
+      role="button"
+      tabindex="0"
+      :aria-expanded="isOpen"
+      :aria-invalid="!!errorMessage"
+      :aria-describedby="errorMessage ? errorId : undefined"
+      @click="toggleSelect"
+    >
       <span
         class="select__value"
         :class="{ 'is-placeholder': !modelValue && Boolean(label ?? placeholder) }"
@@ -105,6 +118,10 @@ const selectedLabel = computed(() => {
         <Icon name="chevron" />
       </div>
     </div>
+
+    <p v-if="errorMessage" :id="errorId" class="select__error" role="alert">
+      {{ errorMessage }}
+    </p>
 
     <Teleport to="body">
       <Transition name="fade-slide">
@@ -164,6 +181,15 @@ const selectedLabel = computed(() => {
   &:hover {
     border-color: var(--light-colors-black---light, #000000);
   }
+}
+
+.select__error {
+  margin: 0;
+  font-size: 10px;
+  color: var(--light-colors-errors---light);
+  position: absolute;
+  top: 100%;
+  left: 0;
 }
 
 .is-open .select__trigger {
