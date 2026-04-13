@@ -1,20 +1,42 @@
 <script setup lang="ts">
-import { type InputHTMLAttributes } from 'vue'
+import { computed, useAttrs } from 'vue'
 import Icon from '@/shared/ui/icon/Icon.vue'
 
-interface Props extends /* @vue-ignore */ InputHTMLAttributes {}
+interface Props {
+  errorMessage?: string
+  errorId?: string
+}
 
 const props = defineProps<Props>()
+const attrs = useAttrs()
 const model = defineModel<string>()
 
 const clearInput = () => {
   model.value = ''
 }
+
+const resolvedErrorId = computed(() => {
+  if (props.errorId) return props.errorId
+  const name = attrs.name
+  return typeof name === 'string' && name.trim().length > 0 ? `${name}-error` : undefined
+})
+
+const resolvedAriaDescribedBy = computed(() => {
+  if (props.errorMessage && resolvedErrorId.value) return resolvedErrorId.value
+  const describedBy = attrs['aria-describedby']
+  return typeof describedBy === 'string' ? describedBy : undefined
+})
 </script>
 
 <template>
   <div class="input-wrapper">
-    <input v-bind="$attrs" v-model="model" class="input" />
+    <input
+      v-bind="$attrs"
+      v-model="model"
+      class="input"
+      :aria-invalid="props.errorMessage ? true : undefined"
+      :aria-describedby="resolvedAriaDescribedBy"
+    />
 
     <div class="input__append">
       <button v-if="model" class="input__clear" type="button" @click="clearInput">
@@ -25,6 +47,10 @@ const clearInput = () => {
 
       <slot name="append" />
     </div>
+
+    <p v-if="props.errorMessage" :id="resolvedErrorId" class="input-wrapper__error" role="alert">
+      {{ props.errorMessage }}
+    </p>
   </div>
 </template>
 
@@ -42,6 +68,15 @@ const clearInput = () => {
 
   &:focus-within {
     border-color: var(--light-colors-black---light);
+  }
+
+  &__error {
+    margin: 0;
+    font-size: 10px;
+    color: var(--light-colors-errors---light);
+    position: absolute;
+    top: 100%;
+    left: 0;
   }
 }
 
