@@ -9,6 +9,23 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import('@/pages/home/Home.vue'),
   },
   {
+    path: '/auth',
+    component: () => import('@/pages/auth/AuthShell.vue'),
+    children: [
+      {
+        path: '/login',
+        name: 'login',
+        component: () => import('@/pages/auth/Login.vue'),
+      },
+      {
+        path: '/register',
+        name: 'register',
+        component: () => import('@/pages/auth/Register.vue'),
+      },
+    ],
+    redirect: { name: 'login' },
+  },
+  {
     path: '/shop',
     name: 'shop',
     component: () => import('@/pages/shop/Shop.vue'),
