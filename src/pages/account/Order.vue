@@ -128,14 +128,14 @@ async function loadOrder() {
   }
 }
 
-onMounted(() => {
-  void loadOrder()
+onMounted(async () => {
+  await loadOrder()
 })
 
 watch(
   () => route.params.id,
-  () => {
-    void loadOrder()
+  async () => {
+    await loadOrder()
   },
 )
 </script>

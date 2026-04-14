@@ -1,9 +1,15 @@
 <script setup lang="ts">
 import type { Order } from '@/entities/order/model/types'
 
-const props = defineProps<{
-  orders: Order[]
-}>()
+const props = withDefaults(
+  defineProps<{
+    orders: Order[]
+    showDownloadButton?: boolean
+  }>(),
+  {
+    showDownloadButton: false,
+  },
+)
 
 const emit = defineEmits<{
   (e: 'view-order', payload: { orderId: string }): void
@@ -60,14 +66,28 @@ function formatStatus(value: Order['status']): string {
             {{ formatMoney(order.total_sum) }}
           </div>
           <div class="orders-table__cell" role="cell">
-            <button
-              class="orders-table__action"
-              type="button"
-              :aria-label="`View order ${order.order_number}`"
-              @click="emit('view-order', { orderId: order.id })"
-            >
-              View Order
-            </button>
+            <div class="orders-table__actions">
+              <button
+                class="orders-table__action"
+                type="button"
+                :aria-label="`View order ${order.order_number}`"
+                @click="emit('view-order', { orderId: order.id })"
+              >
+                View Order
+              </button>
+
+              <template v-if="showDownloadButton">
+                <div class="orders-table__actions-separator"></div>
+
+                <button
+                  class="orders-table__action"
+                  type="button"
+                  :aria-label="`Download order ${order.order_number}`"
+                >
+                  Download
+                </button>
+              </template>
+            </div>
           </div>
         </div>
       </div>
@@ -138,6 +158,18 @@ function formatStatus(value: Order['status']): string {
       outline: 2px solid var(--light-colors-accent---light);
       outline-offset: 4px;
     }
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  &__actions-separator {
+    width: 1px;
+    height: 16px;
+    background-color: var(--light-colors-dark-gray---light);
   }
 }
 </style>

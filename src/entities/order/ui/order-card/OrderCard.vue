@@ -1,9 +1,15 @@
 <script setup lang="ts">
 import type { Order } from '@/entities/order/model/types'
 
-const props = defineProps<{
-  order: Order
-}>()
+const props = withDefaults(
+  defineProps<{
+    order: Order
+    showDownloadButton?: boolean
+  }>(),
+  {
+    showDownloadButton: false,
+  },
+)
 
 const emit = defineEmits<{
   (e: 'view-order', payload: { orderId: string }): void
@@ -52,14 +58,28 @@ function formatStatus(value: Order['status']): string {
     </div>
     <div class="order-card__row">
       <span class="order-card__label">ACTIONS</span>
-      <button
-        class="order-card__action"
-        type="button"
-        :aria-label="`View order ${props.order.order_number}`"
-        @click="emit('view-order', { orderId: props.order.id })"
-      >
-        View Order
-      </button>
+      <div class="order-card__actions">
+        <button
+          class="order-card__action"
+          type="button"
+          :aria-label="`View order ${order.order_number}`"
+          @click="emit('view-order', { orderId: order.id })"
+        >
+          View Order
+        </button>
+
+        <template v-if="showDownloadButton">
+          <div class="order-card__actions-separator"></div>
+
+          <button
+            class="order-card__action"
+            type="button"
+            :aria-label="`Download order ${order.order_number}`"
+          >
+            Download
+          </button>
+        </template>
+      </div>
     </div>
   </article>
 </template>
@@ -72,7 +92,7 @@ function formatStatus(value: Order['status']): string {
   padding: 0;
   font-family: var(--font-family);
   font-weight: 400;
-  font-size: globalFunctions.fluidValue(12px, 16px, 320px, 1440px);
+  font-size: 12px;
   line-height: 20px;
 
   &__row {
@@ -115,6 +135,17 @@ function formatStatus(value: Order['status']): string {
       outline: 2px solid var(--light-colors-accent---light);
       outline-offset: 2px;
     }
+  }
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  &__actions-separator {
+    width: 1px;
+    height: 16px;
+    background-color: var(--light-colors-dark-gray---light);
   }
 }
 </style>
