@@ -27,36 +27,54 @@ const tabModel = computed<'login' | 'register'>({
 
 <template>
   <div class="auth-page">
-    <SectionLayout>
-      <template #title>My account</template>
-      <template #content>
-        <Tabs v-model="tabModel" default-tab="login">
-          <TabsList
-            class="auth-tabs"
-            variant="switch"
-            align="center"
-            aria-label="Authentication tabs"
-          >
-            <TabsTrigger id="login" variant="switch" :to="{ name: 'login' }"> Sign in </TabsTrigger>
-            <TabsTrigger id="register" variant="switch" :to="{ name: 'register' }">
-              Register
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
+    <div class="app-container">
+      <SectionLayout class="auth-page__section-layout">
+        <template #title>My account</template>
+        <template #content>
+          <Tabs v-model="tabModel" default-tab="login">
+            <TabsList
+              class="auth-tabs"
+              variant="switch"
+              align="center"
+              aria-label="Authentication tabs"
+            >
+              <TabsTrigger id="login" variant="switch" :to="{ name: 'login' }">
+                Sign in
+              </TabsTrigger>
+              <TabsTrigger id="register" variant="switch" :to="{ name: 'register' }">
+                Register
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
 
-        <section
-          class="auth-page__content"
-          :aria-label="activeTab === 'register' ? 'Register' : 'Sign in'"
-        >
-          <RouterView />
-        </section>
-      </template>
-    </SectionLayout>
+          <section
+            class="auth-page__content"
+            :aria-label="activeTab === 'register' ? 'Register' : 'Sign in'"
+          >
+            <RouterView />
+          </section>
+        </template>
+      </SectionLayout>
+    </div>
   </div>
 </template>
 
 <style scoped lang="scss">
 :deep(.tabs-list) {
-  max-width: 500px;
+  // max-width: 500px;
+}
+
+.auth-page {
+  &__content {
+    margin-top: globalFunctions.fluidValue(86px, 125px, 320px, 1440px);
+  }
+  &__section-layout {
+    max-width: 500px;
+    margin-inline: auto;
+
+    @media (max-width: globalBreakpoints.$breakpoint-sm) {
+      max-width: 100%;
+    }
+  }
 }
 </style>

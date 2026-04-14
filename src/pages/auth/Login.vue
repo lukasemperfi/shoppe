@@ -12,7 +12,10 @@ const isSubmitting = ref(false)
 
 const validationSchema = yup.object({
   email: yup.string().trim().email('Email must be valid').required('Email is required'),
-  password: yup.string().min(6, 'Password must be at least 6 characters').required('Password is required'),
+  password: yup
+    .string()
+    .min(6, 'Password must be at least 6 characters')
+    .required('Password is required'),
   remember: yup.boolean().default(false),
 })
 
@@ -91,26 +94,25 @@ const onSubmit = handleSubmit(async () => {
 
   &__fields {
     display: grid;
-    gap: globalFunctions.fluidValue(18px, 26px, 320px, 1440px);
-    margin-bottom: globalFunctions.fluidValue(18px, 24px, 320px, 1440px);
+    gap: globalFunctions.fluidValue(24px, 45px, 320px, 1440px);
+    margin-bottom: globalFunctions.fluidValue(12px, 16px, 320px, 1440px);
   }
 
   &__meta {
-    margin-bottom: globalFunctions.fluidValue(18px, 26px, 320px, 1440px);
+    margin-bottom: globalFunctions.fluidValue(12px, 75px, 320px, 1440px);
 
     :deep(.checkbox__label) {
-      font-size: 12px;
+      font-size: globalFunctions.fluidValue(12px, 16px, 320px, 1440px);
       color: var(--light-colors-black---light);
     }
 
     :deep(.checkbox__box) {
-      width: 14px;
-      height: 14px;
+      width: 16px;
+      height: 16px;
     }
   }
 
   &__submit {
-    height: 48px;
     text-transform: uppercase;
     letter-spacing: 0.08em;
   }
@@ -127,8 +129,8 @@ const onSubmit = handleSubmit(async () => {
     padding: 0;
     cursor: pointer;
     font-family: var(--font-family);
-    font-size: 12px;
-    color: var(--light-colors-dark-gray---light);
+    font-size: globalFunctions.fluidValue(12px, 16px, 320px, 1440px);
+    color: var(--light-colors-black---light);
     text-decoration: none;
 
     &:focus-visible {
@@ -138,4 +140,3 @@ const onSubmit = handleSubmit(async () => {
   }
 }
 </style>
-

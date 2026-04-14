@@ -2,16 +2,14 @@
 
 <template>
   <div class="section-layout">
-    <div class="app-container">
-      <header v-if="$slots.title" class="section-layout__header">
-        <h1 class="section-layout__title">
-          <slot name="title" />
-        </h1>
-      </header>
+    <header v-if="$slots.title" class="section-layout__header">
+      <h1 class="section-layout__title">
+        <slot name="title" />
+      </h1>
+    </header>
 
-      <div v-if="$slots.content" class="section-layout__content">
-        <slot name="content" />
-      </div>
+    <div v-if="$slots.content" class="section-layout__content">
+      <slot name="content" />
     </div>
   </div>
 </template>

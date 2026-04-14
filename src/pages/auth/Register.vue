@@ -11,7 +11,10 @@ const isSubmitting = ref(false)
 
 const validationSchema = yup.object({
   email: yup.string().trim().email('Email must be valid').required('Email is required'),
-  password: yup.string().min(6, 'Password must be at least 6 characters').required('Password is required'),
+  password: yup
+    .string()
+    .min(6, 'Password must be at least 6 characters')
+    .required('Password is required'),
   password_confirm: yup
     .string()
     .required('Confirm Password is required')
@@ -101,10 +104,8 @@ const onSubmit = handleSubmit(async () => {
   }
 
   &__submit {
-    height: 48px;
     text-transform: uppercase;
     letter-spacing: 0.08em;
   }
 }
 </style>
-
