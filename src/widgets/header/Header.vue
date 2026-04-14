@@ -8,11 +8,13 @@ import { useCartStore } from '@/entities/cart'
 import HeaderMobileMenu from './HeaderMobileMenu.vue'
 import HeaderBlogMegaMenu from './HeaderBlogMegaMenu.vue'
 import HeaderShopMegaMenu from './HeaderShopMegaMenu.vue'
+import HeaderAccountMenu from './HeaderAccountMenu.vue'
 
 const searchQuery = defineModel<string>('searchQuery', { default: '' })
 
 const isMenuOpen = ref(false)
 const isMiniCartOpen = ref(false)
+const isAuthorized = ref(true)
 
 const cart = useCartStore()
 
@@ -54,6 +56,10 @@ const toggleMenu = () => {
 
 const closeMenu = () => {
   isMenuOpen.value = false
+}
+
+const onLogout = () => {
+  isAuthorized.value = false
 }
 </script>
 
@@ -101,13 +107,9 @@ const closeMenu = () => {
               </span>
             </button>
 
-            <RouterLink
-              to="#"
-              class="header__icon-btn header__icon-btn--desktop"
-              aria-label="Account"
-            >
+            <HeaderAccountMenu :is-authorized="isAuthorized" @logout="onLogout">
               <Icon name="profile" class="header__icon" />
-            </RouterLink>
+            </HeaderAccountMenu>
 
             <button
               type="button"
