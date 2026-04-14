@@ -46,12 +46,7 @@ function formatStatus(value: Order['status']): string {
           <div class="orders-table__cell orders-table__cell_head" role="columnheader">ACTIONS</div>
         </div>
 
-        <div
-          v-for="order in props.orders"
-          :key="order.id"
-          class="orders-table__row"
-          role="row"
-        >
+        <div v-for="order in props.orders" :key="order.id" class="orders-table__row" role="row">
           <div class="orders-table__cell" role="cell">
             {{ order.order_number }}
           </div>
@@ -95,15 +90,18 @@ function formatStatus(value: Order['status']): string {
   }
 
   &__grid {
-    min-width: 1245px;
+    display: grid;
+    grid-template-columns: 320fr 238fr 255fr 248fr 184fr;
   }
 
   &__row {
     display: grid;
-    grid-template-columns: 320px 238px 255px 248px 184px;
+    grid-template-columns: subgrid;
+
     align-items: center;
-    padding: 20px 0;
+    padding: 24px 0;
     border-bottom: 1px solid var(--light-colors-gray---light);
+    grid-column: 1/-1;
 
     &_head {
       padding: 0 0 16px 0;
@@ -116,6 +114,7 @@ function formatStatus(value: Order['status']): string {
     font-size: 16px;
     line-height: 27px;
     color: var(--light-colors-dark-gray---light);
+    white-space: nowrap;
 
     &_head {
       color: var(--light-colors-black---light);
@@ -133,6 +132,7 @@ function formatStatus(value: Order['status']): string {
     padding: 0;
     cursor: pointer;
     text-align: left;
+    white-space: nowrap;
 
     &:focus-visible {
       outline: 2px solid var(--light-colors-accent---light);

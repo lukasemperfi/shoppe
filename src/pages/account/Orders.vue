@@ -9,11 +9,13 @@ import ToastText from '@/shared/ui/toast/ToastText.vue'
 import ToastWrapper from '@/shared/ui/toast/ToastWrapper.vue'
 import Loader from '@/shared/ui/loader/Loader.vue'
 import OrdersTable from '@/entities/order/ui/orders-table/OrdersTable.vue'
+import OrderCard from '@/entities/order/ui/order-card/OrderCard.vue'
+import { useRouter } from 'vue-router'
 
 const authStore = useAuthStore()
 const isLoading = ref(false)
 const orders = ref<Order[] | null>(null)
-
+const router = useRouter()
 async function loadOrders() {
   const userId = authStore.user?.id
 
@@ -35,6 +37,7 @@ async function loadOrders() {
 
 function onViewOrder(payload: { orderId: string }) {
   console.log('view order', payload.orderId)
+  router.push(`/account/orders/${payload.orderId}`)
 }
 
 onMounted(async () => {
@@ -48,11 +51,22 @@ onMounted(async () => {
       <Loader />
     </div>
 
-    <OrdersTable
+    <div
       v-else-if="(orders?.length ?? 0) > 0"
-      :orders="orders ?? []"
-      @view-order="onViewOrder"
-    />
+      class="account-orders__orders"
+      aria-label="Your orders"
+    >
+      <OrdersTable class="account-orders__table" :orders="orders ?? []" @view-order="onViewOrder" />
+      <div class="account-orders__cards" role="list">
+        <OrderCard
+          v-for="order in orders ?? []"
+          :key="order.id"
+          class="account-orders__cards-item"
+          :order="order"
+          @view-order="onViewOrder"
+        />
+      </div>
+    </div>
 
     <Toast v-else type="success">
       <ToastWrapper>
@@ -69,6 +83,43 @@ onMounted(async () => {
     display: flex;
     justify-content: center;
     padding: globalFunctions.fluidValue(16px, 40px, 320px, 1440px);
+  }
+
+  &__orders {
+    width: 100%;
+  }
+
+  &__table {
+    display: block;
+
+    @media (max-width: 1024px) {
+      display: none;
+    }
+  }
+
+  &__cards {
+    display: none;
+
+    @media (max-width: 1024px) {
+      display: block;
+      width: 100%;
+    }
+  }
+
+  &__cards-item {
+    justify-self: center;
+    width: 100%;
+    border-bottom: 1px solid var(--light-colors-gray---light);
+    padding-block: 39px;
+
+    &:first-child {
+      padding-top: 0;
+    }
+
+    &:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
   }
 }
 </style>
