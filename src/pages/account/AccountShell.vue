@@ -85,7 +85,7 @@ const activeTabLabel = computed(() => {
   }
 
   :deep(.tabs-list) {
-    gap: globalFunctions.fluidValue(24px, 50px, 320px, 1440px);
+    gap: globalFunctions.fluidValue(25px, 50px, 320px, 1440px);
   }
 }
 </style>

@@ -16,10 +16,7 @@ const orderSummaryForTotals = computed(() => {
     return { subtotal: 0, shippingCost: 0, total: 0, lineItems: [] as CheckoutTotalsLineItem[] }
   }
   const { payload, summaryLineItems } = data
-  const subtotal = payload.p_items.reduce(
-    (sum, i) => sum + i.price_at_purchase * i.quantity,
-    0,
-  )
+  const subtotal = payload.p_items.reduce((sum, i) => sum + i.price_at_purchase * i.quantity, 0)
   return {
     subtotal,
     shippingCost: payload.p_shipping_cost,
@@ -107,7 +104,10 @@ const orderDetailsProps = computed(() => {
   <div class="order-confirmation-page">
     <div class="app-container">
       <div class="order-confirmation-page__toast">
-        <Toast type="success" text="We’ve received your order" />
+        <Toast type="success">
+          <Icon name="circle-checkmark" />
+          <p class="toast__text">We’ve received your order</p>
+        </Toast>
       </div>
       <div class="order-confirmation-page__body">
         <div class="order-confirmation-page__billing-details">

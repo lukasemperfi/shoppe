@@ -57,6 +57,7 @@ const onActivate = () => {
   text-decoration: none;
   position: relative;
   z-index: 2;
+  white-space: nowrap;
 
   &_active {
     color: var(--light-colors-black---light);
