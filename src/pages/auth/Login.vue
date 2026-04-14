@@ -6,9 +6,12 @@ import * as yup from 'yup'
 import Button from '@/shared/ui/button/Button.vue'
 import Checkbox from '@/shared/ui/checkbox/Checkbox.vue'
 import Input from '@/shared/ui/input/Input.vue'
+import Loader from '@/shared/ui/loader/Loader.vue'
+import { useAuthStore } from '@/entities/auth/model/auth.store'
 
 const router = useRouter()
 const isSubmitting = ref(false)
+const auth = useAuthStore()
 
 const validationSchema = yup.object({
   email: yup.string().trim().email('Email must be valid').required('Email is required'),
@@ -36,11 +39,10 @@ const [email, emailAttrs] = defineField('email')
 const [password, passwordAttrs] = defineField('password')
 const [remember] = defineField('remember')
 
-const onSubmit = handleSubmit(async () => {
+const onSubmit = handleSubmit(async (values) => {
   isSubmitting.value = true
   try {
-    // TODO: connect real auth API
-    await new Promise((r) => setTimeout(r, 350))
+    await auth.login({ email: values.email, password: values.password })
     router.push({ name: 'home' })
   } finally {
     isSubmitting.value = false
@@ -49,7 +51,19 @@ const onSubmit = handleSubmit(async () => {
 </script>
 
 <template>
-  <form class="auth-form" aria-label="Sign in form" @submit.prevent="onSubmit">
+  <form
+    class="auth-form"
+    :class="{ 'auth-form_submitting': isSubmitting }"
+    aria-label="Sign in form"
+    :aria-busy="isSubmitting"
+    @submit.prevent="onSubmit"
+  >
+    <div v-if="isSubmitting" class="auth-form__overlay" aria-hidden="true">
+      <div class="auth-form__overlay-inner">
+        <Loader label="Signing you in..." />
+      </div>
+    </div>
+
     <div class="auth-form__fields">
       <Input
         class="auth-form__input"

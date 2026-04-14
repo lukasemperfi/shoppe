@@ -5,6 +5,7 @@ import { useForm } from 'vee-validate'
 import * as yup from 'yup'
 import Button from '@/shared/ui/button/Button.vue'
 import Input from '@/shared/ui/input/Input.vue'
+import Loader from '@/shared/ui/loader/Loader.vue'
 import { useAuthStore } from '@/entities/auth/model/auth.store'
 
 const router = useRouter()
@@ -70,7 +71,19 @@ const onSubmit = handleSubmit(async (values) => {
 </script>
 
 <template>
-  <form class="auth-form" aria-label="Register form" @submit.prevent="onSubmit">
+  <form
+    class="auth-form"
+    :class="{ 'auth-form_submitting': isSubmitting }"
+    aria-label="Register form"
+    :aria-busy="isSubmitting"
+    @submit.prevent="onSubmit"
+  >
+    <div v-if="isSubmitting" class="auth-form__overlay" aria-hidden="true">
+      <div class="auth-form__overlay-inner">
+        <Loader label="Creating your account..." />
+      </div>
+    </div>
+
     <div class="auth-form__fields">
       <Input
         class="auth-form__input"

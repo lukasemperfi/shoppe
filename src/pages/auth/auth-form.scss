@@ -1,5 +1,28 @@
 .auth-form {
   width: 100%;
+  position: relative;
+
+  &_submitting {
+    pointer-events: none;
+    user-select: none;
+  }
+
+  &__overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(2px);
+    pointer-events: all;
+  }
+
+  &__overlay-inner {
+    width: min(420px, 100%);
+  }
 
   &__fields {
     display: grid;
