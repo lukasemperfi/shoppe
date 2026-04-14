@@ -5,6 +5,7 @@ import MiniCart from '@/widgets/mini-cart/MiniCart.vue'
 import type { MiniCartLine } from '@/widgets/mini-cart/types'
 import type { CartViewItem } from '@/entities/cart'
 import { useCartStore } from '@/entities/cart'
+import { useAuthStore } from '@/entities/auth/model/auth.store'
 import HeaderMobileMenu from './HeaderMobileMenu.vue'
 import HeaderBlogMegaMenu from './HeaderBlogMegaMenu.vue'
 import HeaderShopMegaMenu from './HeaderShopMegaMenu.vue'
@@ -14,9 +15,11 @@ const searchQuery = defineModel<string>('searchQuery', { default: '' })
 
 const isMenuOpen = ref(false)
 const isMiniCartOpen = ref(false)
-const isAuthorized = ref(true)
 
 const cart = useCartStore()
+const auth = useAuthStore()
+
+const isAuthorized = computed(() => auth.isAuthed)
 
 function viewItemToMiniCartLine(v: CartViewItem): MiniCartLine {
   const images = v.product.product_images ?? []
@@ -59,7 +62,7 @@ const closeMenu = () => {
 }
 
 const onLogout = () => {
-  isAuthorized.value = false
+  auth.logout()
 }
 </script>
 

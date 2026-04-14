@@ -5,9 +5,11 @@ import { useForm } from 'vee-validate'
 import * as yup from 'yup'
 import Button from '@/shared/ui/button/Button.vue'
 import Input from '@/shared/ui/input/Input.vue'
+import { useAuthStore } from '@/entities/auth/model/auth.store'
 
 const router = useRouter()
 const isSubmitting = ref(false)
+const auth = useAuthStore()
 
 const validationSchema = yup.object({
   first_name: yup.string().trim().required('First name is required'),
@@ -50,11 +52,16 @@ const [email, emailAttrs] = defineField('email')
 const [password, passwordAttrs] = defineField('password')
 const [passwordConfirm, passwordConfirmAttrs] = defineField('password_confirm')
 
-const onSubmit = handleSubmit(async () => {
+const onSubmit = handleSubmit(async (values) => {
   isSubmitting.value = true
   try {
-    // TODO: connect real auth API
-    await new Promise((r) => setTimeout(r, 350))
+    await auth.register({
+      first_name: values.first_name,
+      last_name: values.last_name,
+      display_name: values.display_name,
+      email: values.email,
+      password: values.password,
+    })
     router.push({ name: 'home' })
   } finally {
     isSubmitting.value = false
