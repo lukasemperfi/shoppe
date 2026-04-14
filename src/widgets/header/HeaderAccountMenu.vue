@@ -86,7 +86,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="header__account">
+  <div class="header-account">
     <button
       ref="referenceRef"
       type="button"
@@ -94,7 +94,7 @@ onUnmounted(() => {
       aria-label="Account"
       aria-haspopup="menu"
       :aria-expanded="open"
-      aria-controls="header-account-menu"
+      aria-controls="header-account__menu"
       @click="onTriggerClick"
     >
       <slot />
@@ -102,23 +102,23 @@ onUnmounted(() => {
 
     <div
       v-if="open && isDesktop"
-      id="header-account-menu"
+      id="header-account__menu"
       ref="floatingRef"
-      class="header__account-panel"
+      class="header-account__panel"
       :style="floatingStyles"
       role="menu"
       aria-label="Account menu"
     >
-      <ul class="header__account-list">
-        <li class="header__account-item" role="none">
-          <RouterLink to="#" class="header__account-link" role="menuitem" @click="close">
+      <ul class="header-account__list">
+        <li class="header-account__item" role="none">
+          <RouterLink to="#" class="header-account__link" role="menuitem" @click="close">
             My Account
           </RouterLink>
         </li>
-        <li class="header__account-item" role="none">
+        <li class="header-account__item" role="none">
           <button
             type="button"
-            class="header__account-link header__account-link_logout"
+            class="header-account__link header-account__link_logout"
             role="menuitem"
             @click="
               () => {
@@ -136,64 +136,64 @@ onUnmounted(() => {
 </template>
 
 <style lang="scss" scoped>
-.header__account {
+.header-account {
   position: relative;
   display: inline-flex;
 
   @media (max-width: 769px) {
     display: none;
   }
-}
 
-.header__account-panel {
-  z-index: 220;
-  min-width: 180px;
-  padding-block: 10px;
-  background: var(--light-colors-white---light);
-  border: 1px solid var(--light-colors-gray---light);
-}
+  &__panel {
+    z-index: 220;
+    min-width: 180px;
+    padding-block: 10px;
+    background: var(--light-colors-white---light);
+    border: 1px solid var(--light-colors-gray---light);
+  }
 
-.header__account-list {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
+  &__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
 
-.header__account-item {
-  display: flex;
-}
+  &__item {
+    display: flex;
+  }
 
-.header__account-link {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  padding: 10px 18px;
-  border: none;
-  background: transparent;
-  font-family: var(--font-family);
-  font-weight: 400;
-  font-size: 14px;
-  line-height: 1.3;
-  color: var(--light-colors-dark-gray---light);
-  text-decoration: none;
-  cursor: pointer;
-  transition:
-    color 0.2s ease,
-    opacity 0.2s ease;
+  .header-account__link {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    padding: 10px 18px;
+    border: none;
+    background: transparent;
+    font-family: var(--font-family);
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 1.3;
+    color: var(--light-colors-black---light);
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+      color 0.2s ease,
+      opacity 0.2s ease;
 
-  @media (hover: hover) {
-    &:hover {
+    @media (hover: hover) {
+      &:hover {
+        color: var(--light-colors-black---light);
+      }
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--light-colors-black---light);
+      outline-offset: 2px;
+    }
+
+    &_logout {
       color: var(--light-colors-black---light);
     }
-  }
-
-  &:focus-visible {
-    outline: 2px solid var(--light-colors-black---light);
-    outline-offset: 2px;
-  }
-
-  &_logout {
-    color: var(--light-colors-black---light);
   }
 }
 </style>
