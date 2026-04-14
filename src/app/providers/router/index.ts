@@ -26,6 +26,11 @@ const routes: Array<RouteRecordRaw> = [
     redirect: { name: 'login' },
   },
   {
+    path: '/reset-password',
+    name: 'reset-password',
+    component: () => import('@/pages/auth/ResetPassword.vue'),
+  },
+  {
     path: '/shop',
     name: 'shop',
     component: () => import('@/pages/shop/Shop.vue'),
