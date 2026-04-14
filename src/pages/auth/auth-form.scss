@@ -1,0 +1,51 @@
+.auth-form {
+  width: 100%;
+
+  &__fields {
+    display: grid;
+    gap: globalFunctions.fluidValue(24px, 45px, 320px, 1440px);
+    margin-bottom: globalFunctions.fluidValue(12px, 16px, 320px, 1440px);
+  }
+
+  &__meta {
+    margin-bottom: globalFunctions.fluidValue(12px, 75px, 320px, 1440px);
+
+    :deep(.checkbox__label) {
+      font-size: globalFunctions.fluidValue(12px, 16px, 320px, 1440px);
+      color: var(--light-colors-black---light);
+    }
+
+    :deep(.checkbox__box) {
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  &__submit {
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  &__footer {
+    margin-top: globalFunctions.fluidValue(14px, 18px, 320px, 1440px);
+    display: flex;
+    justify-content: center;
+  }
+
+  &__link {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    font-family: var(--font-family);
+    font-size: globalFunctions.fluidValue(12px, 16px, 320px, 1440px);
+    color: var(--light-colors-black---light);
+    text-decoration: none;
+
+    &:focus-visible {
+      outline: 2px solid #d8d8d8;
+      outline-offset: 2px;
+    }
+  }
+}
+

@@ -93,19 +93,4 @@ const onSubmit = handleSubmit(async () => {
   </form>
 </template>
 
-<style scoped lang="scss">
-.auth-form {
-  width: 100%;
-
-  &__fields {
-    display: grid;
-    gap: globalFunctions.fluidValue(18px, 26px, 320px, 1440px);
-    margin-bottom: globalFunctions.fluidValue(18px, 24px, 320px, 1440px);
-  }
-
-  &__submit {
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-  }
-}
-</style>
+<style scoped lang="scss" src="./auth-form.scss"></style>
