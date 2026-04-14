@@ -31,6 +31,43 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import('@/pages/auth/ResetPassword.vue'),
   },
   {
+    path: '/account',
+    component: () => import('@/pages/account/AccountShell.vue'),
+    children: [
+      {
+        path: '/account/dashboard',
+        name: 'dashboard',
+        component: () => import('@/pages/account/Dashboard.vue'),
+      },
+      {
+        path: '/account/orders',
+        name: 'orders',
+        component: () => import('@/pages/account/Orders.vue'),
+      },
+      {
+        path: '/account/downloads',
+        name: 'downloads',
+        component: () => import('@/pages/account/Downloads.vue'),
+      },
+      {
+        path: '/account/addresses',
+        name: 'addresses',
+        component: () => import('@/pages/account/Addresses.vue'),
+      },
+      {
+        path: '/account/account-details',
+        name: 'account-details',
+        component: () => import('@/pages/account/AccountDetails.vue'),
+      },
+      {
+        path: '/account/logout',
+        name: 'logout',
+        component: () => import('@/pages/account/Logout.vue'),
+      },
+    ],
+    redirect: { name: 'dashboard' },
+  },
+  {
     path: '/shop',
     name: 'shop',
     component: () => import('@/pages/shop/Shop.vue'),
