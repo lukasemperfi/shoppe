@@ -111,7 +111,7 @@ onUnmounted(() => {
     >
       <ul class="header-account__list">
         <li class="header-account__item" role="none">
-          <RouterLink to="#" class="header-account__link" role="menuitem" @click="close">
+          <RouterLink to="/account" class="header-account__link" role="menuitem" @click="close">
             My Account
           </RouterLink>
         </li>

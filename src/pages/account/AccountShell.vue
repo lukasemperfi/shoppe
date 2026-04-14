@@ -81,15 +81,11 @@ const activeTabLabel = computed(() => {
 <style scoped lang="scss">
 .account-page {
   &__content {
-    margin-top: globalFunctions.fluidValue(86px, 125px, 320px, 1440px);
+    margin-top: 39px;
   }
-  &__section-layout {
-    max-width: 500px;
-    margin-inline: auto;
 
-    @media (max-width: globalBreakpoints.$breakpoint-sm) {
-      max-width: 100%;
-    }
+  :deep(.tabs-list) {
+    gap: globalFunctions.fluidValue(24px, 50px, 320px, 1440px);
   }
 }
 </style>

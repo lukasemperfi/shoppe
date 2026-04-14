@@ -127,7 +127,7 @@ onUnmounted(() => {
   justify-content: flex-start;
   gap: globalFunctions.fluidValue(24px, 62px, 320px, 1440px);
   position: relative;
-  padding-bottom: 12px;
+  padding-bottom: globalFunctions.fluidValue(16px, 34px, 320px, 1440px);
   z-index: 2;
 
   @media (max-width: 768px) {
