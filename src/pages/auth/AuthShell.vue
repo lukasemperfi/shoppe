@@ -60,10 +60,6 @@ const tabModel = computed<'login' | 'register'>({
 </template>
 
 <style scoped lang="scss">
-:deep(.tabs-list) {
-  // max-width: 500px;
-}
-
 .auth-page {
   &__content {
     margin-top: globalFunctions.fluidValue(86px, 125px, 320px, 1440px);
