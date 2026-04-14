@@ -139,6 +139,10 @@ onUnmounted(() => {
 .header__account {
   position: relative;
   display: inline-flex;
+
+  @media (max-width: 769px) {
+    display: none;
+  }
 }
 
 .header__account-panel {

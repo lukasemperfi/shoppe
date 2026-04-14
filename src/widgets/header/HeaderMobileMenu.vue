@@ -2,6 +2,7 @@
 import { useScrollLock } from '@vueuse/core'
 import { computed, watch } from 'vue'
 import Icon from '@/shared/ui/icon/Icon.vue'
+import { useAuthStore } from '@/entities/auth/model/auth.store'
 
 const props = withDefaults(
   defineProps<{
@@ -19,9 +20,15 @@ const emit = defineEmits<{
   close: []
 }>()
 
+const auth = useAuthStore()
 const showCartBadge = computed(() => props.cartCount > 0)
 
 const close = () => emit('close')
+
+const onLogout = async () => {
+  await auth.logout()
+  close()
+}
 
 const scrollLock = useScrollLock(document.documentElement)
 watch(
@@ -102,14 +109,30 @@ watch(
           <div class="header__mobile-sep" role="separator" />
 
           <nav class="header__mobile-nav header__mobile-nav--account" aria-label="Account">
-            <RouterLink to="#" class="header__mobile-account-link" @click="close">
-              <Icon name="profile" />
-              <span>My account</span>
-            </RouterLink>
-            <RouterLink to="#" class="header__mobile-account-link" @click="close">
-              <Icon name="logout" />
-              <span>Logout</span>
-            </RouterLink>
+            <template v-if="auth.isAuthed">
+              <RouterLink to="#" class="header__mobile-account-link" @click="close">
+                <Icon name="profile" />
+                <span>My account</span>
+              </RouterLink>
+              <button type="button" class="header__mobile-account-link" @click="onLogout">
+                <Icon name="logout" />
+                <span>Logout</span>
+              </button>
+            </template>
+            <template v-else>
+              <RouterLink :to="{ name: 'login' }" class="header__mobile-account-link" @click="close">
+                <Icon name="profile" />
+                <span>Sign in</span>
+              </RouterLink>
+              <RouterLink
+                :to="{ name: 'register' }"
+                class="header__mobile-account-link"
+                @click="close"
+              >
+                <Icon name="profile" />
+                <span>Register</span>
+              </RouterLink>
+            </template>
           </nav>
         </div>
       </aside>
