@@ -6,10 +6,10 @@ import { useCheckoutFlowStore } from '@/features/checkout-flow/model/checkout-fl
 import CheckoutTotals, { type CheckoutTotalsLineItem } from '@/pages/checkout/ui/CheckoutTotals.vue'
 import Toast from '@/shared/ui/toast/Toast.vue'
 import OrderDetails from './ui/OrderDetails.vue'
+import Icon from '@/shared/ui/icon/Icon.vue'
 
 const flow = useCheckoutFlowStore(pinia)
 
-/** Totals and lines come from the checkout snapshot — the cart is cleared before this page. */
 const orderSummaryForTotals = computed(() => {
   const data = flow.orderConfirmation
   if (!data?.payload) {

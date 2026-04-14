@@ -15,11 +15,12 @@ import { orderApi } from '@/entities/order/api/order'
 import type { CreateOrderRPCParams } from '@/entities/order/model/types'
 import { pinia } from '@/app/providers/pinia'
 import { useCheckoutFlowStore } from '@/features/checkout-flow/model/checkout-flow.store'
+import { useAuthStore } from '@/entities/auth/model/auth.store'
 
 const cart = useCartStore()
 const router = useRouter()
 const flow = useCheckoutFlowStore(pinia)
-
+const authStore = useAuthStore()
 const cartSubtotal = computed(() => cart.subtotal)
 const cartShippingCost = computed(() => cart.shippingCost)
 const cartTotal = computed(() => cart.totalSum)
@@ -186,9 +187,8 @@ const submitCheckout = handleSubmit(async (values) => {
       quantity: v.quantity,
       price_at_purchase: v.unitPrice,
     })),
+    p_user_id: authStore.user?.id,
   }
-
-  console.log('payload', payload)
 
   const orderId = await orderApi.createOrder(payload)
   flow.setOrderConfirmation({
