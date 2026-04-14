@@ -71,7 +71,6 @@ defineProps<{
   $layout-max: 1440px;
 
   width: 100%;
-  max-width: 502px;
   font-family: var(--font-family);
 
   &__grid {

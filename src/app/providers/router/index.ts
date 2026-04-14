@@ -31,6 +31,11 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import('@/pages/auth/ResetPassword.vue'),
   },
   {
+    path: '/account/orders/:id',
+    name: 'order',
+    component: () => import('@/pages/account/Order.vue'),
+  },
+  {
     path: '/account',
     component: () => import('@/pages/account/AccountShell.vue'),
     children: [

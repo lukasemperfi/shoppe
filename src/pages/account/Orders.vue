@@ -36,7 +36,6 @@ async function loadOrders() {
 }
 
 function onViewOrder(payload: { orderId: string }) {
-  console.log('view order', payload.orderId)
   router.push(`/account/orders/${payload.orderId}`)
 }
 
