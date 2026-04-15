@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref, computed, watch, reactive } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useMediaQuery, useDebounceFn } from '@vueuse/core'
+import { useMediaQuery } from '@vueuse/core'
 import Input from '@/shared/ui/input/Input.vue'
 import Icon from '@/shared/ui/icon/Icon.vue'
 import Loader from '@/shared/ui/loader/Loader.vue'
@@ -27,6 +27,8 @@ const filters = reactive<{ search: string; category: BlogCategory | null }>({
   search: (route.query.search as string) || '',
   category: (route.query.category as BlogCategory) || null,
 })
+
+const appliedSearch = ref(filters.search)
 
 const filtersPanelOpen = ref(false)
 const isNarrowShopLayout = useMediaQuery('(max-width: 1024px)')
@@ -64,7 +66,12 @@ const fetchArticles = async () => {
   }
 }
 
-const debouncedFetchArticles = useDebounceFn(fetchArticles, 400)
+const onSearchSubmit = () => {
+  appliedSearch.value = filters.search
+  currentPage.value = 1
+  syncQuery()
+  fetchArticles()
+}
 
 const onPageChange = (page: number) => {
   currentPage.value = page
@@ -82,10 +89,13 @@ const onCategorySelect = (value: BlogCategory | null) => {
 
 watch(
   () => filters.search,
-  () => {
-    currentPage.value = 1
-    syncQuery()
-    debouncedFetchArticles()
+  (val) => {
+    if (val === '' && appliedSearch.value !== '') {
+      appliedSearch.value = ''
+      currentPage.value = 1
+      syncQuery()
+      fetchArticles()
+    }
   },
 )
 
@@ -124,9 +134,14 @@ onMounted(() => {
           >
             <div class="blog__aside-inner">
               <div class="filters-bar">
-                <Input v-model="filters.search" placeholder="Search..." class="filters-bar__search">
+                <Input
+                  v-model="filters.search"
+                  placeholder="Search..."
+                  class="filters-bar__search"
+                  @keydown.enter="onSearchSubmit"
+                >
                   <template #append>
-                    <button type="button" aria-label="Search articles" @click="fetchArticles">
+                    <button type="button" aria-label="Search articles" @click="onSearchSubmit">
                       <Icon name="search" />
                     </button>
                   </template>
