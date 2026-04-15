@@ -7,7 +7,7 @@ import Icon from '@/shared/ui/icon/Icon.vue'
 import Loader from '@/shared/ui/loader/Loader.vue'
 import Pagination from '@/shared/ui/pagination/Pagination.vue'
 import { articleApi } from '@/entities/article/api/article'
-import type { Article } from '@/entities/article/model/types'
+import type { Article, BlogCategory } from '@/entities/article/model/types'
 import BlogCard from '@/pages/blog/ui/BlogCard.vue'
 
 const ARTICLES_PER_PAGE = 4
@@ -15,8 +15,17 @@ const ARTICLES_PER_PAGE = 4
 const route = useRoute()
 const router = useRouter()
 
-const filters = reactive({
+const CATEGORIES: { label: string; value: BlogCategory | null }[] = [
+  { label: 'All', value: null },
+  { label: 'Fashion', value: 'Fashion' },
+  { label: 'Style', value: 'Style' },
+  { label: 'Accessories', value: 'Accessories' },
+  { label: 'Season', value: 'Season' },
+]
+
+const filters = reactive<{ search: string; category: BlogCategory | null }>({
   search: (route.query.search as string) || '',
+  category: (route.query.category as BlogCategory) || null,
 })
 
 const filtersPanelOpen = ref(false)
@@ -31,6 +40,7 @@ const totalPages = computed(() => Math.ceil(totalCount.value / ARTICLES_PER_PAGE
 const syncQuery = () => {
   const query: Record<string, string> = {}
   if (filters.search) query.search = filters.search
+  if (filters.category) query.category = filters.category
   if (currentPage.value > 1) query.page = String(currentPage.value)
   router.replace({ query })
 }
@@ -40,6 +50,7 @@ const fetchArticles = async () => {
   try {
     const data = await articleApi.getArticles({
       search: filters.search || undefined,
+      category: filters.category || undefined,
       page: currentPage.value,
       limit: ARTICLES_PER_PAGE,
     })
@@ -60,6 +71,13 @@ const onPageChange = (page: number) => {
   syncQuery()
   fetchArticles()
   window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+
+const onCategorySelect = (value: BlogCategory | null) => {
+  filters.category = value
+  currentPage.value = 1
+  syncQuery()
+  fetchArticles()
 }
 
 watch(
@@ -113,6 +131,30 @@ onMounted(() => {
                     </button>
                   </template>
                 </Input>
+                <div class="filters-bar__categories">
+                  <h2 class="filters-bar__categories-title">Categories</h2>
+                  <div class="filters-bar__categories-list" role="list">
+                    <div
+                      v-for="cat in CATEGORIES"
+                      :key="cat.label"
+                      class="filters-bar__categories-item"
+                      role="listitem"
+                    >
+                      <button
+                        type="button"
+                        class="filters-bar__categories-item-button"
+                        :class="{
+                          'filters-bar__categories-item-button_active':
+                            filters.category === cat.value,
+                        }"
+                        :aria-pressed="filters.category === cat.value"
+                        @click="onCategorySelect(cat.value)"
+                      >
+                        {{ cat.label }}
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </aside>
@@ -295,129 +337,42 @@ onMounted(() => {
       }
     }
 
-    :deep(.select) {
-      .select__trigger {
-        border: 1px solid var(--light-colors-gray---light);
-        border-radius: 4px;
-        padding-block: globalFunctions.fluidValue(6px, 17px, $layout-min, $layout-max);
-        padding-inline: globalFunctions.fluidValue(6px, 11px, $layout-min, $layout-max);
+    &__categories {
+      &-title {
+        font-family: var(--font-family);
+        font-weight: 500;
+        font-size: globalFunctions.fluidValue(16px, 20px, $layout-min, $layout-max);
+        text-transform: capitalize;
+        color: var(--light-colors-black---light);
+        margin-bottom: globalFunctions.fluidValue(16px, 22px, $layout-min, $layout-max);
+      }
+      &-list {
+        display: flex;
+        flex-direction: column;
+        gap: globalFunctions.fluidValue(6px, 10px, $layout-min, $layout-max);
       }
 
-      .select__value {
+      &-item-button {
         font-family: var(--font-family);
         font-weight: 400;
-        font-size: globalFunctions.fluidValue(12px, 14px, $layout-min, $layout-max);
+        font-size: globalFunctions.fluidValue(12px, 16px, $layout-min, $layout-max);
+        color: var(--light-colors-dark-gray---light);
+        transition: color 0.2s ease;
 
-        color: var(--light-colors-black---light);
-      }
-
-      .select__icon {
-        svg {
-          width: globalFunctions.fluidValue(12px, 14px, $layout-min, $layout-max);
-          height: globalFunctions.fluidValue(6px, 8px, $layout-min, $layout-max);
+        @media (prefers-reduced-motion: reduce) {
+          transition: none;
         }
-      }
-    }
 
-    :deep(.filters-bar__select-shop-by) {
-      margin-bottom: globalFunctions.fluidValue(3px, 14px, $layout-min, $layout-max);
-      @media (max-width: globalBreakpoints.$breakpoint-xs) {
-        grid-column: 1 / -1;
-      }
-    }
-    :deep(.filters-bar__select-sort-by) {
-      margin-bottom: globalFunctions.fluidValue(10px, 43px, $layout-min, $layout-max);
-      @media (max-width: globalBreakpoints.$breakpoint-xs) {
-        grid-column: 1 / -1;
-      }
-    }
-
-    :deep(.filters-bar__on-sale) {
-      margin-top: globalFunctions.fluidValue(8px, 38px, $layout-min, $layout-max);
-      margin-bottom: globalFunctions.fluidValue(9px, 42px, $layout-min, $layout-max);
-      @media (max-width: globalBreakpoints.$breakpoint-md) {
-        grid-column: 1 / -1;
-      }
-    }
-
-    :deep(.filters-bar__in-stock) {
-      @media (max-width: globalBreakpoints.$breakpoint-md) {
-        grid-column: 1 / -1;
-      }
-    }
-
-    :deep(.toggle) {
-      .toggle__text {
-        font-size: globalFunctions.fluidValue(14px, 16px, $layout-min, $layout-max);
-      }
-
-      .toggle__switch {
-        width: globalFunctions.fluidValue(30px, 33px, $layout-min, $layout-max);
-        height: globalFunctions.fluidValue(18px, 20px, $layout-min, $layout-max);
-      }
-      .toggle__track::after {
-        width: globalFunctions.fluidValue(11px, 13px, $layout-min, $layout-max);
-        height: globalFunctions.fluidValue(11px, 13px, $layout-min, $layout-max);
-      }
-    }
-
-    .slider {
-      @media (max-width: globalBreakpoints.$breakpoint-md) {
-        grid-column: 1 / -1;
-      }
-
-      &__input {
-        --slider-bg: var(--light-colors-gray---light);
-        --slider-connect-bg: var(--light-colors-black---light);
-        --slider-connect-bg-disabled: var(--light-colors-gray);
-        --slider-height: 2px;
-        --slider-radius: 0px;
-
-        --slider-handle-bg: var(--light-colors-black---light);
-        --slider-handle-width: 2px;
-        --slider-handle-height: 10px;
-        --slider-handle-radius: 0px;
-        --slider-handle-shadow: none;
-
-        :deep(.slider-handle) {
-          top: calc(
-            (var(--slider-handle-height, 16px) - var(--slider-height, 6px)) / 2 * -1
-          ) !important;
+        @media (hover: hover) {
+          &:hover {
+            color: var(--light-colors-black---light);
+          }
         }
-      }
-      &__footer {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-top: globalFunctions.fluidValue(6px, 13px, $layout-min, $layout-max);
 
-        span {
-          font-family: 'DM Sans', var(--font-family);
-          font-weight: 400;
-          font-size: globalFunctions.fluidValue(12px, 14px, $layout-min, $layout-max);
-          line-height: globalFunctions.fluidValue(18px, 22px, $layout-min, $layout-max);
-          color: #707070;
+        &_active {
+          font-weight: 500;
+          color: var(--light-colors-black---light);
         }
-      }
-      &__filter-btn {
-        font-family: 'DM Sans', var(--font-family);
-        font-weight: 400;
-        font-size: globalFunctions.fluidValue(12px, 14px, $layout-min, $layout-max);
-        color: #a18a68;
-        background: transparent;
-        border: 0;
-        padding: 0;
-        cursor: pointer;
-      }
-    }
-    :deep(.input-wrapper),
-    :deep(.filters-bar__select-shop-by),
-    :deep(.filters-bar__select-sort-by),
-    :deep(.filters-bar__on-sale),
-    :deep(.filters-bar__in-stock) {
-      @media (max-width: globalBreakpoints.$breakpoint-md) {
-        margin-top: 0;
-        margin-bottom: 0;
       }
     }
   }
