@@ -1,12 +1,16 @@
 <script setup lang="ts">
-import { onMounted, ref, watch, reactive } from 'vue'
-import { useRoute, useRouter, RouterLink } from 'vue-router'
+import { onMounted, ref, computed, watch, reactive } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useMediaQuery, useDebounceFn } from '@vueuse/core'
 import Input from '@/shared/ui/input/Input.vue'
 import Icon from '@/shared/ui/icon/Icon.vue'
 import Loader from '@/shared/ui/loader/Loader.vue'
+import Pagination from '@/shared/ui/pagination/Pagination.vue'
 import { articleApi } from '@/entities/article/api/article'
 import type { Article } from '@/entities/article/model/types'
+import BlogCard from '@/pages/blog/ui/BlogCard.vue'
+
+const ARTICLES_PER_PAGE = 4
 
 const route = useRoute()
 const router = useRouter()
@@ -18,19 +22,32 @@ const filters = reactive({
 const filtersPanelOpen = ref(false)
 const isNarrowShopLayout = useMediaQuery('(max-width: 1024px)')
 const articles = ref<Article[]>([])
+const totalCount = ref(0)
+const currentPage = ref(Number(route.query.page) || 1)
 const isLoading = ref(false)
+
+const totalPages = computed(() => Math.ceil(totalCount.value / ARTICLES_PER_PAGE))
+
+const syncQuery = () => {
+  const query: Record<string, string> = {}
+  if (filters.search) query.search = filters.search
+  if (currentPage.value > 1) query.page = String(currentPage.value)
+  router.replace({ query })
+}
 
 const fetchArticles = async () => {
   isLoading.value = true
   try {
     const data = await articleApi.getArticles({
       search: filters.search || undefined,
-      page: 1,
-      limit: 100,
+      page: currentPage.value,
+      limit: ARTICLES_PER_PAGE,
     })
     articles.value = data?.items ?? []
+    totalCount.value = data?.totalCount ?? 0
   } catch {
     articles.value = []
+    totalCount.value = 0
   } finally {
     isLoading.value = false
   }
@@ -38,12 +55,18 @@ const fetchArticles = async () => {
 
 const debouncedFetchArticles = useDebounceFn(fetchArticles, 400)
 
+const onPageChange = (page: number) => {
+  currentPage.value = page
+  syncQuery()
+  fetchArticles()
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+
 watch(
   () => filters.search,
-  (search) => {
-    const query: Record<string, string> = {}
-    if (search) query.search = search
-    router.replace({ query })
+  () => {
+    currentPage.value = 1
+    syncQuery()
     debouncedFetchArticles()
   },
 )
@@ -58,30 +81,30 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="blog-page">
+  <div class="blog">
     <div class="app-container">
       <div class="catalog">
-        <div class="catalog__top">
-          <h1 class="catalog__title">Blog</h1>
+        <div class="blog__top">
+          <h1 class="blog__title">Blog</h1>
         </div>
-        <div class="catalog__body" :class="{ catalog__body_filters_open: filtersPanelOpen }">
+        <div class="blog__body" :class="{ blog__body_filters_open: filtersPanelOpen }">
           <button
             type="button"
-            class="catalog__toggle-filters"
+            class="blog__toggle-filters"
             :aria-expanded="filtersPanelOpen"
             aria-controls="catalog-filters-panel"
             @click="filtersPanelOpen = !filtersPanelOpen"
           >
             <Icon name="filter" />
-            <span class="catalog__toggle-filters-text"> Filters </span>
+            <span class="blog__toggle-filters-text"> Filters </span>
           </button>
 
           <aside
             id="catalog-filters-panel"
-            class="catalog__aside"
-            :class="{ catalog__aside_open: filtersPanelOpen }"
+            class="blog__aside"
+            :class="{ blog__aside_open: filtersPanelOpen }"
           >
-            <div class="catalog__aside-inner">
+            <div class="blog__aside-inner">
               <div class="filters-bar">
                 <Input v-model="filters.search" placeholder="Search..." class="filters-bar__search">
                   <template #append>
@@ -94,47 +117,28 @@ onMounted(() => {
             </div>
           </aside>
 
-          <div class="catalog__main">
-            <Loader v-if="isLoading" class="catalog__loader" />
+          <div class="blog__main">
+            <Loader v-if="isLoading" class="blog__loader" />
 
-            <div v-else class="catalog__products" role="list">
-              <article
+            <div v-else class="blog__posts" role="list">
+              <BlogCard
                 v-for="article in articles"
                 :key="article.id"
-                class="article-card"
+                :article="article"
                 role="listitem"
-              >
-                <RouterLink
-                  class="article-card__link"
-                  :to="{ name: 'blog-post', params: { id: article.slug } }"
-                >
-                  <div
-                    v-if="article.featured_image"
-                    class="article-card__media"
-                    aria-hidden="true"
-                  >
-                    <img
-                      class="article-card__img"
-                      :src="article.featured_image"
-                      :alt="article.title"
-                    />
-                  </div>
-                  <div
-                    v-else
-                    class="article-card__media article-card__media_placeholder"
-                    aria-hidden="true"
-                  />
-                  <div class="article-card__body">
-                    <span class="article-card__category">{{ article.category }}</span>
-                    <h2 class="article-card__title">{{ article.title }}</h2>
-                    <p class="article-card__meta">{{ article.author }}</p>
-                  </div>
-                </RouterLink>
-              </article>
-              <div v-if="articles.length === 0" class="catalog__empty">
+              />
+              <div v-if="articles.length === 0" class="blog__empty">
                 No articles found matching your filters.
               </div>
             </div>
+
+            <Pagination
+              v-if="totalPages > 1"
+              class="blog__pagination"
+              :total="totalPages"
+              :current="currentPage"
+              @update:current="onPageChange"
+            />
           </div>
         </div>
       </div>
@@ -142,76 +146,7 @@ onMounted(() => {
   </div>
 </template>
 <style scoped lang="scss">
-.article-card {
-  $layout-min: 320px;
-  $layout-max: 1440px;
-
-  &__link {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    text-decoration: none;
-    color: inherit;
-    outline: none;
-
-    &:focus-visible {
-      outline: 2px solid var(--light-colors-black---light);
-      outline-offset: 4px;
-    }
-  }
-
-  &__media {
-    aspect-ratio: 4 / 3;
-    overflow: hidden;
-    background: var(--light-colors-gray---light);
-
-    &_placeholder {
-      min-height: globalFunctions.fluidValue(120px, 200px, $layout-min, $layout-max);
-    }
-  }
-
-  &__img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
-
-  &__body {
-    padding-top: globalFunctions.fluidValue(12px, 20px, $layout-min, $layout-max);
-    flex: 1 1 auto;
-  }
-
-  &__category {
-    display: block;
-    font-family: var(--font-family);
-    font-weight: 400;
-    font-size: globalFunctions.fluidValue(11px, 13px, $layout-min, $layout-max);
-    color: var(--light-colors-dark-gray---light);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    margin-bottom: globalFunctions.fluidValue(4px, 8px, $layout-min, $layout-max);
-  }
-
-  &__title {
-    font-family: var(--font-family);
-    font-weight: 500;
-    font-size: globalFunctions.fluidValue(16px, 22px, $layout-min, $layout-max);
-    line-height: 1.3;
-    color: var(--light-colors-black---light);
-    margin: 0 0 globalFunctions.fluidValue(8px, 12px, $layout-min, $layout-max);
-  }
-
-  &__meta {
-    margin: 0;
-    font-family: var(--font-family);
-    font-weight: 400;
-    font-size: globalFunctions.fluidValue(12px, 14px, $layout-min, $layout-max);
-    color: var(--light-colors-dark-gray---light);
-  }
-}
-
-.catalog {
+.blog {
   $layout-min: 320px;
   $layout-max: 1440px;
   margin-top: clamp(24px, 6.8vw, 97px);
@@ -487,15 +422,20 @@ onMounted(() => {
     }
   }
 
-  &__products {
+  &__posts {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    column-gap: globalFunctions.fluidValue(16px, 24px, $layout-min, $layout-max);
-    row-gap: globalFunctions.fluidValue(24px, 70px, $layout-min, $layout-max);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: globalFunctions.fluidValue(16px, 48px, $layout-min, $layout-max);
+    row-gap: globalFunctions.fluidValue(39px, 64px, $layout-min, $layout-max);
 
-    @media (max-width: (600px)) {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+    @media (max-width: (900px)) {
+      grid-template-columns: repeat(1, minmax(0, 1fr));
     }
+  }
+
+  &__pagination {
+    margin-top: globalFunctions.fluidValue(32px, 56px, $layout-min, $layout-max);
+    justify-content: center;
   }
 }
 </style>

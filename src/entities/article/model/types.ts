@@ -8,6 +8,7 @@ export interface Article {
   category: BlogCategory
   content: string
   featured_image: string | null
+  description: string
   created_at: string
   updated_at: string
 }
