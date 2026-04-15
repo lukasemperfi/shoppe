@@ -110,6 +110,10 @@ const onLogout = () => {
               </span>
             </button>
 
+            <RouterLink to="/wishlist" class="header__icon-btn">
+              <Icon name="wishlist" class="header__icon header__icon_heart" aria-hidden="true" />
+            </RouterLink>
+
             <HeaderAccountMenu :is-authorized="isAuthorized" @logout="onLogout">
               <Icon name="profile" class="header__icon" />
             </HeaderAccountMenu>
@@ -341,6 +345,12 @@ const onLogout = () => {
     display: block;
     width: globalFunctions.fluidValue(18px, 21px, 320px, 1440px);
     height: globalFunctions.fluidValue(18px, 21px, 320px, 1440px);
+
+    &_heart {
+      :deep(path) {
+        // fill: var(--light-colors-black---light);
+      }
+    }
   }
 
   &__icon--menu {

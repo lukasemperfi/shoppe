@@ -26,6 +26,7 @@ const props = withDefaults(
     facebookUrl?: string
     instagramUrl?: string
     twitterUrl?: string
+    isInWishlist?: boolean
   }>(),
   {
     discount: null,
@@ -38,6 +39,7 @@ const props = withDefaults(
     facebookUrl: '#',
     instagramUrl: '#',
     twitterUrl: '#',
+    isInWishlist: false,
   },
 )
 
@@ -150,11 +152,13 @@ const reviewsLabel = computed(() => {
     <div class="product-info__social">
       <button
         type="button"
-        class="product-info__social-btn"
-        aria-label="Add to wishlist"
+        class="product-info__social-btn product-info__wishlist-btn"
+        :class="{ 'product-info__wishlist-btn_active': isInWishlist }"
+        :aria-label="isInWishlist ? 'Remove from wishlist' : 'Add to wishlist'"
+        :aria-pressed="isInWishlist"
         @click="emit('wishlistClick')"
       >
-        <Icon name="heart" />
+        <Icon name="heart-2" />
       </button>
 
       <span class="product-info__social-sep" aria-hidden="true" />
@@ -414,6 +418,20 @@ const reviewsLabel = computed(() => {
     padding: 0;
     cursor: pointer;
     text-decoration: none;
+  }
+
+  &__wishlist-btn {
+    transition: color 0.2s ease;
+
+    :deep(.heart-icon__fill) {
+      fill: white;
+    }
+
+    &_active {
+      :deep(.heart-icon__fill) {
+        fill: var(--light-colors-dark-gray---light);
+      }
+    }
   }
 
   &__social-sep {

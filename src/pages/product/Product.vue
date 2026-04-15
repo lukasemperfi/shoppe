@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import { toast } from 'vue-sonner'
 
 import type { Product } from '@/entities/product/model/types'
 import { productApi } from '@/entities/product/api/product'
+import { useAuthStore } from '@/entities/auth/model/auth.store'
 import Tabs from '@/shared/ui/tabs/Tabs.vue'
 import TabsList from '@/shared/ui/tabs/TabsList.vue'
 import TabsTrigger from '@/shared/ui/tabs/TabsTrigger.vue'
@@ -19,6 +21,7 @@ import { useCartStore } from '@/entities/cart'
 
 const route = useRoute()
 const cart = useCartStore()
+const auth = useAuthStore()
 
 const productId = computed(() => {
   const id = route.params.id
@@ -36,7 +39,7 @@ watch(
       product.value = null
       return
     }
-    product.value = await productApi.getProductById(id)
+    product.value = await productApi.getProductById(id, auth.user?.id ?? null)
   },
   { immediate: true },
 )
@@ -51,7 +54,7 @@ watch(
 async function refreshProduct() {
   const id = productId.value
   if (!id) return
-  product.value = await productApi.getProductById(id)
+  product.value = await productApi.getProductById(id, auth.user?.id ?? null)
 }
 
 const galleryImages = computed(() => product.value?.product_images ?? [])
@@ -96,6 +99,38 @@ const accordionItems = computed(() => [
 ])
 
 const productReviews = computed(() => product.value?.reviews ?? [])
+
+const isWishlistLoading = ref(false)
+
+async function onWishlistClick() {
+  const p = product.value
+  if (!p) return
+
+  const userId = auth.user?.id
+  if (!userId) {
+    toast.error('Please log in to manage your wishlist')
+    return
+  }
+
+  if (isWishlistLoading.value) return
+  isWishlistLoading.value = true
+
+  try {
+    if (p.isInWishlist) {
+      await productApi.removeFromWishlist(userId, p.id)
+      product.value = { ...p, isInWishlist: false }
+      toast.success('Removed from wishlist')
+    } else {
+      await productApi.addToWishlist(userId, p.id)
+      product.value = { ...p, isInWishlist: true }
+      toast.success('Added to wishlist')
+    }
+  } catch {
+    toast.error('Failed to update wishlist')
+  } finally {
+    isWishlistLoading.value = false
+  }
+}
 
 function onAddToCart() {
   const p = product.value
@@ -144,7 +179,9 @@ function onAddToCart() {
             :sku="product?.sku ?? ''"
             :categories-display="categoriesDisplay"
             :color-options="colorOptions"
+            :is-in-wishlist="product?.isInWishlist ?? false"
             @add-to-cart="onAddToCart"
+            @wishlist-click="onWishlistClick"
           />
         </div>
 

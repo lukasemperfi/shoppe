@@ -79,7 +79,7 @@ class ProductApi {
     }
   }
 
-  getProductById = async (id: string): Promise<Product | null> => {
+  getProductById = async (id: string, userId: string | null = null): Promise<Product | null> => {
     const { data, error } = await supabase
       .from('products')
       .select(PRODUCT_DETAILS_SELECT)
@@ -92,14 +92,31 @@ class ProductApi {
       return null
     }
 
-    return data as Product
+    let isInWishlist = false
+    if (userId) {
+      const { data: wishlistEntry, error: wishlistError } = await supabase
+        .from('wishlist')
+        .select('id')
+        .eq('user_id', userId)
+        .eq('product_id', id)
+        .maybeSingle()
+
+      if (!wishlistError && wishlistEntry) {
+        isInWishlist = true
+      }
+    }
+
+    return { ...(data as Product), isInWishlist }
   }
 
   getProductsByIds = async (ids: string[]): Promise<Product[]> => {
     const unique = [...new Set(ids)].filter(Boolean)
     if (!unique.length) return []
 
-    const { data, error } = await supabase.from('products').select(PRODUCT_BASE_SELECT).in('id', unique)
+    const { data, error } = await supabase
+      .from('products')
+      .select(PRODUCT_BASE_SELECT)
+      .in('id', unique)
 
     if (error) {
       console.error('Error fetching products by ids:', error)

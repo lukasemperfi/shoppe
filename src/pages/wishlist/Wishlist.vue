@@ -1,33 +1,75 @@
 <script setup lang="ts">
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { toast } from 'vue-sonner'
+
 import SectionLayout from '@/shared/ui/section-layout/SectionLayout.vue'
 import Icon from '@/shared/ui/icon/Icon.vue'
 import Button from '@/shared/ui/button/Button.vue'
+import Loader from '@/shared/ui/loader/Loader.vue'
 
-type WishlistItem = {
-  id: string
-  title: string
-  price: string
-  stockStatus: 'In Stock' | 'Out of Stock'
+import { productApi } from '@/entities/product/api/product'
+import type { Product } from '@/entities/product/model/types'
+import { useAuthStore } from '@/entities/auth/model/auth.store'
+
+const router = useRouter()
+const authStore = useAuthStore()
+
+const products = ref<Product[]>([])
+const isLoading = ref(false)
+const error = ref<string | null>(null)
+
+function formatPrice(value: number): string {
+  return `$ ${value.toFixed(2).replace('.', ',')}`
 }
 
-const items: WishlistItem[] = [
-  {
-    id: 'ollie-earrings',
-    title: 'Ollie Earrings',
-    price: '$18.00',
-    stockStatus: 'In Stock',
-  },
-  {
-    id: 'lira-earrings',
-    title: 'Lira Earrings',
-    price: '$18.00',
-    stockStatus: 'In Stock',
-  },
-]
-
-function removeItem(_id: string) {
-  // TODO: connect real wishlist store
+function getDisplayPrice(price: number, discount: number | null): string {
+  if (discount != null && discount > 0) {
+    const effective = Math.min(1, Math.max(0, discount))
+    const discounted = Math.round(price * (1 - effective) * 100) / 100
+    return formatPrice(discounted)
+  }
+  return formatPrice(price)
 }
+
+async function fetchWishlist() {
+  const userId = authStore.user?.id
+  if (!userId) return
+
+  isLoading.value = true
+  error.value = null
+  try {
+    products.value = await productApi.getWishlistProducts(userId)
+  } catch (e) {
+    error.value = e instanceof Error ? e.message : 'Failed to load wishlist'
+  } finally {
+    isLoading.value = false
+  }
+}
+
+async function removeItem(productId: string) {
+  const userId = authStore.user?.id
+  if (!userId) return
+
+  try {
+    await productApi.removeFromWishlist(userId, productId)
+    products.value = products.value.filter((p) => p.id !== productId)
+    toast.success('Removed from wishlist')
+  } catch {
+    toast.error('Failed to remove item from wishlist')
+  }
+}
+
+function selectOption(productId: string) {
+  router.push({ name: 'product', params: { id: productId } })
+}
+
+function getMainImage(product: Product): string | null {
+  const main = product.product_images?.find((img) => img.is_main)
+  return main?.url ?? product.product_images?.[0]?.url ?? null
+}
+
+onMounted(fetchWishlist)
 </script>
 
 <template>
@@ -36,7 +78,18 @@ function removeItem(_id: string) {
       <SectionLayout>
         <template #title>Your Wishlist</template>
         <template #content>
-          <div class="wishlist-table" role="table" aria-label="Wishlist products">
+          <Loader v-if="isLoading" />
+          <div
+            v-else-if="error"
+            class="wishlist-table__state wishlist-table__state_error"
+            role="alert"
+          >
+            {{ error }}
+          </div>
+          <div v-else-if="products.length === 0" class="wishlist-table__state" aria-live="polite">
+            Your wishlist is empty.
+          </div>
+          <div v-else class="wishlist-table" role="table" aria-label="Wishlist products">
             <div class="wishlist-table__scroll" tabindex="0" aria-label="Scrollable wishlist table">
               <div class="wishlist-table__grid" role="rowgroup">
                 <div
@@ -73,8 +126,8 @@ function removeItem(_id: string) {
                 </div>
 
                 <div
-                  v-for="item in items"
-                  :key="item.id"
+                  v-for="product in products"
+                  :key="product.id"
                   class="wishlist-table__row wishlist-table__row_item"
                   role="row"
                 >
@@ -83,7 +136,7 @@ function removeItem(_id: string) {
                       class="wishlist-table__remove-btn"
                       type="button"
                       aria-label="Remove from wishlist"
-                      @click="removeItem(item.id)"
+                      @click="removeItem(product.id)"
                     >
                       <Icon name="cross" class="wishlist-table__remove-icon" />
                     </button>
@@ -91,28 +144,41 @@ function removeItem(_id: string) {
 
                   <div class="wishlist-table__cell wishlist-table__cell_product" role="cell">
                     <div class="wishlist-table__product product-card">
-                      <div class="product-card__thumb" aria-hidden="true" />
-                      <div class="product-card__title">{{ item.title }}</div>
+                      <img
+                        v-if="getMainImage(product)"
+                        class="product-card__thumb"
+                        :src="getMainImage(product)!"
+                        :alt="product.name"
+                      />
+                      <div v-else class="product-card__thumb" aria-hidden="true" />
+                      <div class="product-card__title">{{ product.name }}</div>
                     </div>
                   </div>
 
                   <div class="wishlist-table__cell wishlist-table__cell_price" role="cell">
                     <div class="wishlist-table__meta-line">
                       <span class="wishlist-table__meta-label">Price</span>
-                      <span class="wishlist-table__meta-value">{{ item.price }}</span>
+                      <span class="wishlist-table__meta-value">{{
+                        getDisplayPrice(product.price, product.discount)
+                      }}</span>
                     </div>
                   </div>
 
                   <div class="wishlist-table__cell wishlist-table__cell_stock" role="cell">
                     <div class="wishlist-table__meta-line">
                       <span class="wishlist-table__meta-value wishlist-table__stock">{{
-                        item.stockStatus
+                        product.is_sold_out ? 'Out of Stock' : 'Available'
                       }}</span>
                     </div>
                   </div>
 
                   <div class="wishlist-table__cell wishlist-table__cell_action" role="cell">
-                    <Button class="wishlist-table__action-btn" type="button">SELECT OPTION</Button>
+                    <Button
+                      class="wishlist-table__action-btn"
+                      type="button"
+                      @click="selectOption(product.id)"
+                      >SELECT OPTION</Button
+                    >
                   </div>
                 </div>
               </div>
@@ -177,7 +243,9 @@ function removeItem(_id: string) {
     }
 
     &_head {
-      display: none;
+      @media (max-width: $mobile) {
+        display: none;
+      }
     }
 
     &_item {
@@ -310,6 +378,8 @@ function removeItem(_id: string) {
       height: 100px;
       border-radius: 4px;
       background: linear-gradient(135deg, #efefef, #dcdcdc);
+      object-fit: cover;
+      flex-shrink: 0;
 
       @media (max-width: $mobile) {
         width: 80px;
@@ -351,7 +421,15 @@ function removeItem(_id: string) {
     color: var(--light-colors-dark-gray---light, #707070);
   }
 
-  &__action-btn {
+  &__state {
+    padding-block: globalFunctions.fluidValue(40px, 80px, 320px, 1440px);
+    text-align: center;
+    color: var(--light-colors-dark-gray---light, #707070);
+    font-size: globalFunctions.fluidValue(14px, 18px, 320px, 1440px);
+
+    &_error {
+      color: #c0392b;
+    }
   }
 }
 </style>
