@@ -102,6 +102,16 @@ const routes: Array<RouteRecordRaw> = [
     name: 'wishlist',
     component: () => import('@/pages/wishlist/Wishlist.vue'),
   },
+  {
+    path: '/blog',
+    name: 'blog',
+    component: () => import('@/pages/blog/Blog.vue'),
+  },
+  {
+    path: '/blog/:id',
+    name: 'blog-post',
+    component: () => import('@/pages/blog-post/BlogPost.vue'),
+  },
 ]
 
 const router = createRouter({
