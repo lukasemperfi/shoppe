@@ -97,6 +97,11 @@ const routes: Array<RouteRecordRaw> = [
     name: 'order-confirmation',
     component: () => import('@/pages/order-confirmation/OrderConfirmation.vue'),
   },
+  {
+    path: '/wishlist',
+    name: 'wishlist',
+    component: () => import('@/pages/wishlist/Wishlist.vue'),
+  },
 ]
 
 const router = createRouter({
