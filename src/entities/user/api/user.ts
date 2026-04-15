@@ -50,6 +50,42 @@ class UserApi {
     return data as Address
   }
 
+  updateAddress = async (addressId: string, addressData: AddressDTO): Promise<Address> => {
+    if (addressData.is_default && addressData.user_id) {
+      await supabase
+        .from('addresses')
+        .update({ is_default: false })
+        .eq('user_id', addressData.user_id)
+        .eq('address_type', addressData.address_type)
+        .neq('id', addressId)
+    }
+
+    const { data, error } = await supabase
+      .from('addresses')
+      .update({
+        first_name: addressData.first_name,
+        last_name: addressData.last_name,
+        company_name: addressData.company_name ?? null,
+        country: addressData.country,
+        street_address: addressData.street_address,
+        post_code: addressData.post_code,
+        city: addressData.city,
+        phone: addressData.phone,
+        email: addressData.email,
+        is_default: addressData.is_default ?? null,
+      })
+      .eq('id', addressId)
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Error updating address:', error.message)
+      throw error
+    }
+
+    return data as Address
+  }
+
   getUserAddresses = async (userId: string): Promise<Address[]> => {
     const { data, error } = await supabase
       .from('addresses')

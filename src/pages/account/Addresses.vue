@@ -1,41 +1,96 @@
 <script setup lang="ts">
-import { useForm } from 'vee-validate'
-import BillingDetailsForm from '@/features/billing-details-form/ui/BillingDetailsForm.vue'
-import { profileAddressSchema } from '@/entities/address/model/validation'
-import { countryOptions } from '@/entities/address/model/constants'
+import { computed, onMounted, ref, watch } from 'vue'
+import { countryOptions } from '@/entities/user/model/constants'
+import { userApi } from '@/entities/user/api/user'
+import { useAuthStore } from '@/entities/auth/model/auth.store'
+import type { Address, AddressType } from '@/entities/user/model/types'
+import AddressFormSection from '@/pages/account/ui/AddressFormSection.vue'
+import { toast } from 'vue-sonner'
 
-const { handleSubmit, resetForm } = useForm<{
-  first_name: string
-  last_name: string
-  company_name?: string
-  country: string | number
-  street_address: string
-  post_code: string
-  city: string
-  phone: string
-  email: string
-}>({
-  validationSchema: profileAddressSchema,
-  initialValues: {
-    first_name: '',
-    last_name: '',
-    company_name: '',
-    country: '',
-    street_address: '',
-    post_code: '',
-    city: '',
-    phone: '',
-    email: '',
-  },
-})
+const authStore = useAuthStore()
 
-const saveAddress = handleSubmit(async (_values) => {
-  resetForm()
-})
+const isLoading = ref(false)
+const savingType = ref<AddressType | null>(null)
+const addresses = ref<Address[]>([])
 
-function onSubmit() {
-  return saveAddress()
+const billingAddress = computed(
+  () => addresses.value.find((a) => a.address_type === 'billing') ?? null,
+)
+const shippingAddress = computed(
+  () => addresses.value.find((a) => a.address_type === 'shipping') ?? null,
+)
+
+const showBillingForm = ref(false)
+const showShippingForm = ref(false)
+
+async function loadAddresses(userId: string) {
+  isLoading.value = true
+  try {
+    addresses.value = await userApi.getUserAddresses(userId)
+    showBillingForm.value = !!billingAddress.value
+    showShippingForm.value = !!shippingAddress.value
+  } finally {
+    isLoading.value = false
+  }
 }
+
+async function saveAddress(addressType: AddressType, values: any) {
+  const userId = authStore.user?.id
+  if (!userId) return
+  if (savingType.value) return
+
+  savingType.value = addressType
+  const dto = {
+    user_id: userId,
+    address_type: addressType,
+    first_name: String(values.first_name ?? ''),
+    last_name: String(values.last_name ?? ''),
+    company_name: values.company_name || undefined,
+    country: String(values.country),
+    street_address: String(values.street_address ?? ''),
+    post_code: String(values.post_code ?? ''),
+    city: String(values.city ?? ''),
+    phone: String(values.phone ?? ''),
+    email: String(values.email ?? ''),
+  }
+
+  const existing = addresses.value.find((a) => a.address_type === addressType)
+  try {
+    if (existing?.id) {
+      await userApi.updateAddress(existing.id, dto)
+    } else {
+      await userApi.createAddress(dto)
+    }
+
+    await loadAddresses(userId)
+
+    toast.success('Address successfully updated')
+  } finally {
+    savingType.value = null
+  }
+}
+
+function onAdd(addressType: AddressType) {
+  if (addressType === 'billing') showBillingForm.value = true
+  if (addressType === 'shipping') showShippingForm.value = true
+}
+
+onMounted(async () => {
+  const userId = authStore.user?.id
+  if (userId) await loadAddresses(userId)
+})
+
+watch(
+  () => authStore.user?.id,
+  async (userId) => {
+    if (userId) await loadAddresses(userId)
+    else {
+      addresses.value = []
+      showBillingForm.value = false
+      showShippingForm.value = false
+    }
+  },
+)
 </script>
 
 <template>
@@ -45,22 +100,44 @@ function onSubmit() {
     </div>
     <div class="address-page__body">
       <div class="address-page__billing-details">
-        <form class="address-page__form" aria-label="Addresses content" @submit.prevent="onSubmit">
-          <h2 class="address-page__billing-details-title h2-title">Billing Address</h2>
-          <BillingDetailsForm
-            class="address-page__form"
-            :country-options="countryOptions"
-            :show-checkboxes="false"
-            :show-order-notes="false"
-            :show-submit="true"
-            submit-label="SAVE ADDRESS"
-          />
-        </form>
+        <h2 class="address-page__billing-details-title h2-title">Billing Address</h2>
+        <AddressFormSection
+          v-if="showBillingForm"
+          form-aria-label="Billing address form"
+          title="Billing Address"
+          country-id="account-billing-country"
+          :country-options="countryOptions"
+          :address="billingAddress"
+          submit-label="SAVE ADDRESS"
+          :is-saving="savingType === 'billing'"
+          @save="(values) => saveAddress('billing', values)"
+        />
+
+        <div v-else class="address-page__add-item add-item">
+          <button class="add-item__button" :disabled="isLoading" @click="onAdd('billing')">
+            Add
+          </button>
+          <div class="add-item__text">You have not set up this type of address yet.</div>
+        </div>
       </div>
       <div class="address-page__order">
         <h2 class="address-page__order-title h2-title">Shipping Address</h2>
-        <div class="address-page__add-item add-item">
-          <button class="add-item__button">Add</button>
+        <AddressFormSection
+          v-if="showShippingForm"
+          form-aria-label="Shipping address form"
+          title="Shipping Address"
+          country-id="account-shipping-country"
+          :country-options="countryOptions"
+          :address="shippingAddress"
+          submit-label="SAVE ADDRESS"
+          :is-saving="savingType === 'shipping'"
+          @save="(values) => saveAddress('shipping', values)"
+        />
+
+        <div v-else class="address-page__add-item add-item">
+          <button class="add-item__button" :disabled="isLoading" @click="onAdd('shipping')">
+            Add
+          </button>
           <div class="add-item__text">You have not set up this type of address yet.</div>
         </div>
       </div>

@@ -171,10 +171,10 @@ const selectedLabel = computed(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  min-height: 40px;
   padding-bottom: clamp(4px, 1.05vw, 15px);
   padding-top: 3px;
   border-bottom: 1px solid var(--light-colors-gray---light, #d8d8d8);
+  line-height: 21px;
   cursor: pointer;
   transition: border-color 0.3s ease;
 

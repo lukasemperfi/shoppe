@@ -162,7 +162,7 @@ function onSubmit() {
 
     <div v-if="props.showSubmit" class="billing-details-form__actions">
       <slot name="actions">
-        <Button variant="primary" class="billing-details-form__submit" type="submit" @click="onSubmit">
+        <Button variant="primary" class="billing-details-form__submit" type="button" @click="onSubmit">
           {{ props.submitLabel }}
         </Button>
       </slot>

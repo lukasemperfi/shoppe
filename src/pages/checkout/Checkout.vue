@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { mapViewItemToCartItem, useCartStore } from '@/entities/cart'
 import CartItemCard from '@/pages/cart/ui/CartItemCard.vue'
@@ -9,13 +9,14 @@ import Input from '@/shared/ui/input/Input.vue'
 import CheckoutTotals from './ui/CheckoutTotals.vue'
 import BillingDetailsForm from '@/features/billing-details-form/ui/BillingDetailsForm.vue'
 import { useForm } from 'vee-validate'
-import { checkoutAddressSchema } from '@/entities/address/model/validation'
-import { countryOptions } from '@/entities/address/model/constants'
+import { checkoutAddressSchema } from '@/entities/user/model/validation'
+import { countryOptions } from '@/entities/user/model/constants'
 import { orderApi } from '@/entities/order/api/order'
 import type { CreateOrderRPCParams } from '@/entities/order/model/types'
 import { pinia } from '@/app/providers/pinia'
 import { useCheckoutFlowStore } from '@/features/checkout-flow/model/checkout-flow.store'
 import { useAuthStore } from '@/entities/auth/model/auth.store'
+import { userApi } from '@/entities/user/api/user'
 
 const cart = useCartStore()
 const router = useRouter()
@@ -41,7 +42,7 @@ async function onRefreshCart() {
   await cart.refreshViewItems()
 }
 
-const { handleSubmit, submitCount, resetForm } = useForm<{
+const { handleSubmit, submitCount, resetForm, setValues } = useForm<{
   first_name: string
   last_name: string
   company_name?: string
@@ -69,6 +70,29 @@ const { handleSubmit, submitCount, resetForm } = useForm<{
 })
 
 const checkoutMeta = ref<{ paymentMethod: string; deliveryOption: string } | null>(null)
+
+onMounted(async () => {
+  if (!authStore.user?.id) return
+
+  const addresses = await userApi.getUserAddresses(authStore.user.id)
+  const billingAddress =
+    addresses.find((a) => a.address_type === 'billing' && a.is_default) ??
+    addresses.find((a) => a.address_type === 'billing')
+
+  if (!billingAddress) return
+
+  setValues({
+    first_name: billingAddress.first_name,
+    last_name: billingAddress.last_name,
+    company_name: billingAddress.company_name ?? '',
+    country: billingAddress.country,
+    street_address: billingAddress.street_address,
+    post_code: billingAddress.post_code,
+    city: billingAddress.city,
+    phone: billingAddress.phone,
+    email: billingAddress.email,
+  })
+})
 
 const submitCheckout = handleSubmit(async (values) => {
   if (cart.viewItems.length === 0) return
@@ -287,6 +311,5 @@ function onCheckout(meta: { paymentMethod: string; deliveryOption: string }) {
       flex-direction: column;
     }
   }
-
 }
 </style>
