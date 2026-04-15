@@ -40,30 +40,28 @@ function onSubmit() {
 
 <template>
   <div class="address-page">
-    <div class="app-container">
-      <div class="address-page__description">
-        <p class="address-page__description-text">We’ve received your order</p>
-      </div>
-      <div class="address-page__body">
-        <div class="address-page__billing-details">
-          <form
+    <div class="address-page__description">
+      The following addresses will be used on the checkout page by default.
+    </div>
+    <div class="address-page__body">
+      <div class="address-page__billing-details">
+        <form class="address-page__form" aria-label="Addresses content" @submit.prevent="onSubmit">
+          <h2 class="address-page__billing-details-title h2-title">Billing Address</h2>
+          <BillingDetailsForm
             class="address-page__form"
-            aria-label="Addresses content"
-            @submit.prevent="onSubmit"
-          >
-            <h2 class="address-page__billing-details-title h2-title">Order Details</h2>
-            <BillingDetailsForm
-              class="address-page__form"
-              :country-options="countryOptions"
-              :show-checkboxes="false"
-              :show-order-notes="false"
-              :show-submit="true"
-              submit-label="SAVE ADDRESS"
-            />
-          </form>
-        </div>
-        <div class="address-page__order">
-          <h2 class="address-page__order-title h2-title">Order Summary</h2>
+            :country-options="countryOptions"
+            :show-checkboxes="false"
+            :show-order-notes="false"
+            :show-submit="true"
+            submit-label="SAVE ADDRESS"
+          />
+        </form>
+      </div>
+      <div class="address-page__order">
+        <h2 class="address-page__order-title h2-title">Shipping Address</h2>
+        <div class="address-page__add-item add-item">
+          <button class="add-item__button">Add</button>
+          <div class="add-item__text">You have not set up this type of address yet.</div>
         </div>
       </div>
     </div>
@@ -119,6 +117,34 @@ function onSubmit() {
 
     &__form {
       max-width: 680px;
+    }
+  }
+  &__description {
+    font-family: var(--font-family);
+    font-weight: 400;
+    font-size: globalFunctions.fluidValue(12px, 16px, 320px, 1440px);
+    color: var(--light-colors-black---light);
+    margin-bottom: globalFunctions.fluidValue(24px, 45px, 320px, 1440px);
+  }
+
+  .add-item {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+
+    &__button {
+      font-family: var(--font-family);
+      font-weight: 700;
+      font-size: 16px;
+      color: var(--light-colors-accent---light);
+      text-transform: uppercase;
+    }
+
+    &__text {
+      font-family: var(--font-family);
+      font-weight: 400;
+      font-size: globalFunctions.fluidValue(12px, 14px, 320px, 1440px);
+      color: var(--light-colors-dark-gray---light);
     }
   }
 }
