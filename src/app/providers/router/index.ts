@@ -124,6 +124,11 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import('@/pages/contacts/Contacts.vue'),
   },
   {
+    path: '/our-story',
+    name: 'our-story',
+    component: () => import('@/pages/our-story/OurStory.vue'),
+  },
+  {
     path: '/:pathMatch(.*)*',
     name: 'not-found',
     component: () => import('@/pages/not-found/NotFound.vue'),

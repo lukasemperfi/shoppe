@@ -2,10 +2,11 @@
 
 <template>
   <div class="section-layout">
-    <header v-if="$slots.title" class="section-layout__header">
+    <header v-if="$slots.header || $slots.title" class="section-layout__header">
       <h1 class="section-layout__title">
         <slot name="title" />
       </h1>
+      <slot name="header" />
     </header>
 
     <div v-if="$slots.content" class="section-layout__content">
