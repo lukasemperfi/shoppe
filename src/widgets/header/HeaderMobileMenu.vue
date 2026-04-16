@@ -98,11 +98,15 @@ watch(
 
           <nav class="header__mobile-nav" aria-label="Mobile main">
             <RouterLink to="/" class="header__mobile-link" @click="close">Home</RouterLink>
-            <RouterLink to="#" class="header__mobile-link" @click="close">Shop</RouterLink>
-            <RouterLink to="#" class="header__mobile-link" @click="close">About</RouterLink>
-            <RouterLink to="#" class="header__mobile-link" @click="close">Blog</RouterLink>
-            <RouterLink to="#" class="header__mobile-link" @click="close">Help</RouterLink>
-            <RouterLink to="#" class="header__mobile-link" @click="close">Contact</RouterLink>
+            <RouterLink to="/shop" class="header__mobile-link" @click="close">Shop</RouterLink>
+            <RouterLink to="/our-story" class="header__mobile-link" @click="close"
+              >About</RouterLink
+            >
+            <RouterLink to="/blog" class="header__mobile-link" @click="close">Blog</RouterLink>
+            <RouterLink to="/contact" class="header__mobile-link" @click="close">Help</RouterLink>
+            <RouterLink to="/contact" class="header__mobile-link" @click="close"
+              >Contact</RouterLink
+            >
             <RouterLink to="#" class="header__mobile-link" @click="close">Search</RouterLink>
           </nav>
 
@@ -120,7 +124,11 @@ watch(
               </button>
             </template>
             <template v-else>
-              <RouterLink :to="{ name: 'login' }" class="header__mobile-account-link" @click="close">
+              <RouterLink
+                :to="{ name: 'login' }"
+                class="header__mobile-account-link"
+                @click="close"
+              >
                 <Icon name="profile" />
                 <span>Sign in</span>
               </RouterLink>
