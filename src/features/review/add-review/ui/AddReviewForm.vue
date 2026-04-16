@@ -1,21 +1,16 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, useId } from 'vue'
+import { useForm } from 'vee-validate'
 import Button from '@/shared/ui/button/Button.vue'
 import Checkbox from '@/shared/ui/checkbox/Checkbox.vue'
 import Input from '@/shared/ui/input/Input.vue'
 import StarsRate from '@/shared/ui/stars-rate/StarsRate.vue'
+import { addReviewSchema, type AddReviewFormValues } from '../model/addReview.validation'
 
-export type AddReviewFormValue = {
-  comment: string
-  name: string
-  email: string
-  remember: boolean
-  rating: number
-}
+export type { AddReviewFormValues as AddReviewFormValue } from '../model/addReview.validation'
 
 const props = withDefaults(
   defineProps<{
-    modelValue?: AddReviewFormValue
     disabled?: boolean
     submitText?: string
   }>(),
@@ -26,103 +21,131 @@ const props = withDefaults(
 )
 
 const emit = defineEmits<{
-  (e: 'update:modelValue', value: AddReviewFormValue): void
-  (e: 'change', value: AddReviewFormValue): void
-  (e: 'submit', value: AddReviewFormValue): void
+  (e: 'submit', value: AddReviewFormValues): void
 }>()
 
-const defaultValue: AddReviewFormValue = {
-  comment: '',
-  name: '',
-  email: '',
-  remember: false,
-  rating: 0,
-}
+const isBusy = computed(() => props.disabled)
+const formUid = useId()
 
-const value = computed<AddReviewFormValue>({
-  get() {
-    return props.modelValue ?? defaultValue
-  },
-  set(next) {
-    emit('update:modelValue', next)
-    emit('change', next)
+const { defineField, errors, handleSubmit, resetForm, setFieldValue } = useForm<AddReviewFormValues>({
+  validationSchema: addReviewSchema,
+  initialValues: {
+    comment: '',
+    name: '',
+    email: '',
+    remember: false,
+    rating: 0,
   },
 })
 
-const setField = <K extends keyof AddReviewFormValue>(key: K, next: AddReviewFormValue[K]) => {
-  value.value = { ...value.value, [key]: next }
+const [comment, commentAttrs] = defineField('comment')
+const [name, nameAttrs] = defineField('name')
+const [email, emailAttrs] = defineField('email')
+const [remember] = defineField('remember')
+const [rating] = defineField('rating')
+
+const onRatingChange = (value: number) => {
+  setFieldValue('rating', value, true)
 }
 
 const textareaRef = ref<HTMLTextAreaElement | null>(null)
 
-const submit = () => {
-  emit('submit', value.value)
-  return value.value
-}
-
-const setValue = (patch: Partial<AddReviewFormValue>) => {
-  value.value = { ...value.value, ...patch }
-}
+const onSubmit = handleSubmit((values) => {
+  if (isBusy.value) return
+  emit('submit', values)
+})
 
 const reset = () => {
-  value.value = { ...defaultValue }
+  resetForm()
 }
 
 defineExpose({
-  submit,
-  setValue,
+  resetForm,
   reset,
   focusComment: () => textareaRef.value?.focus(),
 })
 </script>
 
 <template>
-  <form class="add-review-form" @submit.prevent="submit">
-    <label class="add-review-form__label add-review-form__comment">
+  <form class="add-review-form" aria-label="Add product review" @submit.prevent="onSubmit">
+    <label class="add-review-form__label add-review-form__comment" :for="`${formUid}-comment`">
       <span class="add-review-form__label-text">Your Review*</span>
       <textarea
+        :id="`${formUid}-comment`"
         ref="textareaRef"
         class="add-review-form__textarea"
-        :value="value.comment"
-        :disabled="disabled"
-        @input="setField('comment', ($event.target as HTMLTextAreaElement).value)"
+        v-model="comment"
+        v-bind="commentAttrs"
+        name="comment"
+        :disabled="isBusy"
+        aria-required="true"
+        :aria-invalid="errors.comment ? true : undefined"
+        :aria-describedby="errors.comment ? `${formUid}-comment-error` : undefined"
       />
+      <p
+        v-if="errors.comment"
+        :id="`${formUid}-comment-error`"
+        class="add-review-form__error"
+        role="alert"
+      >
+        {{ errors.comment }}
+      </p>
     </label>
 
     <Input
-      :model-value="value.name"
-      :disabled="disabled"
+      v-model="name"
+      v-bind="nameAttrs"
+      name="name"
+      type="text"
+      autocomplete="name"
+      :disabled="isBusy"
       placeholder="Enter your name*"
-      @update:model-value="setField('name', $event ?? '')"
+      :error-message="errors.name"
+      aria-required="true"
       class="add-review-form__name"
     />
 
     <Input
-      :model-value="value.email"
-      :disabled="disabled"
+      v-model="email"
+      v-bind="emailAttrs"
+      name="email"
+      type="email"
+      inputmode="email"
+      autocomplete="email"
+      :disabled="isBusy"
       placeholder="Enter your Email*"
-      @update:model-value="setField('email', $event ?? '')"
+      :error-message="errors.email"
+      aria-required="true"
       class="add-review-form__email"
     />
 
     <Checkbox
       class="add-review-form__remember"
-      :model-value="value.remember"
-      :disabled="disabled"
+      v-model="remember"
+      :disabled="isBusy"
       label="Save my name, email, and website in this browser for the next time I comment"
-      @update:model-value="setField('remember', $event ?? false)"
     />
 
-    <div class="add-review-form__rating">
-      <div class="add-review-form__rating-title">Your Rating*</div>
-      <StarsRate
-        :rate="value.rating"
-        :readonly="disabled"
-        @update:rate="setField('rating', $event)"
-      />
+    <div
+      class="add-review-form__rating"
+      role="group"
+      :aria-labelledby="`${formUid}-rating-label`"
+      :aria-invalid="errors.rating ? true : undefined"
+      :aria-describedby="errors.rating ? `${formUid}-rating-error` : undefined"
+    >
+      <div :id="`${formUid}-rating-label`" class="add-review-form__rating-title">Your Rating*</div>
+      <StarsRate :rate="rating" :readonly="isBusy" @update:rate="onRatingChange" />
+      <p
+        v-if="errors.rating"
+        :id="`${formUid}-rating-error`"
+        class="add-review-form__error"
+        role="alert"
+      >
+        {{ errors.rating }}
+      </p>
     </div>
 
-    <Button class="add-review-form__submit" type="submit" :disabled="disabled">
+    <Button class="add-review-form__submit" type="submit" :disabled="isBusy">
       {{ submitText }}
     </Button>
   </form>
@@ -177,6 +200,12 @@ defineExpose({
       opacity: 0.7;
       cursor: not-allowed;
     }
+  }
+
+  &__error {
+    margin: 0;
+    font-size: 10px;
+    color: var(--light-colors-errors---light);
   }
 
   :deep(.input)::placeholder {

@@ -2,9 +2,8 @@
 import { productApi } from '@/entities/product/api/product'
 import type { Review } from '@/entities/product/model/types'
 import ReviewCard from '@/entities/product/ui/review-card/ReviewCard.vue'
-import AddReviewForm, {
-  type AddReviewFormValue,
-} from '@/features/review/add-review/ui/AddReviewForm.vue'
+import AddReviewForm from '@/features/review/add-review/ui/AddReviewForm.vue'
+import type { AddReviewFormValues } from '@/features/review/add-review/model/addReview.validation'
 import Button from '@/shared/ui/button/Button.vue'
 import Loader from '@/shared/ui/loader/Loader.vue'
 import Modal from '@/shared/ui/modal/Modal.vue'
@@ -51,19 +50,11 @@ watch(isDesktop, (val) => {
   }, 0)
 })
 
-const addReviewFormValue = ref<AddReviewFormValue>({
-  comment: '',
-  name: '',
-  email: '',
-  remember: false,
-  rating: 0,
-})
-
-const addReviewFormRef = ref<InstanceType<typeof AddReviewForm> | null>(null)
+const addReviewFormKey = ref(0)
 
 const isSubmittingReview = ref(false)
 
-const handleAddReviewSubmit = async (value: AddReviewFormValue) => {
+const handleAddReviewSubmit = async (value: AddReviewFormValues) => {
   const productId = props.productId?.trim()
   if (!productId || isSubmittingReview.value) return
 
@@ -77,8 +68,7 @@ const handleAddReviewSubmit = async (value: AddReviewFormValue) => {
       comment: value.comment ?? '',
     })
     isAddReviewModalOpen.value = false
-    addReviewFormRef.value?.reset()
-    addReviewFormValue.value = { comment: '', name: '', email: '', remember: false, rating: 0 }
+    addReviewFormKey.value += 1
     emit('review-added')
   } catch {
   } finally {
@@ -121,7 +111,11 @@ const handleAddReviewSubmit = async (value: AddReviewFormValue) => {
         class="product-reviews-panel__add-review-form product-reviews-panel__add-review-form_desktop"
       >
         <Loader v-if="isSubmittingReview" label="Sending your review..." />
-        <AddReviewForm v-else v-model="addReviewFormValue" @submit="handleAddReviewSubmit" />
+        <AddReviewForm
+          v-else
+          :key="`add-review-desktop-${addReviewFormKey}`"
+          @submit="handleAddReviewSubmit"
+        />
       </div>
 
       <Modal v-model="isAddReviewModalOpen" :instant-close="isAddReviewModalInstantClose">
@@ -131,8 +125,7 @@ const handleAddReviewSubmit = async (value: AddReviewFormValue) => {
             <Loader v-if="isSubmittingReview" label="Sending your review..." />
             <AddReviewForm
               v-else
-              ref="addReviewFormRef"
-              v-model="addReviewFormValue"
+              :key="`add-review-modal-${addReviewFormKey}`"
               @submit="handleAddReviewSubmit"
             />
           </div>
