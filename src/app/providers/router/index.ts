@@ -113,6 +113,12 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import('@/pages/blog-post/BlogPost.vue'),
   },
   {
+    path: '/privacy',
+    name: 'privacy',
+    component: () => import('@/pages/privacy/Privacy.vue'),
+  },
+
+  {
     path: '/:pathMatch(.*)*',
     name: 'not-found',
     component: () => import('@/pages/not-found/NotFound.vue'),
