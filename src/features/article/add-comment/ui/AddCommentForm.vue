@@ -9,10 +9,12 @@ const props = withDefaults(
   defineProps<{
     disabled?: boolean
     submitText?: string
+    loading?: boolean
   }>(),
   {
     disabled: false,
     submitText: 'Post Comment',
+    loading: false,
   },
 )
 
@@ -124,8 +126,14 @@ defineExpose({ resetForm })
         </p>
       </label>
 
-      <Button class="add-comment-form__submit" type="submit" :disabled="disabled">
-        {{ submitText }}
+      <Button
+        class="add-comment-form__submit"
+        type="submit"
+        :disabled="disabled"
+        :aria-busy="loading"
+      >
+        <span class="add-comment-form__submit-text">{{ submitText }}</span>
+        <span v-if="loading" class="add-comment-form__submit-spinner" aria-hidden="true" />
       </Button>
     </form>
   </section>
@@ -244,6 +252,33 @@ $layout-max: 1440px;
     text-transform: uppercase;
     padding-inline: 34px;
     padding-block: 15px;
+
+    :deep(.btn) {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+  }
+
+  &__submit-spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid var(--light-colors-gray---light);
+    border-top-color: var(--light-colors-accent---light);
+    border-radius: 50%;
+    animation: add-comment-spin 0.75s linear infinite;
+    flex-shrink: 0;
+  }
+
+  &__submit-text {
+    display: inline-flex;
+    align-items: center;
+  }
+}
+
+@keyframes add-comment-spin {
+  to {
+    transform: rotate(360deg);
   }
 }
 </style>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import { toast } from 'vue-sonner'
 import Icon from '@/shared/ui/icon/Icon.vue'
 import Loader from '@/shared/ui/loader/Loader.vue'
 import AddCommentForm from '@/features/article/add-comment/ui/AddCommentForm.vue'
@@ -9,10 +10,6 @@ import type { AddCommentFormValues } from '@/features/article/add-comment/model/
 import { articleApi } from '@/entities/article/api/article'
 import type { Article, ArticleComment } from '@/entities/article/model/types'
 
-const onCommentSubmit = (values: AddCommentFormValues) => {
-  console.log('Comment submitted:', values)
-}
-
 import imgMain from '@/shared/assets/images/blog/blog-img-1.jpg'
 import imgSecondary from '@/shared/assets/images/blog/blog-img-4.jpg'
 
@@ -20,6 +17,34 @@ const route = useRoute()
 
 const article = ref<Article | null>(null)
 const isLoading = ref(false)
+const comments = ref<ArticleComment[]>([])
+const isCommentSubmitting = ref(false)
+
+const onCommentSubmit = async (values: AddCommentFormValues) => {
+  if (!article.value) return
+
+  isCommentSubmitting.value = true
+  try {
+    const created = await articleApi.createArticleComment(article.value.id, {
+      user_name: values.name,
+      avatar_url: null,
+      comment: values.comment,
+    })
+
+    if (created) {
+      comments.value = [created, ...comments.value]
+      toast.success('Комментарий успешно создан')
+      return
+    }
+
+    toast.error('Не удалось создать комментарий')
+  } catch (e) {
+    toast.error('Не удалось создать комментарий')
+    console.error('Error creating comment:', e)
+  } finally {
+    isCommentSubmitting.value = false
+  }
+}
 
 const slug = computed(() => String(route.params.id ?? ''))
 
@@ -37,43 +62,19 @@ const mainImageSrc = computed(() => article.value?.featured_image || imgMain)
 const fetchArticle = async () => {
   if (!slug.value) {
     article.value = null
+    comments.value = []
     return
   }
 
   isLoading.value = true
   try {
     article.value = await articleApi.getArticleBySlug(slug.value)
+
+    comments.value = article.value ? await articleApi.getArticleComments(article.value.id) : []
   } finally {
     isLoading.value = false
   }
 }
-
-const comments: ArticleComment[] = [
-  {
-    id: '1',
-    author: 'Scarlet Witch',
-    content:
-      'Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet.',
-    created_at: '2020-05-06T00:00:00.000Z',
-    avatar: 'https://i.pravatar.cc/70?u=1',
-  },
-  {
-    id: '2',
-    author: 'James Carter',
-    content:
-      'Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium.',
-    created_at: '2020-06-14T00:00:00.000Z',
-    avatar: 'https://i.pravatar.cc/70?u=2',
-  },
-  {
-    id: '3',
-    author: 'Olivia Bennett',
-    content:
-      'At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium.',
-    created_at: '2020-07-22T00:00:00.000Z',
-    avatar: 'https://i.pravatar.cc/70?u=3',
-  },
-]
 
 watch(slug, fetchArticle, { immediate: true })
 </script>
@@ -198,7 +199,11 @@ watch(slug, fetchArticle, { immediate: true })
       <div v-if="article" class="blog-post__container">
         <hr class="blog-post__divider" />
         <div class="blog-post__reply-form">
-          <AddCommentForm @submit="onCommentSubmit" />
+          <AddCommentForm
+            :disabled="isLoading || isCommentSubmitting"
+            :loading="true"
+            @submit="onCommentSubmit"
+          />
         </div>
         <div class="blog-post__comments">
           <h3 class="blog-post__comments-title">Comments({{ comments.length }})</h3>
