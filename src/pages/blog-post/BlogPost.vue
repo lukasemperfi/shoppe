@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import Icon from '@/shared/ui/icon/Icon.vue'
 import AddCommentForm from '@/features/article/add-comment/ui/AddCommentForm.vue'
+import CommentCard from '@/entities/article/ui/comment-card/CommentCard.vue'
 import type { AddCommentFormValues } from '@/features/article/add-comment/model/addComment.validation'
+import type { ArticleComment } from '@/entities/article/model/types'
 
 const onCommentSubmit = (values: AddCommentFormValues) => {
   console.log('Comment submitted:', values)
@@ -13,6 +15,33 @@ import imgSecondary from '@/shared/assets/images/blog/blog-img-4.jpg'
 const title = 'Fast Fashion, And Faster Fashion'
 const author = 'ANNY JOHNSON'
 const date = 'October 8,2020'
+
+const comments: ArticleComment[] = [
+  {
+    id: '1',
+    author: 'Scarlet Witch',
+    content:
+      'Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet.',
+    created_at: '2020-05-06T00:00:00.000Z',
+    avatar: 'https://i.pravatar.cc/70?u=1',
+  },
+  {
+    id: '2',
+    author: 'James Carter',
+    content:
+      'Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium.',
+    created_at: '2020-06-14T00:00:00.000Z',
+    avatar: 'https://i.pravatar.cc/70?u=2',
+  },
+  {
+    id: '3',
+    author: 'Olivia Bennett',
+    content:
+      'At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium.',
+    created_at: '2020-07-22T00:00:00.000Z',
+    avatar: 'https://i.pravatar.cc/70?u=3',
+  },
+]
 </script>
 
 <template>
@@ -126,6 +155,14 @@ const date = 'October 8,2020'
         <hr class="blog-post__divider" />
         <div class="blog-post__reply-form">
           <AddCommentForm @submit="onCommentSubmit" />
+        </div>
+        <div class="blog-post__comments">
+          <h3 class="blog-post__comments-title">Comments(3)</h3>
+          <ul class="blog-post__comments-list" aria-label="Comments list">
+            <li v-for="comment in comments" :key="comment.id" class="blog-post__comments-item">
+              <CommentCard :comment="comment" />
+            </li>
+          </ul>
         </div>
       </div>
     </div>
@@ -291,6 +328,34 @@ $layout-max: 1440px;
   &__divider {
     border: 1px solid var(--light-colors-gray---light);
     margin-block: globalFunctions.fluidValue(36px, 48px, $layout-min, $layout-max);
+  }
+
+  &__comments-title {
+    font-family: var(--font-family);
+    font-style: normal;
+    font-weight: 400;
+    font-size: globalFunctions.fluidValue(18px, 26px, $layout-min, $layout-max);
+    color: var(--light-colors-black---light);
+    margin-bottom: 43px;
+  }
+
+  &__comments-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: globalFunctions.fluidValue(24px, 40px, $layout-min, $layout-max);
+  }
+
+  &__comments-item {
+    padding-bottom: globalFunctions.fluidValue(24px, 40px, $layout-min, $layout-max);
+    border-bottom: 1px solid var(--light-colors-gray---light);
+
+    &:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
   }
 }
 

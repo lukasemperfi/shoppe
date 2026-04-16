@@ -1,5 +1,13 @@
 export type BlogCategory = 'Fashion' | 'Style' | 'Accessories' | 'Season'
 
+export interface ArticleComment {
+  id: string
+  author: string
+  avatar?: string
+  content: string
+  created_at: string
+}
+
 export interface Article {
   id: string
   title: string
