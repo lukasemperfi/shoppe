@@ -1,1 +1,0 @@
-import{A as e,s as t,u as n}from"./runtime-core.esm-bundler-ipy4D30t.js";var r={xmlns:`http://www.w3.org/2000/svg`,width:`7`,height:`8`,fill:`none`,viewBox:`0 0 7 8`};function i(i,a){return e(),n(`svg`,r,[...a[0]||=[t(`path`,{stroke:`#000`,"stroke-width":`1.5`,d:`M.53.623 6.44 6.531M.53 6.44 6.44.53`},null,-1)]])}var a={render:i};export{a as default,i as render};
