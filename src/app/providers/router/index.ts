@@ -8,6 +8,7 @@ const routes: Array<RouteRecordRaw> = [
     name: 'home',
     component: () => import('@/pages/home/Home.vue'),
   },
+
   {
     path: '/auth',
     component: () => import('@/pages/auth/AuthShell.vue'),
@@ -117,7 +118,11 @@ const routes: Array<RouteRecordRaw> = [
     name: 'privacy',
     component: () => import('@/pages/privacy/Privacy.vue'),
   },
-
+  {
+    path: '/contacts',
+    name: 'contacts',
+    component: () => import('@/pages/contacts/Contacts.vue'),
+  },
   {
     path: '/:pathMatch(.*)*',
     name: 'not-found',

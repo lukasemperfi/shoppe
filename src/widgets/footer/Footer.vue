@@ -14,7 +14,7 @@ const isAgreed = ref(false)
       <div class="footer__wrapper">
         <div class="footer__top">
           <nav class="footer__nav">
-            <RouterLink to="/contact" class="footer__link">CONTACT</RouterLink>
+            <RouterLink to="/contacts" class="footer__link">CONTACT</RouterLink>
             <RouterLink to="/privacy" class="footer__link">TERMS OF SERVICES</RouterLink>
             <RouterLink to="/shipping-and-returns" class="footer__link"
               >SHIPPING AND RETURNS</RouterLink

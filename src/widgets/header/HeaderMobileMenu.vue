@@ -103,8 +103,8 @@ watch(
               >About</RouterLink
             >
             <RouterLink to="/blog" class="header__mobile-link" @click="close">Blog</RouterLink>
-            <RouterLink to="/contact" class="header__mobile-link" @click="close">Help</RouterLink>
-            <RouterLink to="/contact" class="header__mobile-link" @click="close"
+            <RouterLink to="/contacts" class="header__mobile-link" @click="close">Help</RouterLink>
+            <RouterLink to="/contacts" class="header__mobile-link" @click="close"
               >Contact</RouterLink
             >
             <RouterLink to="#" class="header__mobile-link" @click="close">Search</RouterLink>
