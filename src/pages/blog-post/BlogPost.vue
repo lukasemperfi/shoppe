@@ -20,6 +20,11 @@ const isLoading = ref(false)
 const comments = ref<ArticleComment[]>([])
 const isCommentSubmitting = ref(false)
 
+const getRandomAvatarUrl = () => {
+  const id = Math.floor(Math.random() * 1000) + 1
+  return `https://i.pravatar.cc/70?u=${id}`
+}
+
 const onCommentSubmit = async (values: AddCommentFormValues) => {
   if (!article.value) return
 
@@ -27,19 +32,19 @@ const onCommentSubmit = async (values: AddCommentFormValues) => {
   try {
     const created = await articleApi.createArticleComment(article.value.id, {
       user_name: values.name,
-      avatar_url: null,
+      avatar_url: getRandomAvatarUrl(),
       comment: values.comment,
     })
 
     if (created) {
       comments.value = [created, ...comments.value]
-      toast.success('Комментарий успешно создан')
+      toast.success('Comment created successfully')
       return
     }
 
-    toast.error('Не удалось создать комментарий')
+    toast.error('Failed to create comment')
   } catch (e) {
-    toast.error('Не удалось создать комментарий')
+    toast.error('Failed to create comment')
     console.error('Error creating comment:', e)
   } finally {
     isCommentSubmitting.value = false
@@ -201,7 +206,7 @@ watch(slug, fetchArticle, { immediate: true })
         <div class="blog-post__reply-form">
           <AddCommentForm
             :disabled="isLoading || isCommentSubmitting"
-            :loading="true"
+            :loading="isCommentSubmitting"
             @submit="onCommentSubmit"
           />
         </div>

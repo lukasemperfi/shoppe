@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useForm } from 'vee-validate'
 import Button from '@/shared/ui/button/Button.vue'
 import Checkbox from '@/shared/ui/checkbox/Checkbox.vue'
@@ -17,6 +18,8 @@ const props = withDefaults(
     loading: false,
   },
 )
+
+const isBusy = computed(() => Boolean(props.disabled || props.loading))
 
 const emit = defineEmits<{
   (e: 'submit', value: AddCommentFormValues): void
@@ -40,6 +43,7 @@ const [remember] = defineField('remember')
 const [comment, commentAttrs] = defineField('comment')
 
 const onSubmit = handleSubmit((values) => {
+  if (isBusy.value) return
   emit('submit', values)
   resetForm()
 })
@@ -58,7 +62,7 @@ defineExpose({ resetForm })
     <form
       class="add-comment-form__form"
       aria-label="Leave a reply form"
-      :aria-busy="disabled"
+      :aria-busy="isBusy"
       @submit.prevent="onSubmit"
     >
       <div class="add-comment-form__fields">
@@ -67,7 +71,7 @@ defineExpose({ resetForm })
           placeholder="Enter your name*"
           name="name"
           autocomplete="name"
-          :disabled="disabled"
+          :disabled="isBusy"
           v-model="name"
           v-bind="nameAttrs"
           :error-message="errors.name"
@@ -81,7 +85,7 @@ defineExpose({ resetForm })
           type="email"
           inputmode="email"
           autocomplete="email"
-          :disabled="disabled"
+          :disabled="isBusy"
           v-model="email"
           v-bind="emailAttrs"
           :error-message="errors.email"
@@ -95,7 +99,7 @@ defineExpose({ resetForm })
           type="url"
           inputmode="url"
           autocomplete="url"
-          :disabled="disabled"
+          :disabled="isBusy"
           v-model="website"
           v-bind="websiteAttrs"
           :error-message="errors.website"
@@ -104,7 +108,7 @@ defineExpose({ resetForm })
       <Checkbox
         class="add-comment-form__remember"
         v-model="remember"
-        :disabled="disabled"
+        :disabled="isBusy"
         label="Save my name, email, and website in this browser for the next time I comment"
       />
 
@@ -116,7 +120,7 @@ defineExpose({ resetForm })
           v-model="comment"
           v-bind="commentAttrs"
           name="comment"
-          :disabled="disabled"
+          :disabled="isBusy"
           aria-required="true"
           :aria-invalid="errors.comment ? true : undefined"
           :aria-describedby="errors.comment ? 'comment-error' : undefined"
@@ -129,8 +133,8 @@ defineExpose({ resetForm })
       <Button
         class="add-comment-form__submit"
         type="submit"
-        :disabled="disabled"
-        :aria-busy="loading"
+        :disabled="isBusy"
+        :aria-busy="isBusy"
       >
         <span class="add-comment-form__submit-text">{{ submitText }}</span>
         <span v-if="loading" class="add-comment-form__submit-spinner" aria-hidden="true" />
