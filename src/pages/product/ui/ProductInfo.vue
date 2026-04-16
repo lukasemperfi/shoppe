@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 import Icon from '@/shared/ui/icon/Icon.vue'
 import Button from '@/shared/ui/button/Button.vue'
@@ -54,6 +54,28 @@ const selectedColor = defineModel<string | number>('selectedColor', { default: '
 const isTextExpanded = ref(false)
 const expandText = () => {
   isTextExpanded.value = true
+}
+
+const colorSelectId = 'product-color-select'
+const colorSelectErrorId = `${colorSelectId}-error`
+const selectedColorError = ref<string>('')
+
+watch(
+  selectedColor,
+  (value) => {
+    if (value) selectedColorError.value = ''
+  },
+  { flush: 'sync' },
+)
+
+const onAddToCart = () => {
+  const shouldValidateColor = props.colorOptions.length > 0
+  if (shouldValidateColor && !selectedColor.value) {
+    selectedColorError.value = 'Please choose a color'
+    return
+  }
+
+  emit('addToCart')
 }
 
 function isPositiveDiscountRate(): boolean {
@@ -132,7 +154,14 @@ const reviewsLabel = computed(() => {
 
     <template v-if="!isSoldOut">
       <div v-if="colorOptions.length" class="product-info__select">
-        <Select v-model="selectedColor" :options="colorOptions" :label="selectLabel" />
+        <Select
+          :id="colorSelectId"
+          v-model="selectedColor"
+          :options="colorOptions"
+          :label="selectLabel"
+          :error-message="selectedColorError"
+          :error-id="colorSelectErrorId"
+        />
       </div>
 
       <div class="product-info__buy">
@@ -141,7 +170,7 @@ const reviewsLabel = computed(() => {
           variant="outline"
           color="black"
           class="product-info__add"
-          @click="emit('addToCart')"
+          @click="onAddToCart"
         >
           ADD TO CART
         </Button>
