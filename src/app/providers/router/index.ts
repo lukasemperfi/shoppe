@@ -112,6 +112,11 @@ const routes: Array<RouteRecordRaw> = [
     name: 'blog-post',
     component: () => import('@/pages/blog-post/BlogPost.vue'),
   },
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'not-found',
+    component: () => import('@/pages/not-found/NotFound.vue'),
+  },
 ]
 
 const router = createRouter({
