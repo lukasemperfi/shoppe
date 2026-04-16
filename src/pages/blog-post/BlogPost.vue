@@ -1,9 +1,13 @@
 <script setup lang="ts">
+import { computed, ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import Icon from '@/shared/ui/icon/Icon.vue'
+import Loader from '@/shared/ui/loader/Loader.vue'
 import AddCommentForm from '@/features/article/add-comment/ui/AddCommentForm.vue'
 import CommentCard from '@/entities/article/ui/comment-card/CommentCard.vue'
 import type { AddCommentFormValues } from '@/features/article/add-comment/model/addComment.validation'
-import type { ArticleComment } from '@/entities/article/model/types'
+import { articleApi } from '@/entities/article/api/article'
+import type { Article, ArticleComment } from '@/entities/article/model/types'
 
 const onCommentSubmit = (values: AddCommentFormValues) => {
   console.log('Comment submitted:', values)
@@ -12,9 +16,37 @@ const onCommentSubmit = (values: AddCommentFormValues) => {
 import imgMain from '@/shared/assets/images/blog/blog-img-1.jpg'
 import imgSecondary from '@/shared/assets/images/blog/blog-img-4.jpg'
 
-const title = 'Fast Fashion, And Faster Fashion'
-const author = 'ANNY JOHNSON'
-const date = 'October 8,2020'
+const route = useRoute()
+
+const article = ref<Article | null>(null)
+const isLoading = ref(false)
+
+const slug = computed(() => String(route.params.id ?? ''))
+
+const formattedDate = computed(() => {
+  if (!article.value?.created_at) return ''
+  return new Date(article.value.created_at).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  })
+})
+
+const mainImageSrc = computed(() => article.value?.featured_image || imgMain)
+
+const fetchArticle = async () => {
+  if (!slug.value) {
+    article.value = null
+    return
+  }
+
+  isLoading.value = true
+  try {
+    article.value = await articleApi.getArticleBySlug(slug.value)
+  } finally {
+    isLoading.value = false
+  }
+}
 
 const comments: ArticleComment[] = [
   {
@@ -42,23 +74,35 @@ const comments: ArticleComment[] = [
     avatar: 'https://i.pravatar.cc/70?u=3',
   },
 ]
+
+watch(slug, fetchArticle, { immediate: true })
 </script>
 
 <template>
   <div class="blog-post">
     <div class="app-container">
+      <!-- <Loader v-if="isLoading" class="blog-post__loader" /> -->
+
+      <!-- <div v-else-if="!article" class="blog-post__empty" role="status" aria-live="polite">
+        Article not found.
+      </div> -->
+
       <article class="blog-post__post" aria-label="Blog post">
         <div class="blog-post__header">
           <h1 class="blog-post__title">
-            {{ title }}
+            {{ article?.title }}
           </h1>
           <div class="blog-post__info">
-            by <span class="blog-post__info-author">{{ author }}</span> —
-            <span class="blog-post__info-date">{{ date }}</span>
+            by <span class="blog-post__info-author">{{ article?.author }}</span> —
+            <span class="blog-post__info-date">{{ formattedDate }}</span>
           </div>
         </div>
 
-        <img class="blog-post__image blog-post__image_main" :src="imgMain" alt="Blog post cover" />
+        <img
+          class="blog-post__image blog-post__image_main"
+          :src="mainImageSrc"
+          :alt="article?.title"
+        />
         <div class="blog-post__container">
           <div class="blog-post__text blog-post__text_intro">
             <p>
@@ -112,7 +156,7 @@ const comments: ArticleComment[] = [
             <div class="post-tags" aria-label="Tags">
               <span class="post-tags__label">Tags</span>
               <span class="line" aria-hidden="true"></span>
-              <span class="post-tags__value">Fashion, Style, Season</span>
+              <span class="post-tags__value">{{ article?.category }}</span>
             </div>
 
             <div class="post-tags" aria-label="Share">
@@ -151,13 +195,13 @@ const comments: ArticleComment[] = [
         </div>
       </article>
 
-      <div class="blog-post__container">
+      <div v-if="article" class="blog-post__container">
         <hr class="blog-post__divider" />
         <div class="blog-post__reply-form">
           <AddCommentForm @submit="onCommentSubmit" />
         </div>
         <div class="blog-post__comments">
-          <h3 class="blog-post__comments-title">Comments(3)</h3>
+          <h3 class="blog-post__comments-title">Comments({{ comments.length }})</h3>
           <ul class="blog-post__comments-list" aria-label="Comments list">
             <li v-for="comment in comments" :key="comment.id" class="blog-post__comments-item">
               <CommentCard :comment="comment" />
