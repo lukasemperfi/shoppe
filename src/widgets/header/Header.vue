@@ -10,6 +10,7 @@ import HeaderMobileMenu from './HeaderMobileMenu.vue'
 import HeaderBlogMegaMenu from './HeaderBlogMegaMenu.vue'
 import HeaderShopMegaMenu from './HeaderShopMegaMenu.vue'
 import HeaderAccountMenu from './HeaderAccountMenu.vue'
+import HeaderProductSearch from '@/features/product-search/ui/HeaderProductSearch.vue'
 
 const searchQuery = defineModel<string>('searchQuery', { default: '' })
 
@@ -86,13 +87,7 @@ const onLogout = () => {
           </nav>
           <span class="header__divider header__divider--desktop" aria-hidden="true" />
           <div class="header__actions">
-            <button
-              type="button"
-              class="header__icon-btn header__icon-btn--desktop"
-              aria-label="Search"
-            >
-              <Icon name="search" class="header__icon" />
-            </button>
+            <HeaderProductSearch />
 
             <button
               type="button"
