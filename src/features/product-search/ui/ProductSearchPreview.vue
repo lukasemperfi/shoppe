@@ -1,15 +1,23 @@
 <script setup lang="ts">
-import { computed, watch } from 'vue'
+import { onClickOutside } from '@vueuse/core'
+import { computed, ref, watch } from 'vue'
 import ProductSearchResultItem from '@/features/product-search/ui/ProductSearchResultItem.vue'
 import { useProductSearchPreview } from '@/features/product-search/model/useProductSearchPreview'
 
 const model = defineModel<string>({ default: '' })
+const openModel = defineModel<boolean>('open', { default: false })
+
+const props = defineProps<{
+  activator?: HTMLElement | null
+}>()
 
 const emit = defineEmits<{
   pick: []
 }>()
 
 const { query, items, loading, reset } = useProductSearchPreview()
+const rootEl = ref<HTMLElement | null>(null)
+const activatorEl = computed(() => props.activator ?? null)
 
 watch(
   model,
@@ -23,12 +31,23 @@ watch(query, (v) => {
   if (v !== model.value) model.value = v
 })
 
-const isOpen = computed(() => model.value.trim().length > 0)
+const isOpen = computed(() => openModel.value && model.value.trim().length > 0)
 const isEmpty = computed(() => isOpen.value && !loading.value && items.value.length === 0)
+
+onClickOutside(
+  rootEl,
+  () => {
+    openModel.value = false
+  },
+  {
+    ignore: [activatorEl],
+  },
+)
 
 function onPick(): void {
   reset()
   model.value = ''
+  openModel.value = false
   emit('pick')
 }
 </script>
@@ -36,6 +55,7 @@ function onPick(): void {
 <template>
   <section
     v-if="isOpen"
+    ref="rootEl"
     class="product-search-preview"
     aria-label="Search results"
     :aria-busy="loading"
