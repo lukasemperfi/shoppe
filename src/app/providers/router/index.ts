@@ -1,6 +1,7 @@
 import { createRouter, createWebHashHistory, type RouteRecordRaw } from 'vue-router'
 import { pinia } from '@/app/providers/pinia'
 import { useCheckoutFlowStore } from '@/features/checkout-flow/model/checkout-flow.store'
+import { useAuthStore } from '@/entities/auth/model/auth.store'
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -12,6 +13,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/auth',
     component: () => import('@/pages/auth/AuthShell.vue'),
+    meta: { requiresGuest: true },
     children: [
       {
         path: '/login',
@@ -39,6 +41,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/account',
     component: () => import('@/pages/account/AccountShell.vue'),
+    meta: { requiresAuth: true },
     children: [
       {
         path: '/account/dashboard',
@@ -140,8 +143,21 @@ const router = createRouter({
   routes,
 })
 
-router.beforeEach((to) => {
+router.beforeEach(async (to) => {
   const flow = useCheckoutFlowStore(pinia)
+  const auth = useAuthStore(pinia)
+
+  if (!auth.isReady) {
+    await auth.init()
+  }
+
+  if (to.matched.some((r) => r.meta?.requiresGuest) && auth.isAuthed) {
+    return { name: 'dashboard' }
+  }
+
+  if (to.matched.some((r) => r.meta?.requiresAuth) && !auth.isAuthed) {
+    return { name: 'login' }
+  }
 
   if (to.name === 'checkout' && !flow.canEnterCheckout) {
     return { name: 'cart' }
