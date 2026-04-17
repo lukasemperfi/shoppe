@@ -3,6 +3,7 @@ import { useScrollLock } from '@vueuse/core'
 import { computed, watch } from 'vue'
 import Icon from '@/shared/ui/icon/Icon.vue'
 import { useAuthStore } from '@/entities/auth/model/auth.store'
+import ProductSearchPreview from '@/features/product-search/ui/ProductSearchPreview.vue'
 
 const props = withDefaults(
   defineProps<{
@@ -81,10 +82,10 @@ watch(
             </div>
           </div>
 
-          <div class="header__search header__search--mobile">
+          <div class="header__search header__search_mobile">
             <label class="header__search-field">
               <span class="header__search-icon-wrap" aria-hidden="true">
-                <Icon name="search" class="header__icon header__icon--search-muted" />
+                <Icon name="search" class="header__icon header__icon_search-muted" />
               </span>
               <input
                 v-model="searchQuery"
@@ -94,6 +95,8 @@ watch(
                 autocomplete="off"
               />
             </label>
+
+            <ProductSearchPreview v-model="searchQuery" @pick="close" />
           </div>
 
           <nav class="header__mobile-nav" aria-label="Mobile main">
@@ -274,7 +277,8 @@ watch(
   cursor: pointer;
 }
 
-.header__search--mobile {
+.header__search_mobile {
+  position: relative;
   width: 100%;
 
   svg {
@@ -305,7 +309,7 @@ watch(
   }
 }
 
-.header__icon--search-muted {
+.header__icon_search-muted {
   width: globalFunctions.fluidValue(16px, 18px, 320px, 1440px);
   height: globalFunctions.fluidValue(16px, 18px, 320px, 1440px);
 }

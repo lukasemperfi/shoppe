@@ -125,8 +125,8 @@ const onLogout = () => {
             </button>
           </div>
         </div>
-
-        <div class="header__search header__search--mobile">
+        <!-- 
+        <div class="header__search header__search_mobile">
           <label class="header__search-field">
             <span class="header__search-icon-wrap" aria-hidden="true">
               <Icon name="search" class="header__icon header__icon--search-muted" />
@@ -139,7 +139,7 @@ const onLogout = () => {
               autocomplete="off"
             />
           </label>
-        </div>
+        </div> -->
 
         <HeaderMobileMenu
           :open="isMenuOpen"
@@ -372,7 +372,7 @@ const onLogout = () => {
     }
   }
 
-  &__search--mobile {
+  &__search_mobile {
     display: none;
     @media (max-width: 768px) {
       width: 100%;

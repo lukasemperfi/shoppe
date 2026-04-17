@@ -19,7 +19,6 @@ const router = useRouter()
 async function loadOrders() {
   const userId = authStore.user?.id
 
-  console.log('userId', userId)
   if (!userId) {
     orders.value = []
     return
@@ -28,8 +27,6 @@ async function loadOrders() {
   isLoading.value = true
   try {
     orders.value = await orderApi.getOrders(userId)
-
-    console.log('orders', orders.value)
   } finally {
     isLoading.value = false
   }

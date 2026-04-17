@@ -6,9 +6,8 @@ const authStore = useAuthStore()
 const router = useRouter()
 
 const logout = () => {
-  console.log('logout')
-  // authStore.logout()
-  // router.push('/')
+  authStore.logout()
+  router.push('/')
 }
 </script>
 <template>

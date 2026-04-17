@@ -37,7 +37,6 @@ const isBusy = computed(() => Boolean(isSubmitting.value))
 const sendMessage = handleSubmit((values) => {
   if (isBusy.value) return
 
-  console.log('Contact form submit', values)
   resetForm()
 })
 </script>

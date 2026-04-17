@@ -16,7 +16,6 @@ onMounted(async () => {
   const data = await productApi.getProducts({ limit: 6 })
   if (data) {
     products.value = data.items
-    console.log(products.value)
   }
 })
 </script>

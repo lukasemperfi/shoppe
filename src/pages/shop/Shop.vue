@@ -78,13 +78,9 @@ const fetchProducts = async () => {
     limit: 100,
   }
 
-  console.log('apiParams', apiParams)
-
   const data = await productApi.getProducts(apiParams)
   if (data) {
     products.value = data.items
-
-    console.log('products', data.items)
   }
   isLoading.value = false
 }
