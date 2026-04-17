@@ -11,6 +11,7 @@ import { useAuthStore } from '@/entities/auth/model/auth.store'
 
 const router = useRouter()
 const isSubmitting = ref(false)
+const submitError = ref<string | undefined>(undefined)
 const auth = useAuthStore()
 
 const validationSchema = yup.object({
@@ -41,9 +42,12 @@ const [remember] = defineField('remember')
 
 const onSubmit = handleSubmit(async (values) => {
   isSubmitting.value = true
+  submitError.value = undefined
   try {
     await auth.login({ email: values.email, password: values.password })
     router.push({ name: 'home' })
+  } catch {
+    submitError.value = 'Password or login is incorect'
   } finally {
     isSubmitting.value = false
   }
@@ -84,7 +88,7 @@ const onSubmit = handleSubmit(async (values) => {
         autocomplete="current-password"
         v-model="password"
         v-bind="passwordAttrs"
-        :error-message="errors.password"
+        :error-message="errors.password || submitError"
       />
     </div>
 
