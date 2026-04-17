@@ -106,6 +106,7 @@ const routes: Array<RouteRecordRaw> = [
     path: '/wishlist',
     name: 'wishlist',
     component: () => import('@/pages/wishlist/Wishlist.vue'),
+    meta: { requiresAuth: true },
   },
   {
     path: '/blog',

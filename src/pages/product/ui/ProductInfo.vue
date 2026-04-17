@@ -166,12 +166,7 @@ const reviewsLabel = computed(() => {
 
       <div class="product-info__buy">
         <Quantity v-model="quantity" />
-        <Button
-          variant="outline"
-          color="black"
-          class="product-info__add"
-          @click="onAddToCart"
-        >
+        <Button variant="outline" color="black" class="product-info__add" @click="onAddToCart">
           ADD TO CART
         </Button>
       </div>
