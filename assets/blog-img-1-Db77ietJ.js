@@ -1,0 +1,1 @@
+var e=`/shoppe/assets/blog-img-1-CXtEwwia.jpg`;export{e as t};
