@@ -26,6 +26,7 @@ const isOpen = defineModel<boolean>({ default: false })
 const router = useRouter()
 
 const itemCount = computed(() => props.items.reduce((sum, item) => sum + item.quantity, 0))
+const isEmpty = computed(() => props.items.length === 0)
 
 const subtotal = computed(() =>
   props.items.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0),
@@ -68,7 +69,7 @@ function removeLine(id: string): void {
         <h2 id="mini-cart-title" class="mini-cart__title">Shopping bag</h2>
       </div>
 
-      <div class="mini-cart__count" aria-live="polite">
+      <div v-if="!isEmpty" class="mini-cart__count" aria-live="polite">
         {{ itemCount }} {{ itemCount === 1 ? 'item' : 'items' }}
       </div>
     </div>
@@ -79,68 +80,75 @@ function removeLine(id: string): void {
 
     <template #content>
       <div class="mini-cart" aria-labelledby="mini-cart-title">
-        <div class="mini-cart__body">
-          <ul v-if="items.length" class="mini-cart__list">
-            <li v-for="item in items" :key="item.id" class="mini-cart__item">
-              <div class="mini-cart-card">
-                <div class="mini-cart-card__media">
-                  <img
-                    class="mini-cart-card__img"
-                    :src="item.imageSrc"
-                    :alt="item.imageAlt"
-                    width="136"
-                    height="136"
-                  />
-                </div>
-                <div class="mini-cart-card__main">
-                  <div class="mini-cart-card__top">
-                    <div class="mini-cart-card__text">
-                      <p class="mini-cart-card__name">{{ item.name }}</p>
-                      <p class="mini-cart-card__variant">{{ item.variant }}</p>
-                      <p class="mini-cart-card__price">{{ formatPrice(item.unitPrice) }}</p>
-                    </div>
-                    <button
-                      type="button"
-                      class="mini-cart-card__remove"
-                      :aria-label="`Remove ${item.name} from bag`"
-                      @click="removeLine(item.id)"
-                    >
-                      <Icon name="cross" class="mini-cart-card__remove-icon" aria-hidden="true" />
-                    </button>
-                  </div>
-                  <div class="mini-cart-card__qty">
-                    <span class="mini-cart-card__qty-label" :id="'qty-label-' + item.id">QTY:</span>
-                    <Quantity
-                      :model-value="item.quantity"
-                      variant="minimal"
-                      :aria-labelledby="'qty-label-' + item.id"
-                      @update:model-value="(q) => setQuantity(item.id, q)"
-                    />
-                  </div>
-                </div>
-              </div>
-            </li>
-          </ul>
-          <p v-else class="mini-cart__empty">Your bag is empty.</p>
+        <div v-if="isEmpty" class="mini-cart__empty-state" role="status" aria-live="polite">
+          <p class="mini-cart__empty">Your bag is empty</p>
         </div>
 
-        <footer class="mini-cart__footer">
-          <div class="mini-cart__subtotal" aria-live="polite">
-            <span class="mini-cart__subtotal-label">
-              Subtotal ({{ itemCount }} {{ itemCount === 1 ? 'item' : 'items' }})
-            </span>
-            <span class="mini-cart__subtotal-value">{{ formatPrice(subtotal) }}</span>
+        <template v-else>
+          <div class="mini-cart__body">
+            <ul class="mini-cart__list">
+              <li v-for="item in items" :key="item.id" class="mini-cart__item">
+                <div class="mini-cart-card">
+                  <div class="mini-cart-card__media">
+                    <img
+                      class="mini-cart-card__img"
+                      :src="item.imageSrc"
+                      :alt="item.imageAlt"
+                      width="136"
+                      height="136"
+                    />
+                  </div>
+                  <div class="mini-cart-card__main">
+                    <div class="mini-cart-card__top">
+                      <div class="mini-cart-card__text">
+                        <p class="mini-cart-card__name">{{ item.name }}</p>
+                        <p class="mini-cart-card__variant">{{ item.variant }}</p>
+                        <p class="mini-cart-card__price">{{ formatPrice(item.unitPrice) }}</p>
+                      </div>
+                      <button
+                        type="button"
+                        class="mini-cart-card__remove"
+                        :aria-label="`Remove ${item.name} from bag`"
+                        @click="removeLine(item.id)"
+                      >
+                        <Icon name="cross" class="mini-cart-card__remove-icon" aria-hidden="true" />
+                      </button>
+                    </div>
+                    <div class="mini-cart-card__qty">
+                      <span class="mini-cart-card__qty-label" :id="'qty-label-' + item.id"
+                        >QTY:</span
+                      >
+                      <Quantity
+                        :model-value="item.quantity"
+                        variant="minimal"
+                        :aria-labelledby="'qty-label-' + item.id"
+                        @update:model-value="(q) => setQuantity(item.id, q)"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </li>
+            </ul>
           </div>
-          <Button
-            type="button"
-            variant="outline"
-            color="black"
-            class="full mini-cart__cta"
-            @click="onViewCart"
-          >
-            VIEW CART
-          </Button>
-        </footer>
+
+          <footer class="mini-cart__footer">
+            <div class="mini-cart__subtotal" aria-live="polite">
+              <span class="mini-cart__subtotal-label">
+                Subtotal ({{ itemCount }} {{ itemCount === 1 ? 'item' : 'items' }})
+              </span>
+              <span class="mini-cart__subtotal-value">{{ formatPrice(subtotal) }}</span>
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              color="black"
+              class="full mini-cart__cta"
+              @click="onViewCart"
+            >
+              VIEW CART
+            </Button>
+          </footer>
+        </template>
       </div>
     </template>
   </Modal>
@@ -153,7 +161,7 @@ function removeLine(id: string): void {
   flex-direction: column;
   flex: 1;
   min-height: 0;
-  height: 100%;
+  height: 100vh;
   font-family: var(--font-family);
   background: var(--light-colors-white---light);
 
@@ -379,6 +387,22 @@ function removeLine(id: string): void {
     font-size: globalFunctions.fluidValue(12px, 14px, 320px, 1440px);
     line-height: 22px;
     color: var(--light-colors-dark-gray---light);
+  }
+
+  &__empty-state {
+    flex: 1;
+    min-height: 0;
+    padding-inline: $padding-inline;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .mini-cart__empty {
+      margin: 0;
+      text-align: center;
+      font-size: globalFunctions.fluidValue(20px, 31px, 320px, 1440px);
+      line-height: 1.5;
+    }
   }
 
   &__subtotal {
