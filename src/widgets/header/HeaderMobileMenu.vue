@@ -24,7 +24,10 @@ const emit = defineEmits<{
 const auth = useAuthStore()
 const showCartBadge = computed(() => props.cartCount > 0)
 
-const close = () => emit('close')
+const close = () => {
+  searchQuery.value = ''
+  emit('close')
+}
 
 const onLogout = async () => {
   await auth.logout()
@@ -36,6 +39,7 @@ watch(
   () => props.open,
   (isOpen) => {
     scrollLock.value = isOpen
+    if (!isOpen) searchQuery.value = ''
   },
 )
 </script>

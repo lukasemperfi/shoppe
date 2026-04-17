@@ -9,7 +9,7 @@ const emit = defineEmits<{
   pick: []
 }>()
 
-const { query, items, loading } = useProductSearchPreview()
+const { query, items, loading, reset } = useProductSearchPreview()
 
 watch(
   model,
@@ -27,6 +27,8 @@ const isOpen = computed(() => model.value.trim().length > 0)
 const isEmpty = computed(() => isOpen.value && !loading.value && items.value.length === 0)
 
 function onPick(): void {
+  reset()
+  model.value = ''
   emit('pick')
 }
 </script>
