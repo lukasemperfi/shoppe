@@ -1,3 +1,4 @@
+import { watch } from 'vue'
 import { createRouter, createWebHashHistory, type RouteRecordRaw } from 'vue-router'
 import { pinia } from '@/app/providers/pinia'
 import { useCheckoutFlowStore } from '@/features/checkout-flow/model/checkout-flow.store'
@@ -142,6 +143,22 @@ const router = createRouter({
   history: createWebHashHistory(import.meta.env.BASE_URL),
   routes,
 })
+
+const auth = useAuthStore(pinia)
+watch(
+  () => auth.isAuthed,
+  (isAuthed) => {
+    if (isAuthed) return
+
+    const current = router.currentRoute.value
+    const requiresAuth = current.matched.some((r) => r.meta?.requiresAuth)
+    if (!requiresAuth) return
+
+    if (current.name !== 'login') {
+      void router.replace({ name: 'login' })
+    }
+  },
+)
 
 router.beforeEach(async (to) => {
   const flow = useCheckoutFlowStore(pinia)
